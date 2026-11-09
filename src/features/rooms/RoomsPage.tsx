@@ -106,7 +106,8 @@ export function RoomsPage() {
 
   function onDragStart(e: DragStartEvent) {
     const d = e.active.data.current as { pupil: Pupil; roomId: string | null }
-    setNotice(null)
+    // Сповіщення тут НЕ прибираємо: розмітка зсунулась би вгору вже після того, як dnd-kit виміряв зони скидання,
+    // і вони б розійшлися з тим, що бачить користувач (скидання «мимо» на висоту сповіщення). Воно зникне в requestMove.
     setDragging({ pupil: d.pupil, fromRoomId: d.roomId })
   }
 
