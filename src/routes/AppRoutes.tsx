@@ -5,10 +5,10 @@ import { Layout } from '../components/Layout'
 import { LoginPage } from '../pages/LoginPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { StudentFormPage } from '../pages/StudentFormPage'
+import { AdminDocumentSettings, DocumentsPage } from '../features/documents'
 import {
   AdminPage,
   CalendarPage,
-  DocumentsPage,
   EventsPage,
   HomePage,
   RoomsPage,
@@ -33,6 +33,7 @@ export function AppRoutes() {
             element={
               <RequireRole roles={['admin']}>
                 <AdminPage />
+                <AdminDocumentSettings />
               </RequireRole>
             }
           />
