@@ -386,6 +386,121 @@ export type Database = {
           },
         ]
       }
+      intake_links: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          floor: number | null
+          id: string
+          max_submissions: number
+          revoked_at: string | null
+          token_hash: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at: string
+          floor?: number | null
+          id?: string
+          max_submissions?: number
+          revoked_at?: string | null
+          token_hash: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          floor?: number | null
+          id?: string
+          max_submissions?: number
+          revoked_at?: string | null
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intake_links_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intake_submissions: {
+        Row: {
+          id: string
+          link_id: string
+          match_method: string | null
+          payload: Json | null
+          profile_id: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          student_id: string | null
+          submitted_at: string
+          submitted_birth_date: string
+          submitted_full_name: string
+        }
+        Insert: {
+          id?: string
+          link_id: string
+          match_method?: string | null
+          payload?: Json | null
+          profile_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          student_id?: string | null
+          submitted_at?: string
+          submitted_birth_date: string
+          submitted_full_name: string
+        }
+        Update: {
+          id?: string
+          link_id?: string
+          match_method?: string | null
+          payload?: Json | null
+          profile_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          student_id?: string | null
+          submitted_at?: string
+          submitted_birth_date?: string
+          submitted_full_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intake_submissions_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "intake_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_submissions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "student_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_submissions_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_submissions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -413,6 +528,24 @@ export type Database = {
           is_active?: boolean
           role?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      questionnaire_rate_limits: {
+        Row: {
+          hits: number
+          key: string
+          window_start: string
+        }
+        Insert: {
+          hits?: number
+          key: string
+          window_start?: string
+        }
+        Update: {
+          hits?: number
+          key?: string
+          window_start?: string
         }
         Relationships: []
       }
@@ -593,6 +726,35 @@ export type Database = {
           },
         ]
       }
+      student_medical_submissions: {
+        Row: {
+          allergies: string | null
+          chronic_conditions: string | null
+          created_at: string
+          profile_id: string
+        }
+        Insert: {
+          allergies?: string | null
+          chronic_conditions?: string | null
+          created_at?: string
+          profile_id: string
+        }
+        Update: {
+          allergies?: string | null
+          chronic_conditions?: string | null
+          created_at?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_medical_submissions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "student_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_profiles: {
         Row: {
           address: string | null
@@ -600,23 +762,31 @@ export type Database = {
           approved_by: string | null
           class_teacher: string | null
           college_plans: string | null
+          consent_at: string | null
           created_at: string
           father_name: string | null
           father_phone: string | null
           group_number: string | null
           guardian_name: string | null
           guardian_phone: string | null
+          guardian_relation: string | null
           id: string
           master: string | null
           mother_name: string | null
           mother_phone: string | null
           profession: string | null
+          rejected_at: string | null
+          rejected_by: string | null
           school_activities: string | null
           social_status: string | null
+          social_status_data: Json | null
           status: string
           student_id: string
           student_phone: string | null
           submitted_at: string
+          submitted_birth_date: string | null
+          submitted_full_name: string | null
+          submitted_room: string | null
           updated_at: string
           version_no: number
         }
@@ -626,23 +796,31 @@ export type Database = {
           approved_by?: string | null
           class_teacher?: string | null
           college_plans?: string | null
+          consent_at?: string | null
           created_at?: string
           father_name?: string | null
           father_phone?: string | null
           group_number?: string | null
           guardian_name?: string | null
           guardian_phone?: string | null
+          guardian_relation?: string | null
           id?: string
           master?: string | null
           mother_name?: string | null
           mother_phone?: string | null
           profession?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
           school_activities?: string | null
           social_status?: string | null
+          social_status_data?: Json | null
           status?: string
           student_id: string
           student_phone?: string | null
           submitted_at?: string
+          submitted_birth_date?: string | null
+          submitted_full_name?: string | null
+          submitted_room?: string | null
           updated_at?: string
           version_no: number
         }
@@ -652,23 +830,31 @@ export type Database = {
           approved_by?: string | null
           class_teacher?: string | null
           college_plans?: string | null
+          consent_at?: string | null
           created_at?: string
           father_name?: string | null
           father_phone?: string | null
           group_number?: string | null
           guardian_name?: string | null
           guardian_phone?: string | null
+          guardian_relation?: string | null
           id?: string
           master?: string | null
           mother_name?: string | null
           mother_phone?: string | null
           profession?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
           school_activities?: string | null
           social_status?: string | null
+          social_status_data?: Json | null
           status?: string
           student_id?: string
           student_phone?: string | null
           submitted_at?: string
+          submitted_birth_date?: string | null
+          submitted_full_name?: string | null
+          submitted_room?: string | null
           updated_at?: string
           version_no?: number
         }
@@ -676,6 +862,13 @@ export type Database = {
           {
             foreignKeyName: "student_profiles_approved_by_fkey"
             columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_profiles_rejected_by_fkey"
+            columns: ["rejected_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -879,13 +1072,44 @@ export type Database = {
         Args: { p_reason?: string; p_room_id: string; p_student_id: string }
         Returns: string
       }
+      create_intake_link: {
+        Args: { p_floor: number; p_ttl_days?: number }
+        Returns: string
+      }
+      create_student_from_intake: {
+        Args: { p_grade: number; p_submission_id: string }
+        Returns: string
+      }
+      dismiss_intake_submission: {
+        Args: { p_submission_id: string }
+        Returns: undefined
+      }
+      get_intake_link_state: { Args: { p_token_hash: string }; Returns: boolean }
+      resolve_intake_submission: {
+        Args: { p_student_id: string; p_submission_id: string }
+        Returns: string
+      }
+      revoke_intake_link: { Args: { p_link_id: string }; Returns: undefined }
+      submit_intake: {
+        Args: { p_payload: Json; p_token_hash: string }
+        Returns: boolean
+      }
       create_update_request: {
         Args: { p_kind: string; p_student_id: string; p_ttl_days?: number }
         Returns: string
       }
+      get_questionnaire_data: { Args: { p_token_hash: string }; Returns: Json }
       move_student: {
         Args: { p_reason?: string; p_room_id: string; p_student_id: string }
         Returns: string
+      }
+      questionnaire_rate_hit: {
+        Args: { p_key: string; p_limit: number; p_window_seconds: number }
+        Returns: boolean
+      }
+      reject_student_profile: {
+        Args: { p_profile_id: string }
+        Returns: undefined
       }
       revoke_update_request: {
         Args: { p_request_id: string }
@@ -894,6 +1118,10 @@ export type Database = {
       set_current_academic_year: {
         Args: { p_year_id: string }
         Returns: undefined
+      }
+      submit_questionnaire: {
+        Args: { p_payload: Json; p_token_hash: string }
+        Returns: boolean
       }
       unassign_student: {
         Args: { p_reason?: string; p_student_id: string }

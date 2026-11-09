@@ -8,7 +8,8 @@
 | Шлях | Призначення |
 |---|---|
 | `migrations/` | міграції (ім'я = версія, що застосована в БД) |
-| `tests/001_security_and_functions.sql` | SQL-тести (запуск в одній транзакції з `ROLLBACK`, дані не залишаються) |
+| `tests/001…003_*.sql` | SQL-тести (кожен — один запит в одній транзакції з `ROLLBACK`, дані не залишаються) |
+| `functions/` | Edge Functions публічної анкети (`get-questionnaire`, `submit-questionnaire`) і `_shared/` |
 | `../src/lib/database.types.ts` | згенеровані TypeScript-типи |
 
 ## Ролі (`profiles.role`)
@@ -29,7 +30,11 @@
 - `profiles` — користувачі додатку (рядок створюється тригером на `auth.users`: `staff_readonly`, неактивний).
 - `academic_years` — навчальні роки; лише один `is_current` (унікальний частковий індекс).
 - `students` — стабільні дані учня (ПІБ, дата народження, клас 9–11, статус `active/graduated/left`, поточний навчальний рік).
-- `student_profiles` — **версіонована анкета** (`version_no`, статус `pending/approved/superseded`, поля з паперової анкети). Не більше однієї `approved` на учня (частковий унікальний індекс). Старі версії зберігаються.
+- `student_profiles` — **версіонована анкета** (`version_no`, статус `pending/approved/superseded/rejected`, поля з паперової анкети; `submitted_full_name/birth_date/room` — як вказав учень; `consent_at` — коли дав згоду; `rejected_by/at`). Не більше однієї `approved` на учня (частковий унікальний індекс). Старі версії зберігаються.
+- `student_medical_submissions` — медичні дані, внесені учнем у публічній формі, поки версію не підтверджено (лише admin/educator; при `approve_student_profile` потрапляють у `student_medical`, порожнє поле лишає наявне значення).
+- `intake_links` — **спільні посилання на поверх** (лише хеш токена, `floor` 2–5, `expires_at`, `revoked_at`, `max_submissions`); `create_intake_link` скасовує попереднє діюче посилання цього поверху. Читають лише admin/educator, токен-хеш для API недоступний.
+- `intake_submissions` — журнал подань за спільними посиланнями: ПІБ і дата народження як ввів учень, результат зіставлення (`matched`: `auto`/`manual`/`new_student`; `unmatched`; `dismissed`), учень, створена версія, хто й коли розібрав. **Відповіді (`payload`) зберігаються лише поки подання не зіставлено**, після зіставлення/відхилення стираються (дані вже у `student_profiles`). Лише admin/educator.
+- `questionnaire_rate_limits` — лічильники для Edge Functions (лише `service_role`, без політик навмисно).
 - `student_medical` — алергії, хронічні стани, примітки. Лише `admin` та `educator`. Авторство: `created_by` (хто вніс) і `updated_by` (хто змінив останнім) проставляє тригер із `auth.uid()` — з клієнта підробити не можна; бачать їх усі, хто читає медичні дані. Повна історія змін по полях (без значень) — в `audit_log` (лише admin).
 - `rooms` — кімнати (поверх 2–5, унікальний номер, `capacity` 1–10, за замовчуванням 4, `is_active`).
 - `room_assignments` — повна історія заселень (`to_date IS NULL` = поточне; `reason`/`moved_by` — хто й чому заселив, `end_reason`/`ended_by` — хто й чому завершив проживання). Один відкритий запис на учня (частковий унікальний індекс). Напряму не пишеться, записи не видаляються (крім адміна) — лише через функції. Читають усі активні користувачі, включно зі `staff_readonly`.
@@ -50,13 +55,18 @@
 | `assign_student(student, room, reason)` | заселення незаселеного учня в будь-яку кімнату; блокує кімнату (`FOR UPDATE`), перевіряє місткість/активність |
 | `move_student(student, room, reason)` | атомарне переселення між будь-якими кімнатами/поверхами: закриває поточний запис (`to_date = сьогодні`, `ended_by`, `end_reason`), відкриває новий. Перевіряє місткість, активність кімнати і статус учня |
 | `unassign_student(student, reason)` | повертає учня в пул незаселених («перетягнути назад»): закриває відкритий запис, історія зберігається. Працює для будь-якого статусу учня |
-| `approve_student_profile(profile_id)` | затверджує `pending`-версію, попередню `approved` робить `superseded` |
+| `approve_student_profile(profile_id)` | затверджує `pending`-версію, попередню `approved` робить `superseded`, застосовує утримані медичні дані |
+| `reject_student_profile(profile_id)` | позначає `pending`-версію як `rejected` (хто й коли зберігається; чинна анкета не змінюється) |
 | `create_update_request(student, kind, ttl_days)` | повертає «сирий» токен **один раз** (зберігається лише хеш). `ttl_days` 1–60 |
 | `revoke_update_request(request_id)` | достроково скасовує невикористане посилання |
 | `admin_set_profile(user, role, floor, is_active)` | лише admin: роль/поверх/активація |
 | `set_current_academic_year(year)` | лише admin: атомарно міняє поточний рік |
 
 Права на всі ці функції: `admin` та `educator`; `staff_readonly` і `anon` — ні.
+
+Для персоналу (admin/educator): `create_intake_link(floor, ttl_days)` (повертає токен один раз), `revoke_intake_link(id)`, `resolve_intake_submission(submission, student)`, `create_student_from_intake(submission, grade)`, `dismiss_intake_submission(submission)`.
+
+Службові (EXECUTE лише для `service_role`, викликаються тільки з Edge Functions): `get_questionnaire_data(token_hash)`, `submit_questionnaire(token_hash, payload)`, `get_intake_link_state(token_hash)`, `submit_intake(token_hash, payload)`, `questionnaire_rate_hit(key, limit, window_seconds)`. `anon` і `authenticated` їх викликати не можуть.
 
 Коди помилок у тексті винятку (для фронтенду): `ROOM_FULL`, `ROOM_INACTIVE`, `ALREADY_PLACED`, `ALREADY_IN_ROOM`, `NOT_PLACED`, `STUDENT_NOT_ACTIVE`, `NOT_PENDING`, `NOT_FOUND`, `FORBIDDEN`, `INVALID`, `CAPACITY_BELOW_OCCUPANCY`, `ROOM_NOT_EMPTY`.
 
@@ -85,11 +95,15 @@ update profiles set role = 'admin', is_active = true where id = '<uuid кори�
 
 3. Далі адмін активує інших у додатку: `rpc('admin_set_profile', { p_user_id, p_role, p_floor, p_is_active })`. Активному вихователю потрібно вказати «домашній» поверх (2–5) — він використовується лише як типовий фільтр в UI, а не як обмеження прав.
 
-## Публічна анкета (наступний етап)
+## Публічна анкета
 
-Edge Function (service role) має: порахувати `sha256(токен)` → знайти `update_requests` з `used_at IS NULL AND expires_at > now()` → атомарно виставити `used_at` (`UPDATE … WHERE used_at IS NULL RETURNING`) → створити `student_profiles` зі статусом `pending` і записати `resulting_profile_id`. Таблиці вже це підтримують.
+Хеш токена: `sha256` від UTF-8 рядка токена, у hex (`encode(digest(token,'sha256'),'hex')` у `create_update_request`; у функціях — `crypto.subtle.digest`, `_shared/token.ts`). Потік: `get-questionnaire` → `get_questionnaire_data(hash)` (повертає `NULL` для невідомого/простроченого/використаного/відкликаного токена чи неактивного учня); `submit-questionnaire` → валідація → `submit_questionnaire(hash, payload)`: `SELECT … FOR UPDATE` рядка посилання, повторна перевірка, `used_at = now()`, вставка `pending`-версії, `resulting_profile_id`, медичні дані в `student_medical_submissions` — усе в одній транзакції (якщо щось падає, токен не «згорає»).
 
 ## Тести
+
+`tests/004_intake_links.sql` (40 перевірок): життєвий цикл спільного посилання (одне діюче на поверх, скасоване/прострочене/невідоме, ліміт подань), автозіставлення (регістр, пробіли, апострофи), усі випадки «не зіставлено» (інша дата, без по батькові, тезки, випускник, немає дати в базі, невідомий), захист від накопичення версій, ручне зіставлення / створення учня / відхилення, RLS і права (`anon`, `staff_readonly`), підтвердження автозіставленої версії людиною. Тести не залежать від наявних у базі даних.
+
+`tests/003_questionnaire_flow.sql` (55 перевірок): невалідний/прострочений/відкликаний токен, повторне використання, рівно одна `pending`-версія після подання, утримання медичних даних до підтвердження, прев'ю без медичних даних, ліміт запитів, `anon` не читає жодної таблиці й не викликає службових функцій, `staff_readonly` не бачить `pending`/медичних і не затверджує/відхиляє, історія `superseded → approved → rejected`, обмеження статусів.
 
 `tests/001_security_and_functions.sql` (260 перевірок) та `tests/002_medical_authorship.sql` (5 перевірок авторства) виконуються одним запитом (SQL editor / `execute_sql`), всередині `BEGIN … ROLLBACK`. Ролі емулюються через `set local role authenticated|anon` + `request.jwt.claims`. Останній запуск: 260 з 260 успішно (покриває, зокрема: вихователь «поверху 4» переселяє між поверхами 2 і 5; `unassign_student` зберігає історію; вихователь читає/пише медичні дані інших поверхів, `staff_readonly` — ні; `staff_readonly` читає історію та контакти; перемикач шаблонів вкл/викл). Обмеження: Supabase забороняє прямий `DELETE` у `storage.objects`, тому політики видалення в Storage перевіряються лише на наявність — їх поведінку треба перевірити через Storage API; конкурентні переселення (дві сесії одночасно) в одній транзакції не відтворюються.
 
