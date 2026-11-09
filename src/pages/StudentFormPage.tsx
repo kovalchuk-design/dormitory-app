@@ -5,6 +5,7 @@ import {
   type FieldErrors, type FieldKey, type QuestionnaireData, type TextKey,
 } from '../../supabase/functions/_shared/questionnaire.ts'
 import { BirthDateField } from '../components/BirthDateField'
+import { applyContactMode, detectContactMode, remapContactErrors, type ContactMode } from '../lib/contactMode'
 import { getQuestionnaire, submitQuestionnaire } from '../lib/publicApi'
 
 type Phase =
@@ -26,6 +27,7 @@ export function StudentFormPage() {
   const [values, setValues] = useState<QuestionnaireData>(EMPTY_QUESTIONNAIRE)
   const [roomLocked, setRoomLocked] = useState(false)
   const [shared, setShared] = useState(false)
+  const [mode, setMode] = useState<ContactMode>('parents')
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
@@ -55,6 +57,7 @@ export function StudentFormPage() {
         social_children: sd?.children_count != null ? String(sd.children_count) : '',
         social_ato: typeof sd?.ato === 'string' ? sd.ato : '', social_zsu: typeof sd?.zsu === 'string' ? sd.zsu : '',
       })
+      setMode(detectContactMode(p))
       setRoomLocked(!!r.data.room)
       setShared(r.data.mode === 'shared')
       setPhase({ name: 'form' })
@@ -77,8 +80,16 @@ export function StudentFormPage() {
     setErrors((e) => ({ ...e, social_codes: undefined }))
   }
   const blur = (k: FieldKey) => {
-    const r = validateQuestionnaire(values)
-    setErrors((e) => ({ ...e, [k]: r.ok ? undefined : r.errors[k] }))
+    const r = validateQuestionnaire(applyContactMode(values, mode))
+    setErrors((e) => ({ ...e, [k]: r.ok ? undefined : remapContactErrors(r.errors, mode)[k] }))
+  }
+  const switchMode = (next: ContactMode) => {
+    setMode(next)
+    setFormError(null)
+    setErrors((e) => ({
+      ...e, mother_name: undefined, mother_phone: undefined, father_name: undefined, father_phone: undefined,
+      guardian_name: undefined, guardian_phone: undefined, guardian_relation: undefined,
+    }))
   }
 
   function focusFirstError(errs: FieldErrors) {
@@ -89,11 +100,12 @@ export function StudentFormPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setFormError(null)
-    const r = validateQuestionnaire(values)
+    const r = validateQuestionnaire(applyContactMode(values, mode))
     if (!r.ok) {
-      setErrors(r.errors)
+      const errs = remapContactErrors(r.errors, mode)
+      setErrors(errs)
       setFormError('Перевір, будь ласка, виділені поля.')
-      return focusFirstError(r.errors)
+      return focusFirstError(errs)
     }
     setSubmitting(true)
     const res = await submitQuestionnaire(token, r.value)
@@ -176,21 +188,41 @@ export function StudentFormPage() {
           {area('address', 'Адреса проживання *')}
           {phone('student_phone', 'Твій мобільний телефон', true)}
         </fieldset>
-        <fieldset><legend>Батьки</legend>
-          <p className="muted small">
-            Мама й тато — це саме мама й тато. Якщо когось із них немає (або з тобою спілкується хтось інший, наприклад бабуся), напиши «немає»
-            у ПІБ, а телефон залиш порожнім. Якщо немає обох — обовʼязково заповни блок «Опікун» нижче.
+        <fieldset>
+          <legend>Кого вказати для зв'язку?</legend>
+          <p className="muted small" id="contact-help">
+            Обери <strong>одне</strong>: або мама й тато, або опікун — людина, яка тебе виховує замість батьків (бабуся, дідусь, тітка, дядько, опікун…).
+            Другий варіант заповнювати не треба.
           </p>
-          {text('mother_name', 'Мама — ПІБ', { required: true, hint: 'Або «немає»' })}
-          {phone('mother_phone', 'Мама — телефон')}
-          {text('father_name', 'Тато — ПІБ', { required: true, hint: 'Або «немає»' })}
-          {phone('father_phone', 'Тато — телефон')}
-        </fieldset>
-        <fieldset><legend>Опікун або інша близька людина</legend>
-          <p className="muted small">Бабуся, дідусь, тітка, дядько, опікун… Заповнюй, якщо є (або якщо батьків немає). Тоді потрібні всі три поля.</p>
-          {text('guardian_name', 'ПІБ')}
-          {text('guardian_relation', 'Ким доводиться', { hint: 'Наприклад: бабуся, дядько, опікун' })}
-          {phone('guardian_phone', 'Телефон')}
+          <div className="seg" role="radiogroup" aria-label="Кого вказати для зв'язку" aria-describedby="contact-help">
+            <label className={`seg-opt${mode === 'parents' ? ' on' : ''}`}>
+              <input type="radio" name="contact_mode" value="parents" checked={mode === 'parents'} onChange={() => switchMode('parents')} />
+              Батьки
+            </label>
+            <label className={`seg-opt${mode === 'guardian' ? ' on' : ''}`}>
+              <input type="radio" name="contact_mode" value="guardian" checked={mode === 'guardian'} onChange={() => switchMode('guardian')} />
+              Опікун
+            </label>
+          </div>
+          {mode === 'parents' ? (
+            <>
+              <p className="muted small">
+                Вкажи ПІБ і телефон мами та тата. Якщо когось одного немає — напиши «немає» в його ПІБ, а телефон залиш порожнім.
+                Якщо немає обох — переключи вище на «Опікун».
+              </p>
+              {text('mother_name', 'Мама — ПІБ', { required: true, hint: 'Або «немає»' })}
+              {phone('mother_phone', 'Мама — телефон')}
+              {text('father_name', 'Тато — ПІБ', { required: true, hint: 'Або «немає»' })}
+              {phone('father_phone', 'Тато — телефон')}
+            </>
+          ) : (
+            <>
+              <p className="muted small">Вкажи людину, яка тебе виховує. Дані мами й тата тоді не потрібні — ми запишемо їх як «немає».</p>
+              {text('guardian_name', 'Опікун — ПІБ', { required: true })}
+              {text('guardian_relation', 'Ким доводиться', { required: true, hint: 'Наприклад: бабуся, дядько, опікун' })}
+              {phone('guardian_phone', 'Опікун — телефон', true)}
+            </>
+          )}
         </fieldset>
         <fieldset><legend>Інтереси</legend>
           {area('school_activities', 'Чим займався(лась) у школі *')}
