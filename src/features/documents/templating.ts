@@ -253,3 +253,14 @@ export async function renderDocxTemplate(buf: ArrayBuffer | Uint8Array, data: Re
     throw new Error(describeError(e), { cause: e })
   }
 }
+
+/** Готовий до вставки у Word фрагмент для загального поля довідки. */
+export function placeholderSnippet(key: string): string {
+  if (key === 'students') return '{{#students}}…{{/students}}'
+  if (key === 'student.*') return '{{student.full_name}}'
+  return `{{${key}}}`
+}
+
+export function studentSnippet(key: string, mode: 'single' | 'row'): string {
+  return mode === 'single' ? `{{student.${key}}}` : `{{${key}}}`
+}

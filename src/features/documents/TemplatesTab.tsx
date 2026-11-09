@@ -11,6 +11,7 @@ import {
   type PupilOption,
 } from './api'
 import { DocxViewer } from './DocxViewer'
+import { TemplateHelp } from './TemplateHelp'
 import { Modal } from './PreviewModal'
 import { PreviewPane } from './PreviewPane'
 import { downloadName, validateUploadFile } from './filters'
@@ -76,7 +77,7 @@ export function TemplatesTab({ lib }: { lib: Library }) {
         <p className="muted">Завантаження…</p>
       ) : (
         <>
-          <h2>Шаблони</h2>
+          <h2>1. Оберіть шаблон</h2>
           {templates.length === 0 ? (
             <p className="muted">Шаблонів ще немає.{editable ? '' : ' Їх додає адміністратор.'}</p>
           ) : (
@@ -84,7 +85,7 @@ export function TemplatesTab({ lib }: { lib: Library }) {
               {templates.map((t) => (
                 <li key={t.id} className={`doc-card${t.id === selectedId ? ' selected' : ''}`}>
                   <h3>{t.title}</h3>
-                  <p className="small muted">Поля: {t.placeholders.length ? t.placeholders.join(', ') : '—'}</p>
+                  {editable && <p className="small muted">Поля: {t.placeholders.length ? t.placeholders.join(', ') : '—'}</p>}
                   <div className="card-actions">
                     <button type="button" onClick={() => setSelectedId(t.id)}>Використати</button>
                     <button type="button" className="secondary" onClick={() => setPreviewing(t)}>Перегляд шаблону</button>
@@ -95,9 +96,12 @@ export function TemplatesTab({ lib }: { lib: Library }) {
             </ul>
           )}
           {editable ? (
-            <TemplateUpload onDone={async () => { setNotice('Шаблон додано.'); await refresh() }} />
+            <>
+              <TemplateHelp />
+              <TemplateUpload onDone={async () => { setNotice('Шаблон додано.'); await refresh() }} />
+            </>
           ) : (
-            <p className="muted small">Редагування шаблонів {profile?.role === 'educator' ? 'вимкнене адміністратором' : 'недоступне для вашої ролі'}.</p>
+            <p className="muted small">Шаблони додає й змінює адміністратор.</p>
           )}
           {selected && <Autofill key={selected.id} template={selected} lib={lib} />}
         </>
@@ -227,7 +231,7 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
 
   return (
     <section className="panel">
-      <h2>Автозаповнення: {template.title}</h2>
+      <h2>2. Оберіть учнів — «{template.title}»</h2>
       {loadError && <p className="error">{loadError}</p>}
       {pupils === null && !loadError && <p className="muted">Завантаження учнів…</p>}
       {pupils && (
@@ -258,7 +262,7 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
           <p className="small">Вибрано: {chosen.size}</p>
           {error && <p className="error">{error}</p>}
           <button type="button" disabled={busy || chosen.size === 0} onClick={() => void generate()}>
-            {busy ? 'Формування…' : 'Сформувати документ'}
+            {busy ? 'Формування…' : '3. Сформувати документ'}
           </button>
         </>
       )}

@@ -6,7 +6,9 @@ import {
   checkTemplate,
   extractPlaceholders,
   formatDate,
+  placeholderSnippet,
   renderDocxTemplate,
+  studentSnippet,
   shortName,
   type StudentSource,
 } from './templating'
@@ -45,6 +47,15 @@ describe('форматування', () => {
   it('extractPlaceholders', () => {
     expect(extractPlaceholders('{{ student.full_name }} {{#students}}{{full_name}}{{/students}} {{date}} {{date}}'))
       .toEqual(['student.full_name', 'students', 'full_name', 'date'])
+  })
+})
+
+describe('довідка: фрагменти для вставки', () => {
+  it('формує мітки для одного учня й для рядка таблиці', () => {
+    expect(placeholderSnippet('date')).toBe('{{date}}')
+    expect(placeholderSnippet('students')).toBe('{{#students}}…{{/students}}')
+    expect(studentSnippet('full_name', 'single')).toBe('{{student.full_name}}')
+    expect(studentSnippet('full_name', 'row')).toBe('{{full_name}}')
   })
 })
 

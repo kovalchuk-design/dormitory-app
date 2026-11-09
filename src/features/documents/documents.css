@@ -45,3 +45,9 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 .modal-head { display: flex; justify-content: space-between; align-items: center; gap: .5rem; padding: .7rem 1rem; border-bottom: 1px solid var(--border); }
 .modal-body { padding: 0 1rem 1rem; overflow: auto; flex: 1; }
 .modal-foot { padding: .7rem 1rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
+.help summary { cursor: pointer; }
+.help-steps { padding-left: 1.2rem; }
+.help-table { width: 100%; border-collapse: collapse; font-size: .85rem; margin-bottom: .8rem; }
+.help-table td, .help-table th { border-bottom: 1px solid var(--border); padding: .3rem .4rem; text-align: left; vertical-align: middle; overflow-wrap: anywhere; }
+.help code { background: #eef1f6; padding: .05rem .3rem; border-radius: 4px; }
+.copy-btn { padding: .2rem .6rem; font-size: .78rem; white-space: nowrap; }

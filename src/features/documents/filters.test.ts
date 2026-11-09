@@ -96,7 +96,8 @@ describe('helpers', () => {
   it('validateUploadFile', () => {
     expect(validateUploadFile({ name: 'a.docx', size: 10 })).toBeNull()
     expect(validateUploadFile({ name: 'a.PDF', size: 10 })).toBeNull()
-    expect(validateUploadFile({ name: 'a.doc', size: 10 })).toMatch(/Дозволені/)
+    expect(validateUploadFile({ name: 'a.doc', size: 10 })).toMatch(/Зберегти як/)
+    expect(validateUploadFile({ name: 'a.xls', size: 10 })).toMatch(/Дозволені/)
     expect(validateUploadFile({ name: 'a.docx', size: 0 })).toMatch(/порожній/)
     expect(validateUploadFile({ name: 'a.docx', size: 26 * 1024 * 1024 })).toMatch(/25/)
     expect(validateUploadFile({ name: 'a.pdf', size: 10 }, ['docx'])).toMatch(/\.docx/)

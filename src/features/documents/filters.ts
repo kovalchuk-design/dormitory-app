@@ -129,6 +129,9 @@ export const MAX_FILE_BYTES = 25 * 1024 * 1024
 export function validateUploadFile(file: { name: string; size: number }, allowed: FileType[] = ['docx', 'pdf']): string | null {
   const ext = file.name.split('.').pop()?.toLowerCase()
   const type: FileType = ext === 'docx' ? 'docx' : ext === 'pdf' ? 'pdf' : 'other'
+  if (['doc', 'rtf', 'odt', 'docm'].includes(ext ?? '') && allowed.includes('docx')) {
+    return `Старий формат .${ext} не підтримується. Відкрийте файл у Word, оберіть «Файл → Зберегти як → Документ Word (.docx)» і завантажте знову.`
+  }
   if (!allowed.includes(type)) {
     return `Дозволені файли: ${allowed.map((t) => '.' + t).join(', ')}`
   }
