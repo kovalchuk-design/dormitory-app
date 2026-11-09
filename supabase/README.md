@@ -32,6 +32,8 @@
 - `students` — стабільні дані учня (ПІБ, дата народження, клас 9–11, статус `active/graduated/left`, поточний навчальний рік).
 - `student_profiles` — **версіонована анкета** (`version_no`, статус `pending/approved/superseded/rejected`, поля з паперової анкети; `submitted_full_name/birth_date/room` — як вказав учень; `consent_at` — коли дав згоду; `rejected_by/at`). Не більше однієї `approved` на учня (частковий унікальний індекс). Старі версії зберігаються.
 - `student_medical_submissions` — медичні дані, внесені учнем у публічній формі, поки версію не підтверджено (лише admin/educator; при `approve_student_profile` потрапляють у `student_medical`, порожнє поле лишає наявне значення).
+- `intake_links` — **спільні посилання на поверх** (лише хеш токена, `floor` 2–5, `expires_at`, `revoked_at`, `max_submissions`); `create_intake_link` скасовує попереднє діюче посилання цього поверху. Читають лише admin/educator, токен-хеш для API недоступний.
+- `intake_submissions` — журнал подань за спільними посиланнями: ПІБ і дата народження як ввів учень, результат зіставлення (`matched`: `auto`/`manual`/`new_student`; `unmatched`; `dismissed`), учень, створена версія, хто й коли розібрав. **Відповіді (`payload`) зберігаються лише поки подання не зіставлено**, після зіставлення/відхилення стираються (дані вже у `student_profiles`). Лише admin/educator.
 - `questionnaire_rate_limits` — лічильники для Edge Functions (лише `service_role`, без політик навмисно).
 - `student_medical` — алергії, хронічні стани, примітки. Лише `admin` та `educator`. Авторство: `created_by` (хто вніс) і `updated_by` (хто змінив останнім) проставляє тригер із `auth.uid()` — з клієнта підробити не можна; бачать їх усі, хто читає медичні дані. Повна історія змін по полях (без значень) — в `audit_log` (лише admin).
 - `rooms` — кімнати (поверх 2–5, унікальний номер, `capacity` 1–10, за замовчуванням 4, `is_active`).
@@ -62,7 +64,9 @@
 
 Права на всі ці функції: `admin` та `educator`; `staff_readonly` і `anon` — ні.
 
-Службові (EXECUTE лише для `service_role`, викликаються тільки з Edge Functions): `get_questionnaire_data(token_hash)`, `submit_questionnaire(token_hash, payload)`, `questionnaire_rate_hit(key, limit, window_seconds)`. `anon` і `authenticated` їх викликати не можуть.
+Для персоналу (admin/educator): `create_intake_link(floor, ttl_days)` (повертає токен один раз), `revoke_intake_link(id)`, `resolve_intake_submission(submission, student)`, `create_student_from_intake(submission, grade)`, `dismiss_intake_submission(submission)`.
+
+Службові (EXECUTE лише для `service_role`, викликаються тільки з Edge Functions): `get_questionnaire_data(token_hash)`, `submit_questionnaire(token_hash, payload)`, `get_intake_link_state(token_hash)`, `submit_intake(token_hash, payload)`, `questionnaire_rate_hit(key, limit, window_seconds)`. `anon` і `authenticated` їх викликати не можуть.
 
 Коди помилок у тексті винятку (для фронтенду): `ROOM_FULL`, `ROOM_INACTIVE`, `ALREADY_PLACED`, `ALREADY_IN_ROOM`, `NOT_PLACED`, `STUDENT_NOT_ACTIVE`, `NOT_PENDING`, `NOT_FOUND`, `FORBIDDEN`, `INVALID`, `CAPACITY_BELOW_OCCUPANCY`, `ROOM_NOT_EMPTY`.
 
@@ -96,6 +100,8 @@ update profiles set role = 'admin', is_active = true where id = '<uuid кори�
 Хеш токена: `sha256` від UTF-8 рядка токена, у hex (`encode(digest(token,'sha256'),'hex')` у `create_update_request`; у функціях — `crypto.subtle.digest`, `_shared/token.ts`). Потік: `get-questionnaire` → `get_questionnaire_data(hash)` (повертає `NULL` для невідомого/простроченого/використаного/відкликаного токена чи неактивного учня); `submit-questionnaire` → валідація → `submit_questionnaire(hash, payload)`: `SELECT … FOR UPDATE` рядка посилання, повторна перевірка, `used_at = now()`, вставка `pending`-версії, `resulting_profile_id`, медичні дані в `student_medical_submissions` — усе в одній транзакції (якщо щось падає, токен не «згорає»).
 
 ## Тести
+
+`tests/004_intake_links.sql` (40 перевірок): життєвий цикл спільного посилання (одне діюче на поверх, скасоване/прострочене/невідоме, ліміт подань), автозіставлення (регістр, пробіли, апострофи), усі випадки «не зіставлено» (інша дата, без по батькові, тезки, випускник, немає дати в базі, невідомий), захист від накопичення версій, ручне зіставлення / створення учня / відхилення, RLS і права (`anon`, `staff_readonly`), підтвердження автозіставленої версії людиною. Тести не залежать від наявних у базі даних.
 
 `tests/003_questionnaire_flow.sql` (55 перевірок): невалідний/прострочений/відкликаний токен, повторне використання, рівно одна `pending`-версія після подання, утримання медичних даних до підтвердження, прев'ю без медичних даних, ліміт запитів, `anon` не читає жодної таблиці й не викликає службових функцій, `staff_readonly` не бачить `pending`/медичних і не затверджує/відхиляє, історія `superseded → approved → rejected`, обмеження статусів.
 

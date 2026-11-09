@@ -4,6 +4,8 @@ const base = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.replace(
 const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined
 
 export interface QuestionnairePrefill {
+  /** personal — персональне посилання (є підстановка); shared — спільне посилання поверху (порожня форма). */
+  mode: 'personal' | 'shared'
   full_name: string
   birth_date: string | null
   room: string | null
