@@ -533,30 +533,43 @@ export type Database = {
           allergies: string | null
           chronic_conditions: string | null
           created_at: string
+          created_by: string | null
           id: string
           notes: string | null
           student_id: string
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           allergies?: string | null
           chronic_conditions?: string | null
           created_at?: string
+          created_by?: string | null
           id?: string
           notes?: string | null
           student_id: string
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           allergies?: string | null
           chronic_conditions?: string | null
           created_at?: string
+          created_by?: string | null
           id?: string
           notes?: string | null
           student_id?: string
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "student_medical_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "student_medical_student_id_fkey"
             columns: ["student_id"]
@@ -569,6 +582,13 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: true
             referencedRelation: "v_unplaced_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_medical_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
