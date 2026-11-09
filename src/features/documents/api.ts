@@ -203,7 +203,7 @@ export async function loadPupils(): Promise<PupilOption[]> {
     .from('students')
     .select(
       'id,last_name,first_name,patronymic,birth_date,grade,' +
-        'room_assignments(to_date,rooms(number,floor)),' +
+        'room_assignments(to_date,rooms!room_assignments_room_id_fkey(number,floor)),' +
         'student_profiles(status,student_phone,address,group_number,profession,class_teacher,master,mother_name,mother_phone,father_name,father_phone,guardian_name,guardian_phone)',
     )
     .eq('status', 'active')
