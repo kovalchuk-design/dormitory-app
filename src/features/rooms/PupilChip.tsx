@@ -1,4 +1,4 @@
-import { useDraggable } from '@dnd-kit/core'
+import type { PointerEvent as ReactPointerEvent } from 'react'
 import { pupilName, type Pupil } from './logic'
 
 interface Props {
@@ -7,24 +7,24 @@ interface Props {
   canEdit: boolean
   /** Додатковий підпис, напр. «було: 202» для нерозподілених. */
   note?: string
+  dragging: boolean
+  onDragStart: (e: ReactPointerEvent, pupil: Pupil, roomId: string | null) => void
   onMove: (p: Pupil, roomId: string | null) => void
   onHistory: (p: Pupil) => void
 }
 
-export function PupilChip({ pupil, roomId, canEdit, note, onMove, onHistory }: Props) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: pupil.id,
-    data: { pupil, roomId },
-    disabled: !canEdit,
-  })
+export function PupilChip({ pupil, roomId, canEdit, note, dragging, onDragStart, onMove, onHistory }: Props) {
   return (
-    <li ref={setNodeRef} className={`rm-pupil${isDragging ? ' dragging' : ''}`}>
-      <span
-        className={`rm-pupil-name${canEdit ? ' draggable' : ''}`}
-        {...(canEdit ? listeners : {})}
-        {...(canEdit ? attributes : {})}
-        aria-label={canEdit ? `${pupilName(pupil)}, ${pupil.grade} клас. Натисніть пробіл, щоб перетягнути` : undefined}
-      >
+    <li
+      className={`rm-pupil${canEdit ? ' draggable' : ''}${dragging ? ' dragging' : ''}`}
+      draggable={false}
+      // Тягнути можна за будь-яке місце картки, зокрема за кнопки: клік без руху (<5 px) працює як звичайний клік.
+      onPointerDown={canEdit ? (e) => onDragStart(e, pupil, roomId) : undefined}
+      onMouseDown={canEdit ? (e) => !(e.target as HTMLElement).closest('button') && e.preventDefault() : undefined}
+      onDragStart={(e) => e.preventDefault()}
+      title={canEdit ? 'Перетягніть у іншу кімнату' : undefined}
+    >
+      <span className="rm-pupil-name">
         {pupilName(pupil)} <span className="muted small">{pupil.grade} кл.</span>
         {note && <span className="muted small"> · {note}</span>}
       </span>

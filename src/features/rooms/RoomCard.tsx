@@ -1,4 +1,4 @@
-import { useDroppable } from '@dnd-kit/core'
+import type { PointerEvent as ReactPointerEvent } from 'react'
 import { PupilChip } from './PupilChip'
 import { capacityOptions, roomState, type Pupil, type RoomInfo } from './logic'
 
@@ -10,6 +10,9 @@ interface Props {
   canEdit: boolean
   isAdmin: boolean
   hint: DropHint
+  isOver: boolean
+  draggingId: string | null
+  onDragStart: (e: ReactPointerEvent, pupil: Pupil, roomId: string | null) => void
   onMove: (p: Pupil, roomId: string | null) => void
   onHistory: (p: Pupil) => void
   onRoomHistory: (r: RoomInfo) => void
@@ -17,14 +20,13 @@ interface Props {
   onCapacity: (r: RoomInfo, capacity: number) => void
 }
 
-export function RoomCard({ room, pupils, canEdit, isAdmin, hint, onMove, onHistory, onRoomHistory, onEdit, onCapacity }: Props) {
-  const { setNodeRef, isOver } = useDroppable({ id: `room:${room.id}`, data: { kind: 'room', roomId: room.id } })
+export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggingId, onDragStart, onMove, onHistory, onRoomHistory, onEdit, onCapacity }: Props) {
   const state = roomState(room)
   const cls = ['rm-room', `is-${state}`, hint === 'ok' && 'hint-ok', hint === 'blocked' && 'hint-blocked', isOver && 'over']
     .filter(Boolean)
     .join(' ')
   return (
-    <section ref={setNodeRef} className={cls} aria-label={`Кімната ${room.number}`} data-testid={`room-${room.number}`}>
+    <section data-drop={`room:${room.id}`} className={cls} aria-label={`Кімната ${room.number}`} data-testid={`room-${room.number}`}>
       <header>
         <strong>{room.number}</strong>
         <span className={`rm-badge ${state}`} data-testid={`occ-${room.number}`}>
@@ -57,7 +59,7 @@ export function RoomCard({ room, pupils, canEdit, isAdmin, hint, onMove, onHisto
       )}
       <ul>
         {pupils.map((p) => (
-          <PupilChip key={p.id} pupil={p} roomId={room.id} canEdit={canEdit} onMove={onMove} onHistory={onHistory} />
+          <PupilChip key={p.id} pupil={p} roomId={room.id} canEdit={canEdit} dragging={draggingId === p.id} onDragStart={onDragStart} onMove={onMove} onHistory={onHistory} />
         ))}
         {pupils.length === 0 && <li className="muted small">порожня</li>}
       </ul>
