@@ -44,6 +44,14 @@ export function UpdateLinksPanel({ studentId, canCreate }: { studentId: string; 
     }
   }
 
+  async function share(link: string) {
+    try {
+      await navigator.share({ title: 'Анкета гуртожитку', text: 'Заповни, будь ласка, анкету:', url: link })
+    } catch {
+      /* користувач закрив вікно «Поділитися» */
+    }
+  }
+
   async function revoke(id: string) {
     if (!window.confirm('Скасувати це посилання? Учень більше не зможе ним скористатися.')) return
     const { error: err } = await supabase.rpc('revoke_update_request', { p_request_id: id })
@@ -78,9 +86,14 @@ export function UpdateLinksPanel({ studentId, canCreate }: { studentId: string; 
           <p><strong>Передайте це посилання учневу</strong> (одноразове; після закриття сторінки його не можна побачити знову).</p>
           <input readOnly value={created.link} onFocus={(e) => e.currentTarget.select()} aria-label="Посилання на анкету" />
           <p className="muted small">Діє до {formatDateTime(created.expires)}</p>
-          <button type="button" className="secondary" onClick={() => void copy(created.link)}>
-            {copied ? 'Скопійовано ✓' : 'Копіювати'}
-          </button>
+          <div className="row actions">
+            <button type="button" className="secondary" onClick={() => void copy(created.link)}>
+              {copied ? 'Скопійовано ✓' : 'Копіювати'}
+            </button>
+            {typeof navigator.share === 'function' && (
+              <button type="button" onClick={() => void share(created.link)}>Поділитися (Viber, Telegram…)</button>
+            )}
+          </div>
         </div>
       )}
       <h3>Активні посилання</h3>

@@ -7,7 +7,11 @@ export interface QuestionnairePrefill {
   full_name: string
   birth_date: string | null
   room: string | null
-  profile: Partial<Record<keyof QuestionnaireData, string | null>> | null
+  profile:
+    | (Partial<Record<keyof QuestionnaireData, string | null>> & {
+        social_status_data?: { codes?: unknown[]; children_count?: string | number; ato?: string; zsu?: string } | null
+      })
+    | null
 }
 
 export type GetResult =

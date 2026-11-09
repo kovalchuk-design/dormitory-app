@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { useParams } from 'react-router-dom'
 import {
-  EMPTY_QUESTIONNAIRE, MAX_LEN, validateQuestionnaire,
-  type FieldErrors, type FieldKey, type QuestionnaireData,
+  EMPTY_QUESTIONNAIRE, MAX_LEN, SOCIAL_OPTIONS, validateQuestionnaire,
+  type FieldErrors, type FieldKey, type QuestionnaireData, type TextKey,
 } from '../../supabase/functions/_shared/questionnaire.ts'
 import { getQuestionnaire, submitQuestionnaire } from '../lib/publicApi'
 
@@ -35,7 +35,8 @@ export function StudentFormPage() {
       if (!alive) return
       if (r.kind === 'invalid') return setPhase({ name: 'invalid' })
       if (r.kind === 'error') return setPhase({ name: 'error', message: r.message })
-      const p = r.data.profile ?? {}
+      const p: NonNullable<typeof r.data.profile> = r.data.profile ?? {}
+      const sd = r.data.profile?.social_status_data ?? null
       const pick = (k: FieldKey) => (typeof p[k] === 'string' ? (p[k] as string) : '')
       setValues({
         ...EMPTY_QUESTIONNAIRE,
@@ -46,8 +47,11 @@ export function StudentFormPage() {
         master: pick('master'), address: pick('address'), student_phone: pick('student_phone'),
         mother_name: pick('mother_name'), mother_phone: pick('mother_phone'),
         father_name: pick('father_name'), father_phone: pick('father_phone'),
-        guardian_name: pick('guardian_name'), guardian_phone: pick('guardian_phone'),
-        school_activities: pick('school_activities'), college_plans: pick('college_plans'), social_status: pick('social_status'),
+        guardian_name: pick('guardian_name'), guardian_phone: pick('guardian_phone'), guardian_relation: pick('guardian_relation'),
+        school_activities: pick('school_activities'), college_plans: pick('college_plans'),
+        social_codes: Array.isArray(sd?.codes) ? sd.codes.filter((c: unknown): c is string => typeof c === 'string') : [],
+        social_children: sd?.children_count != null ? String(sd.children_count) : '',
+        social_ato: typeof sd?.ato === 'string' ? sd.ato : '', social_zsu: typeof sd?.zsu === 'string' ? sd.zsu : '',
       })
       setRoomLocked(!!r.data.room)
       setPhase({ name: 'form' })
@@ -56,8 +60,18 @@ export function StudentFormPage() {
   }, [token])
 
   const set = (k: FieldKey, v: string | boolean) => {
+    setFormError(null)
     setValues((prev) => ({ ...prev, [k]: v }))
     if (errors[k]) setErrors((e) => ({ ...e, [k]: undefined }))
+  }
+  const toggleSocial = (code: string, on: boolean) => {
+    setValues((prev) => {
+      let codes = on ? [...prev.social_codes, code] : prev.social_codes.filter((c) => c !== code)
+      if (on && code === 'none') codes = ['none']
+      else if (on) codes = codes.filter((c) => c !== 'none')
+      return { ...prev, social_codes: codes }
+    })
+    setErrors((e) => ({ ...e, social_codes: undefined }))
   }
   const blur = (k: FieldKey) => {
     const r = validateQuestionnaire(values)
@@ -114,12 +128,12 @@ export function StudentFormPage() {
       </Shell>
     )
 
-  const text = (k: FieldKey, label: string, opts: { required?: boolean; type?: string; auto?: string; hint?: string; readOnly?: boolean; inputMode?: 'tel' } = {}) => (
+  const text = (k: FieldKey, label: string, opts: { required?: boolean; type?: string; auto?: string; hint?: string; readOnly?: boolean; inputMode?: 'tel' | 'numeric' } = {}) => (
     <Field name={k} label={label} required={opts.required} hint={opts.hint} error={errors[k]}>
       <input
         id={`f-${k}`} name={k} type={opts.type ?? 'text'} value={values[k] as string}
-        autoComplete={opts.auto ?? 'off'} inputMode={opts.inputMode} readOnly={opts.readOnly}
-        maxLength={k === 'consent' ? undefined : MAX_LEN[k as Exclude<FieldKey, 'consent'>]}
+        autoComplete={opts.auto ?? 'off'} inputMode={opts.inputMode} readOnly={opts.readOnly} enterKeyHint="next"
+        maxLength={MAX_LEN[k as TextKey]}
         aria-invalid={!!errors[k]} aria-describedby={describedBy(k, !!opts.hint, !!errors[k])}
         onChange={(e) => set(k, e.target.value)} onBlur={() => blur(k)}
       />
@@ -129,7 +143,7 @@ export function StudentFormPage() {
     <Field name={k} label={label} hint={hint} error={errors[k]}>
       <textarea
         id={`f-${k}`} name={k} rows={3} value={values[k] as string}
-        maxLength={MAX_LEN[k as Exclude<FieldKey, 'consent'>]}
+        maxLength={MAX_LEN[k as TextKey]}
         aria-invalid={!!errors[k]} aria-describedby={describedBy(k, !!hint, !!errors[k])}
         onChange={(e) => set(k, e.target.value)} onBlur={() => blur(k)}
       />
@@ -154,19 +168,48 @@ export function StudentFormPage() {
           {area('address', 'Адреса проживання *')}
           {phone('student_phone', 'Твій мобільний телефон', true)}
         </fieldset>
-        <fieldset><legend>Батьки та опікун</legend>
-          <p className="muted small">Якщо когось із батьків немає — напиши «немає» у ПІБ, а телефон залиш порожнім. Якщо немає обох — вкажи опікуна. Опікун — лише якщо він є.</p>
-          {text('mother_name', 'Мама — ПІБ', { required: true })}
+        <fieldset><legend>Батьки</legend>
+          <p className="muted small">
+            Мама й тато — це саме мама й тато. Якщо когось із них немає (або з тобою спілкується хтось інший, наприклад бабуся), напиши «немає»
+            у ПІБ, а телефон залиш порожнім. Якщо немає обох — обовʼязково заповни блок «Опікун» нижче.
+          </p>
+          {text('mother_name', 'Мама — ПІБ', { required: true, hint: 'Або «немає»' })}
           {phone('mother_phone', 'Мама — телефон')}
-          {text('father_name', 'Тато — ПІБ', { required: true })}
+          {text('father_name', 'Тато — ПІБ', { required: true, hint: 'Або «немає»' })}
           {phone('father_phone', 'Тато — телефон')}
-          {text('guardian_name', 'Опікун — ПІБ (якщо є)')}
-          {phone('guardian_phone', 'Опікун — телефон')}
+        </fieldset>
+        <fieldset><legend>Опікун або інша близька людина</legend>
+          <p className="muted small">Бабуся, дідусь, тітка, дядько, опікун… Заповнюй, якщо є (або якщо батьків немає). Тоді потрібні всі три поля.</p>
+          {text('guardian_name', 'ПІБ')}
+          {text('guardian_relation', 'Ким доводиться', { hint: 'Наприклад: бабуся, дядько, опікун' })}
+          {phone('guardian_phone', 'Телефон')}
         </fieldset>
         <fieldset><legend>Інтереси</legend>
           {area('school_activities', 'Чим займався(лась) у школі *')}
           {area('college_plans', 'Чим хочеш займатися у коледжі *')}
-          {area('social_status', 'Соціальний статус *', 'Наприклад: повна сімʼя, багатодітна, ВПО…')}
+        </fieldset>
+        <fieldset aria-describedby="social-hint" aria-invalid={!!errors.social_codes}>
+          <legend>Соціальний статус *</legend>
+          <p className="muted small" id="social-hint">Познач усе, що підходить. Якщо нічого — обери «Жодного з переліку».</p>
+          {SOCIAL_OPTIONS.map((o) => {
+            const checked = values.social_codes.includes(o.code)
+            return (
+              <div key={o.code} className="social-opt">
+                <label className="check">
+                  <input type="checkbox" name="social_codes" value={o.code} checked={checked}
+                    onChange={(e) => toggleSocial(o.code, e.target.checked)} />
+                  {o.label}
+                </label>
+                {checked && 'detail' in o && (
+                  <div className="social-detail">
+                    {text(o.detail, o.detail === 'social_children' ? 'Кількість неповнолітніх дітей у сімʼї' : 'Хто саме (ПІБ, ким доводиться)',
+                      { required: true, type: o.detail === 'social_children' ? 'number' : 'text', inputMode: o.detail === 'social_children' ? 'numeric' : undefined })}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+          {errors.social_codes && <p className="field-error" id="e-social_codes" role="alert">{errors.social_codes}</p>}
         </fieldset>
         <fieldset><legend>Здоровʼя</legend>
           <p className="muted small">Ці дані бачать лише вихователі й адміністратор.</p>

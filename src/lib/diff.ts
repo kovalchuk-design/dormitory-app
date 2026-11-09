@@ -19,6 +19,7 @@ export const PROFILE_FIELDS: FieldDef[] = [
   { key: 'father_name', label: 'Тато (ПІБ)' },
   { key: 'father_phone', label: 'Тато (телефон)' },
   { key: 'guardian_name', label: 'Опікун (ПІБ)' },
+  { key: 'guardian_relation', label: 'Опікун (ким доводиться)' },
   { key: 'guardian_phone', label: 'Опікун (телефон)' },
   { key: 'school_activities', label: 'Чим займався у школі' },
   { key: 'college_plans', label: 'Чим хоче займатися у коледжі' },

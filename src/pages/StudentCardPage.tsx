@@ -65,7 +65,7 @@ export function StudentCardPage() {
     { label: 'Учень', name, phone: current?.student_phone ?? null },
     { label: 'Мама', name: current?.mother_name ?? null, phone: current?.mother_phone ?? null },
     { label: 'Тато', name: current?.father_name ?? null, phone: current?.father_phone ?? null },
-    { label: 'Опікун', name: current?.guardian_name ?? null, phone: current?.guardian_phone ?? null },
+    { label: current?.guardian_relation ? `Опікун (${current.guardian_relation})` : 'Опікун', name: current?.guardian_name ?? null, phone: current?.guardian_phone ?? null },
   ]
   const answers: [string, string | null | undefined][] = current
     ? [

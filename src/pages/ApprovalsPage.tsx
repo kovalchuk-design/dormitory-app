@@ -140,7 +140,7 @@ export function ApprovalsPage() {
                 <DiffTable rows={item.medDiff} title="Порівняння медичних даних" onlyChanged={false} />
               </>
             )}
-            <div className="row">
+            <div className="row actions">
               <button type="button" disabled={busyId === item.id} onClick={() => void act(item.id, 'approve')}>Підтвердити</button>
               <button type="button" className="danger" disabled={busyId === item.id} onClick={() => void act(item.id, 'reject')}>Відхилити</button>
             </div>

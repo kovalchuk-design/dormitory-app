@@ -7,7 +7,7 @@ const valid = {
   profession: 'Кухар', class_teacher: 'Іваненко І.І.', master: 'Петренко П.П.', address: 'м. Тест, вул. Тестова 1',
   student_phone: '067 123 45 67', mother_name: 'Тестенко Мама', mother_phone: '+380501234567',
   father_name: 'Тестенко Тато', father_phone: '0991112233',
-  school_activities: 'Футбол', college_plans: 'Кулінарія', social_status: 'Повна сімʼя',
+  school_activities: 'Футбол', college_plans: 'Кулінарія', social_codes: ['none'],
   allergies: 'немає', chronic_conditions: 'немає', consent: true,
 }
 
@@ -47,7 +47,7 @@ describe('validateQuestionnaire', () => {
     const r = validateQuestionnaire({}, TODAY)
     expect(r.ok).toBe(false)
     if (!r.ok) {
-      for (const k of ['full_name', 'birth_date', 'group_number', 'profession', 'class_teacher', 'master', 'address', 'student_phone', 'mother_name', 'father_name', 'school_activities', 'college_plans', 'social_status', 'allergies', 'chronic_conditions', 'consent'] as const)
+      for (const k of ['full_name', 'birth_date', 'group_number', 'profession', 'class_teacher', 'master', 'address', 'student_phone', 'mother_name', 'father_name', 'school_activities', 'college_plans', 'social_codes', 'allergies', 'chronic_conditions', 'consent'] as const)
         expect(r.errors[k], k).toBeTruthy()
     }
   })
@@ -101,14 +101,44 @@ describe('validateQuestionnaire', () => {
     const orphan = { ...valid, mother_name: 'немає', mother_phone: '', father_name: 'немає', father_phone: '' }
     const r = validateQuestionnaire(orphan, TODAY)
     expect(!r.ok && r.errors.guardian_name).toBeTruthy()
-    expect(validateQuestionnaire({ ...orphan, guardian_name: 'Опікун О.', guardian_phone: '0991112233' }, TODAY).ok).toBe(true)
+    expect(validateQuestionnaire({ ...orphan, guardian_name: 'Опікун О.', guardian_phone: '0991112233', guardian_relation: 'тітка' }, TODAY).ok).toBe(true)
   })
 
   it('опікун необовʼязковий, але ПІБ і телефон — парою', () => {
     const r = validateQuestionnaire({ ...valid, guardian_name: 'Опікун О.' }, TODAY)
-    expect(!r.ok && r.errors.guardian_phone).toBeTruthy()
+    expect(!r.ok && r.errors.guardian_phone && r.errors.guardian_relation).toBeTruthy()
     expect(validateQuestionnaire({ ...valid, guardian_phone: '0991112233' }, TODAY).ok).toBe(false)
-    expect(validateQuestionnaire({ ...valid, guardian_name: 'Опікун О.', guardian_phone: '0991112233' }, TODAY).ok).toBe(true)
+    const ok = validateQuestionnaire({ ...valid, guardian_name: 'Опікун О.', guardian_phone: '0991112233', guardian_relation: 'бабуся' }, TODAY)
+    expect(ok.ok && ok.value.guardian_relation).toBe('бабуся')
+  })
+
+  it('соціальний статус: чекліст як у паперовій анкеті', () => {
+    expect(validateQuestionnaire({ ...valid, social_codes: [] }, TODAY).ok).toBe(false)
+    expect(validateQuestionnaire({ ...valid, social_codes: ['bogus'] }, TODAY).ok).toBe(false)
+    expect(validateQuestionnaire({ ...valid, social_codes: 'orphan' }, TODAY).ok).toBe(false)
+    expect(validateQuestionnaire({ ...valid, social_codes: ['none', 'vpo'] }, TODAY).ok).toBe(false)
+    // «Багатодітна» і «Служба в ЗСУ» потребують деталей
+    const noDetail = validateQuestionnaire({ ...valid, social_codes: ['large_family', 'zsu'] }, TODAY)
+    expect(!noDetail.ok && noDetail.errors.social_children && noDetail.errors.social_zsu).toBeTruthy()
+    // як у зразку: багатодітна (3 дітей) + служба в ЗСУ (тато)
+    const r = validateQuestionnaire({
+      ...valid, social_codes: ['zsu', 'large_family'], social_children: '3', social_zsu: 'Воробйов Василь - тато',
+      social_ato: 'ігнорується', social_status: 'підроблений текст',
+    }, TODAY)
+    expect(r.ok).toBe(true)
+    if (r.ok) {
+      expect(r.value.social_codes).toEqual(['large_family', 'zsu'])
+      expect(r.value.social_ato).toBe('')
+      expect(r.value.social_status).toBe("Багатодітна сім'я (неповнолітніх дітей: 3); Служба в ЗСУ (Воробйов Василь - тато)")
+    }
+    expect(validateQuestionnaire({ ...valid, social_codes: ['large_family'], social_children: 'три' }, TODAY).ok).toBe(false)
+    const none = validateQuestionnaire({ ...valid, social_codes: ['none'] }, TODAY)
+    expect(none.ok && none.value.social_status).toBe('Жодного з переліку')
+  })
+
+  it('довга професія з паперового бланка влізає', () => {
+    const profession = 'Автослюсар з ремонту транспортних засобів, водій автотранспортних засобів категорії В'
+    expect(validateQuestionnaire({ ...valid, profession }, TODAY).ok).toBe(true)
   })
 
   it('обмеження довжини та керівні символи', () => {

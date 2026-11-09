@@ -25,6 +25,7 @@ export function StudentsPage() {
   const canEdit = profile?.role === 'admin' || profile?.role === 'educator'
   const { data, error, loading } = useLoad(fetchStudentRows, 'students')
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
+  const [showFilters, setShowFilters] = useState(false)
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'name', dir: 'asc' })
 
   const rooms = useMemo(
@@ -53,6 +54,11 @@ export function StudentsPage() {
         <label className="grow">Пошук (ПІБ, телефон, кімната)
           <input type="search" value={filters.query} onChange={(e) => set('query', e.target.value)} placeholder="Іваненко, 067… або 305" />
         </label>
+        <button type="button" className="secondary filters-toggle" aria-expanded={showFilters} aria-controls="filters-extra"
+          onClick={() => setShowFilters((v) => !v)}>
+          {showFilters ? 'Сховати фільтри' : 'Фільтри'}
+        </button>
+        <div id="filters-extra" className={`filters-extra${showFilters ? ' open' : ''}`}>
         <label>Клас
           <select value={filters.grade} onChange={(e) => set('grade', e.target.value)}>
             <option value="">Усі</option>
@@ -82,6 +88,7 @@ export function StudentsPage() {
           Нерозподілені
         </label>
         <button type="button" className="secondary" onClick={() => setFilters(DEFAULT_FILTERS)}>Скинути</button>
+        </div>
       </form>
 
       {loading && <p className="muted">Завантаження…</p>}

@@ -654,6 +654,7 @@ export type Database = {
           group_number: string | null
           guardian_name: string | null
           guardian_phone: string | null
+          guardian_relation: string | null
           id: string
           master: string | null
           mother_name: string | null
@@ -663,6 +664,7 @@ export type Database = {
           rejected_by: string | null
           school_activities: string | null
           social_status: string | null
+          social_status_data: Json | null
           status: string
           student_id: string
           student_phone: string | null
@@ -686,6 +688,7 @@ export type Database = {
           group_number?: string | null
           guardian_name?: string | null
           guardian_phone?: string | null
+          guardian_relation?: string | null
           id?: string
           master?: string | null
           mother_name?: string | null
@@ -695,6 +698,7 @@ export type Database = {
           rejected_by?: string | null
           school_activities?: string | null
           social_status?: string | null
+          social_status_data?: Json | null
           status?: string
           student_id: string
           student_phone?: string | null
@@ -718,6 +722,7 @@ export type Database = {
           group_number?: string | null
           guardian_name?: string | null
           guardian_phone?: string | null
+          guardian_relation?: string | null
           id?: string
           master?: string | null
           mother_name?: string | null
@@ -727,6 +732,7 @@ export type Database = {
           rejected_by?: string | null
           school_activities?: string | null
           social_status?: string | null
+          social_status_data?: Json | null
           status?: string
           student_id?: string
           student_phone?: string | null
