@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  activeLinkForFloor, campaignSince, filledStudentIds, linkState, normName, notFilledByFloor, shareMessage, suggestCandidates,
+  activeLinkForFloor, campaignSince, filledStudentIds, linkState, normName, notFilledByFloor, shareMessage, suggestCandidates, unmatchedReason, ANSWER_FIELDS,
   type IntakeLink,
 } from './collect'
 import type { StudentRow } from './studentsList'
@@ -89,5 +89,30 @@ describe('progress', () => {
     const g = notFilledByFloor(rows, new Set(['6']))
     expect(g.map((x) => x.key)).toEqual(['2', '3', 'none'])
     expect(g[1].students.map((s) => s.id)).toEqual(['2', '1']) // за алфавітом
+  })
+})
+
+describe('unmatchedReason / ANSWER_FIELDS', () => {
+  const base = [
+    st({ id: 'a', last_name: 'Воробйова', first_name: 'Ангеліна', patronymic: 'Василівна', birth_date: '2008-07-31' }),
+    st({ id: 'g', last_name: 'Випускник', first_name: 'Петро', patronymic: null, birth_date: '2007-05-05', status: 'graduated' }),
+    st({ id: 'd1', last_name: 'Дубль', first_name: 'Дубль', patronymic: null, birth_date: '2009-01-01' }),
+    st({ id: 'd2', last_name: 'Дубль', first_name: 'Дубль', patronymic: null, birth_date: '2009-01-01' }),
+    st({ id: 'n', last_name: 'Безнародження', first_name: 'Іван', patronymic: null, birth_date: null }),
+  ]
+  const why = (name: string, d: string) => unmatchedReason({ name, birth_date: d }, base)
+  it('пояснює причину', () => {
+    expect(why('Воробйова Ангеліна Василівна', '2008-07-30')).toMatch(/дата народження інша \(у базі: 2008-07-31\)/)
+    expect(why('Воробйова Ангеліна', '2008-07-31')).toMatch(/ПІБ відрізняється/)
+    expect(why('Дубль Дубль', '2009-01-01')).toMatch(/кілька учнів/)
+    expect(why('Випускник Петро', '2007-05-05')).toMatch(/не активний/)
+    expect(why('Безнародження Іван', '2010-02-02')).toMatch(/не вказана/)
+    expect(why('Хтось Інший', '1999-09-09')).toMatch(/немає в базі/)
+    expect(why('Воробйова Ангеліна Василівна', '2008-07-31')).toMatch(/забагато необроблених/)
+  })
+  it('повна анкета містить усі поля, медичні позначені', () => {
+    const keys = ANSWER_FIELDS.map((f) => f.key)
+    for (const k of ['full_name', 'birth_date', 'mother_phone', 'guardian_relation', 'social_status', 'allergies']) expect(keys).toContain(k)
+    expect(ANSWER_FIELDS.filter((f) => f.medical).map((f) => f.key)).toEqual(['allergies', 'chronic_conditions'])
   })
 })

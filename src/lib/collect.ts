@@ -95,3 +95,47 @@ export function shareMessage(link: string, expiresAt: string): string {
   const d = new Date(expiresAt).toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit' })
   return `Привіт! Заповніть, будь ласка, анкету мешканця гуртожитку (кожен — свою, ПІБ і дату народження пишіть як у документах). Посилання діє до ${d}: ${link}`
 }
+
+/** Усі поля анкети, як їх вводить учень (ключі — як у payload подання), у порядку бланка. */
+export const ANSWER_FIELDS: { key: string; label: string; medical?: boolean }[] = [
+  { key: 'full_name', label: 'ПІБ' },
+  { key: 'birth_date', label: 'Дата народження' },
+  { key: 'room', label: 'Номер кімнати' },
+  { key: 'group_number', label: 'Номер групи' },
+  { key: 'profession', label: 'Професія' },
+  { key: 'class_teacher', label: 'Класний керівник' },
+  { key: 'master', label: 'Майстер' },
+  { key: 'address', label: 'Адреса проживання' },
+  { key: 'student_phone', label: 'Телефон учня' },
+  { key: 'mother_name', label: 'Мама (ПІБ)' },
+  { key: 'mother_phone', label: 'Мама (телефон)' },
+  { key: 'father_name', label: 'Тато (ПІБ)' },
+  { key: 'father_phone', label: 'Тато (телефон)' },
+  { key: 'guardian_name', label: 'Опікун (ПІБ)' },
+  { key: 'guardian_relation', label: 'Опікун (ким доводиться)' },
+  { key: 'guardian_phone', label: 'Опікун (телефон)' },
+  { key: 'school_activities', label: 'Чим займався у школі' },
+  { key: 'college_plans', label: 'Чим хоче займатися у коледжі' },
+  { key: 'social_status', label: 'Соціальний статус' },
+  { key: 'allergies', label: 'Алергії', medical: true },
+  { key: 'chronic_conditions', label: 'Хронічні хвороби', medical: true },
+]
+
+/** Пояснення для вихователя: чому подання не зіставлено автоматично. */
+export function unmatchedReason(sub: { name: string; birth_date: string }, students: StudentRow[]): string {
+  const key = normName(sub.name)
+  const sameName = students.filter((s) => normName(fullName(s)) === key)
+  const exact = sameName.filter((s) => s.birth_date === sub.birth_date)
+  if (exact.length > 1) return 'У базі кілька учнів з такими самими ПІБ і датою народження — оберіть потрібного.'
+  if (exact.length === 1) {
+    return exact[0].status !== 'active'
+      ? 'Такий учень є в базі, але він не активний (випускник або вибув).'
+      : 'Такий учень є в базі, але в нього вже забагато необроблених версій анкети — розберіть їх на сторінці «Оновлення даних».'
+  }
+  if (sameName.length > 0) {
+    const dates = sameName.map((s) => s.birth_date ?? 'не вказана').join(', ')
+    return `ПІБ є в базі, але дата народження інша (у базі: ${dates}). Можливо, помилка в даті — перевірте.`
+  }
+  if (students.some((s) => s.birth_date === sub.birth_date)) return 'Така дата народження є в базі, але ПІБ відрізняється (можлива помилка в написанні або не вказано по батькові).'
+  return 'Такого учня немає в базі: додайте його або створіть із цього подання.'
+}

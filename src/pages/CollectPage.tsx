@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  activeLinkForFloor, campaignSince, filledStudentIds, linkState, notFilledByFloor, shareMessage, suggestCandidates,
+  activeLinkForFloor, ANSWER_FIELDS, campaignSince, filledStudentIds, linkState, notFilledByFloor, shareMessage, suggestCandidates, unmatchedReason,
   type IntakeLink,
 } from '../lib/collect'
 import { errorMessage, fullName, formatDate, formatDateTime } from '../lib/format'
@@ -164,7 +164,7 @@ function FloorLinks({ data, onChanged, onError }: { data: Data; onChanged: () =>
                   {active ? 'Видати нове' : 'Створити посилання'}
                 </button>
                 {active && (
-                  <button type="button" className="danger" disabled={busy === floor} onClick={() => void revoke(floor, active.id)}>Скасувати</button>
+                  <button type="button" className="btn-danger" disabled={busy === floor} onClick={() => void revoke(floor, active.id)}>Скасувати</button>
                 )}
               </div>
             </article>
@@ -201,6 +201,7 @@ function UnmatchedCard({ sub, students, onDone, onError }: {
   const [grade, setGrade] = useState('10')
   const [busy, setBusy] = useState(false)
   const payload = (sub.payload ?? {}) as Record<string, unknown>
+  const reason = useMemo(() => unmatchedReason({ name: sub.submitted_full_name, birth_date: sub.submitted_birth_date }, students), [sub, students])
   const candidates = useMemo(
     () => suggestCandidates({ name: sub.submitted_full_name, birth_date: sub.submitted_birth_date }, students),
     [sub, students],
@@ -233,14 +234,24 @@ function UnmatchedCard({ sub, students, onDone, onError }: {
   return (
     <article className="subcard" aria-label={`Подання: ${sub.submitted_full_name}`}>
       <h3>{sub.submitted_full_name} <span className="muted small">· нар. {formatDate(sub.submitted_birth_date)}</span></h3>
-      <p className="muted small">
-        Подано {formatDateTime(sub.submitted_at)} · телефон {String(payload.student_phone ?? '—')} · група {String(payload.group_number ?? '—')} · {String(payload.profession ?? '—')}
-      </p>
+      <p className="muted small">Подано {formatDateTime(sub.submitted_at)}</p>
+      <p className="reason" role="note"><strong>Чому не зіставлено:</strong> {reason}</p>
+      <details className="full-answers" open>
+        <summary>Повна анкета, яку заповнив(ла) учень</summary>
+        <dl className="kv">
+          {ANSWER_FIELDS.map((f) => {
+            const raw = f.key === 'birth_date' ? sub.submitted_birth_date : payload[f.key]
+            const text = raw == null || raw === '' ? '—' : f.key === 'birth_date' ? formatDate(String(raw)) : String(raw)
+            return <div key={f.key}><dt>{f.label}{f.medical ? ' (медична інформація)' : ''}</dt><dd>{text}</dd></div>
+          })}
+        </dl>
+      </details>
       {candidates.length > 0 && (<><h4>Схожі учні</h4><ul className="plain">{candidates.map(pick)}</ul></>)}
       <label>Знайти учня в базі
         <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Прізвище або імʼя" />
       </label>
       {found.length > 0 && <ul className="plain">{found.map(pick)}</ul>}
+      <p className="muted small hint-line">Якщо це не той, хто в базі: створіть нового учня з цих даних. Якщо подання помилкове або це сміття — відхиліть (відповіді буде видалено).</p>
       <div className="row actions">
         <label className="inline">Клас нового
           <select value={grade} onChange={(e) => setGrade(e.target.value)}>
@@ -251,9 +262,9 @@ function UnmatchedCard({ sub, students, onDone, onError }: {
           onClick={() => { if (window.confirm('Створити нового учня з цими даними?')) void run(() => supabase.rpc('create_student_from_intake', { p_submission_id: sub.id, p_grade: Number(grade) })) }}>
           Створити нового учня
         </button>
-        <button type="button" className="danger" disabled={busy}
+        <button type="button" className="btn-danger" disabled={busy}
           onClick={() => { if (window.confirm('Відхилити це подання як помилкове/сміття? Відповіді буде видалено.')) void run(() => supabase.rpc('dismiss_intake_submission', { p_submission_id: sub.id })) }}>
-          Відхилити
+          Відхилити подання (помилка / сміття)
         </button>
       </div>
     </article>

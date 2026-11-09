@@ -4,6 +4,7 @@ import {
   EMPTY_QUESTIONNAIRE, MAX_LEN, SOCIAL_OPTIONS, validateQuestionnaire,
   type FieldErrors, type FieldKey, type QuestionnaireData, type TextKey,
 } from '../../supabase/functions/_shared/questionnaire.ts'
+import { BirthDateField } from '../components/BirthDateField'
 import { getQuestionnaire, submitQuestionnaire } from '../lib/publicApi'
 
 type Phase =
@@ -161,7 +162,12 @@ export function StudentFormPage() {
       <form ref={formRef} onSubmit={(e) => void onSubmit(e)} noValidate className="form">
         <fieldset><legend>Про тебе</legend>
           {text('full_name', 'ПІБ', { required: true, auto: 'name', hint: shared ? 'Пиши так, як у документах: прізвище, імʼя, по батькові — за цим ми знайдемо тебе у списку' : 'Прізвище, імʼя, по батькові' })}
-          {text('birth_date', 'Дата народження', { required: true, type: 'date', auto: 'bday', hint: shared ? 'Потрібна, щоб правильно знайти тебе у списку' : undefined })}
+          <Field name="birth_date" label="Дата народження" required error={errors.birth_date}
+            hint={shared ? 'Потрібна, щоб правильно знайти тебе у списку' : undefined}>
+            <BirthDateField id="f-birth_date" name="birth_date" value={values.birth_date} onChange={(iso) => set('birth_date', iso)}
+              minYear={new Date().getFullYear() - 25} maxYear={new Date().getFullYear() - 12} invalid={!!errors.birth_date}
+              describedBy={describedBy('birth_date', shared, !!errors.birth_date)} />
+          </Field>
           {text('room', 'Номер кімнати', { readOnly: roomLocked, hint: roomLocked ? 'Це тільки для інформації — змінює вихователь' : 'Якщо знаєш — вкажи (необовʼязково)' })}
           {text('group_number', 'Номер групи', { required: true })}
           {text('profession', 'Професія', { required: true })}

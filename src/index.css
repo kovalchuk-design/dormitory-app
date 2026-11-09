@@ -69,7 +69,7 @@ label { display: block; margin-bottom: 1rem; font-size: .9rem; }
 /* ---- Stage 2: students, card, approvals, public form ---- */
 a.btn { display: inline-block; padding: .6rem 1rem; border-radius: 8px; background: var(--accent); color: #fff; text-decoration: none; }
 a.btn.secondary { background: transparent; color: var(--fg); border: 1px solid var(--border); }
-button.danger { background: var(--danger); }
+button.btn-danger { background: var(--danger); color: #fff; border: 1px solid var(--danger); font-weight: 600; }
 :focus-visible { outline: 3px solid #f2a900; outline-offset: 2px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 select, textarea { font: inherit; width: 100%; padding: .6rem .7rem; margin-top: .25rem; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
@@ -176,7 +176,7 @@ input[type='checkbox'] { width: 1.4rem; height: 1.4rem; min-height: 0; flex: non
   table.diff th[scope='row'] { border: 0; padding: .1rem 0; color: var(--muted); font-size: .8rem; font-weight: 500; }
   table.diff td { border: 0; padding: .1rem 0; }
   table.diff td::before { content: attr(data-label) ': '; color: var(--muted); font-size: .8rem; }
-  .row.actions { position: sticky; bottom: 0; background: var(--card); padding: .5rem 0; z-index: 5; }
+  .row.sticky-actions { position: sticky; bottom: 0; background: var(--card); padding: .5rem 0; z-index: 5; } /* лише «Підтвердити / Відхилити» */
   .public-card { padding: 1rem; border-radius: 0; border-left: 0; border-right: 0; }
   .public-page { padding: 0; }
 }
@@ -189,3 +189,14 @@ input[type='checkbox'] { width: 1.4rem; height: 1.4rem; min-height: 0; flex: non
 .subcard { margin-bottom: .75rem; }
 .candidate { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; padding: .4rem .5rem; background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
 details > summary { cursor: pointer; padding: .5rem 0; min-height: 2.75rem; display: flex; align-items: center; font-weight: 500; }
+
+/* ---- Дата народження: день / місяць / рік ---- */
+.date-parts { display: grid; grid-template-columns: 1fr 1.7fr 1.2fr; gap: .5rem; }
+.date-parts select { margin-top: .25rem; min-width: 0; }
+
+/* повна анкета в черзі «Не зіставлені» */
+.reason { background: #fff8d6; border: 1px solid #ecd98a; border-radius: 8px; padding: .5rem .7rem; margin: .5rem 0; font-size: .9rem; }
+.full-answers { margin: .75rem 0; border: 1px solid var(--border); border-radius: 8px; background: var(--card); padding: 0 .75rem; }
+.full-answers dl.kv > div { padding: .35rem 0; border-bottom: 1px solid var(--border); }
+.full-answers dl.kv > div:last-child { border-bottom: 0; }
+.hint-line { margin: .25rem 0 .5rem; }
