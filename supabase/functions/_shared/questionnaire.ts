@@ -44,18 +44,22 @@ export const MAX_LEN: Record<Exclude<FieldKey, 'consent'>, number> = {
 }
 
 // Усі поля анкети обов'язкові, крім: номера кімнати (інформаційний, може бути не призначений) та опікуна (необов'язково).
+// Телефон мами/тата обов'язковий, якщо вказано їхнє ПІБ; якщо когось немає (сирота, один з батьків) — у ПІБ пишуть «немає».
 const REQUIRED: Exclude<FieldKey, 'consent'>[] = [
   'full_name', 'birth_date', 'group_number', 'profession', 'class_teacher', 'master', 'address', 'student_phone',
-  'mother_name', 'mother_phone', 'father_name', 'father_phone',
+  'mother_name', 'father_name',
   'school_activities', 'college_plans', 'social_status', 'allergies', 'chronic_conditions',
 ]
 const MULTILINE = new Set<FieldKey>(['school_activities', 'college_plans', 'social_status', 'allergies', 'chronic_conditions', 'address'])
+/** Канонічне значення «такої людини немає» (зберігається у ПІБ). */
+export const NONE = 'немає'
+const NONE_WORDS = new Set(['немає', 'нема', 'відсутній', 'відсутня', 'немає.', 'нема.', '-', '—', '–', 'н/д', 'no'])
+/** Чи означає введений текст «немає». */
+export function isNone(v: string): boolean {
+  return NONE_WORDS.has(v.trim().toLowerCase())
+}
+
 const PHONE_FIELDS = ['student_phone', 'mother_phone', 'father_phone', 'guardian_phone'] as const
-const PERSON_PAIRS = [
-  ['mother_name', 'mother_phone'],
-  ['father_name', 'father_phone'],
-  ['guardian_name', 'guardian_phone'],
-] as const
 
 /** Returns +380XXXXXXXXX or null. Accepts +380…, 380…, 0XXXXXXXXX with spaces, dashes, dots, parentheses. */
 export function normalizePhone(raw: string): string | null {
@@ -136,6 +140,20 @@ export function validateQuestionnaire(input: unknown, today: Date = new Date()):
     }
   }
 
+  // мама / тато: або ПІБ + телефон, або «немає» (телефон тоді порожній)
+  const none = { mother: false, father: false }
+  for (const who of ['mother', 'father'] as const) {
+    const nameKey = `${who}_name` as const
+    const phoneKey = `${who}_phone` as const
+    if (!v[nameKey] || errors[nameKey]) continue
+    if (isNone(v[nameKey])) {
+      none[who] = true
+      v[nameKey] = NONE
+      if (v[phoneKey] && !isNone(v[phoneKey])) errors[phoneKey] = 'Якщо людини немає — залиште телефон порожнім'
+      else v[phoneKey] = ''
+    } else if (!v[phoneKey] && !errors[phoneKey]) errors[phoneKey] = "Обов'язкове поле"
+  }
+
   for (const key of PHONE_FIELDS) {
     if (!v[key] || errors[key]) continue
     const n = normalizePhone(v[key])
@@ -144,10 +162,11 @@ export function validateQuestionnaire(input: unknown, today: Date = new Date()):
   }
 
   // опікун необов'язковий, але ПІБ і телефон вказуються парою
-  for (const [nameKey, phoneKey] of PERSON_PAIRS) {
-    if (v[nameKey] && !v[phoneKey] && !errors[phoneKey]) errors[phoneKey] = 'Вкажіть телефон'
-    if (!v[nameKey] && v[phoneKey] && !errors[nameKey]) errors[nameKey] = 'Вкажіть ПІБ'
-  }
+  const [gn, gp] = ['guardian_name', 'guardian_phone'] as const
+  if (v[gn] && !v[gp] && !errors[gp]) errors[gp] = 'Вкажіть телефон'
+  if (!v[gn] && v[gp] && !errors[gn]) errors[gn] = 'Вкажіть ПІБ'
+  // сирота / обидвох батьків немає — потрібен опікун, щоб було кому телефонувати
+  if (none.mother && none.father && !v[gn] && !errors[gn]) errors[gn] = 'Якщо батьків немає — вкажіть опікуна'
 
   if (!v.consent) errors.consent = 'Потрібна згода на обробку персональних даних'
 

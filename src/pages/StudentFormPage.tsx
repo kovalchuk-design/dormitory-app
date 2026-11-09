@@ -155,11 +155,11 @@ export function StudentFormPage() {
           {phone('student_phone', 'Твій мобільний телефон', true)}
         </fieldset>
         <fieldset><legend>Батьки та опікун</legend>
-          <p className="muted small">Опікун — лише якщо він є.</p>
+          <p className="muted small">Якщо когось із батьків немає — напиши «немає» у ПІБ, а телефон залиш порожнім. Якщо немає обох — вкажи опікуна. Опікун — лише якщо він є.</p>
           {text('mother_name', 'Мама — ПІБ', { required: true })}
-          {phone('mother_phone', 'Мама — телефон', true)}
+          {phone('mother_phone', 'Мама — телефон')}
           {text('father_name', 'Тато — ПІБ', { required: true })}
-          {phone('father_phone', 'Тато — телефон', true)}
+          {phone('father_phone', 'Тато — телефон')}
           {text('guardian_name', 'Опікун — ПІБ (якщо є)')}
           {phone('guardian_phone', 'Опікун — телефон')}
         </fieldset>

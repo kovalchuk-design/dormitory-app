@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { csvCell, toCsv } from './csv'
 import { changedCount, diffRecords, PROFILE_FIELDS, withStudentIdentity } from './diff'
 import { errorMessage, telHref } from './format'
-import { buildFormLink, isLinkActive } from './links'
+import { buildFormLink, isLinkActive, siteBaseFrom } from './links'
 import {
   filterStudents, DEFAULT_FILTERS, sortStudents, studentsToCsv, type StudentRow,
 } from './studentsList'
@@ -109,7 +109,12 @@ describe('format / links', () => {
     expect(errorMessage({ message: 'permission denied for table x' })).toBe('Недостатньо прав для цієї дії.')
   })
   it('buildFormLink та isLinkActive', () => {
-    expect(buildFormLink('abc')).toBe('https://kovalchuk-design.github.io/dormitory-app/#/form/abc')
+    const gh = { origin: 'https://kovalchuk-design.github.io', pathname: '/dormitory-app/' }
+    expect(buildFormLink('abc', siteBaseFrom(gh))).toBe('https://kovalchuk-design.github.io/dormitory-app/#/form/abc')
+    // переїзд на інший домен / корінь сайту — посилання міняється саме
+    expect(buildFormLink('abc', siteBaseFrom({ origin: 'https://hostel.example.ua', pathname: '/' }))).toBe('https://hostel.example.ua/#/form/abc')
+    expect(siteBaseFrom({ origin: 'https://x.ua', pathname: '/app/index.html' })).toBe('https://x.ua/app/')
+    expect(siteBaseFrom(gh, 'https://custom.ua/hostel')).toBe('https://custom.ua/hostel/')
     expect(buildFormLink('abc', 'http://localhost:5173/dormitory-app')).toBe('http://localhost:5173/dormitory-app/#/form/abc')
     const now = new Date('2026-11-09T00:00:00Z')
     expect(isLinkActive({ used_at: null, expires_at: '2026-11-10T00:00:00Z' }, now)).toBe(true)

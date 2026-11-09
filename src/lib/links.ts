@@ -1,7 +1,17 @@
-/** Публічна адреса сайту (GitHub Pages). Посилання на анкету завжди будуються від неї. */
-export const PUBLIC_SITE_URL = 'https://kovalchuk-design.github.io/dormitory-app/'
+/**
+ * Базова адреса сайту береться з поточної адреси сторінки (без `#…`), тож при зміні домена чи шляху
+ * посилання для учнів змінюються самі. За потреби можна задати вручну змінною `VITE_PUBLIC_SITE_URL`.
+ */
+export function siteBaseFrom(loc: { origin: string; pathname: string }, override?: string): string {
+  const raw = override?.trim() || `${loc.origin}${loc.pathname.replace(/index\.html$/, '')}`
+  return raw.replace(/\/?$/, '/')
+}
 
-export function buildFormLink(token: string, base: string = PUBLIC_SITE_URL): string {
+export function getSiteBase(): string {
+  return siteBaseFrom(window.location, import.meta.env.VITE_PUBLIC_SITE_URL as string | undefined)
+}
+
+export function buildFormLink(token: string, base: string = getSiteBase()): string {
   return `${base.replace(/\/?$/, '/')}#/form/${token}`
 }
 

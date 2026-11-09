@@ -47,7 +47,7 @@ describe('validateQuestionnaire', () => {
     const r = validateQuestionnaire({}, TODAY)
     expect(r.ok).toBe(false)
     if (!r.ok) {
-      for (const k of ['full_name', 'birth_date', 'group_number', 'profession', 'class_teacher', 'master', 'address', 'student_phone', 'mother_name', 'mother_phone', 'father_name', 'father_phone', 'school_activities', 'college_plans', 'social_status', 'allergies', 'chronic_conditions', 'consent'] as const)
+      for (const k of ['full_name', 'birth_date', 'group_number', 'profession', 'class_teacher', 'master', 'address', 'student_phone', 'mother_name', 'father_name', 'school_activities', 'college_plans', 'social_status', 'allergies', 'chronic_conditions', 'consent'] as const)
         expect(r.errors[k], k).toBeTruthy()
     }
   })
@@ -78,12 +78,36 @@ describe('validateQuestionnaire', () => {
     expect(validateQuestionnaire({ ...valid, birth_date: '2010-13-45' }, TODAY).ok).toBe(false)
   })
 
-  it('опікун необов\'язковий, але ПІБ і телефон — парою; мама й тато обов\'язкові', () => {
+  it('мама й тато обовʼязкові: або ПІБ + телефон, або «немає»', () => {
     expect(validateQuestionnaire(valid, TODAY).ok).toBe(true)
     expect(validateQuestionnaire({ ...valid, mother_name: '', mother_phone: '' }, TODAY).ok).toBe(false)
-    expect(validateQuestionnaire({ ...valid, father_phone: '' }, TODAY).ok).toBe(false)
+    expect(validateQuestionnaire({ ...valid, father_name: '' }, TODAY).ok).toBe(false)
+    const noPhone = validateQuestionnaire({ ...valid, father_phone: '' }, TODAY)
+    expect(!noPhone.ok && noPhone.errors.father_phone).toBeTruthy()
+  })
+
+  it('одного з батьків немає: «немає» без телефону проходить і нормалізується', () => {
+    for (const word of ['немає', 'Нема', ' НЕМАЄ ', '-']) {
+      const r = validateQuestionnaire({ ...valid, father_name: word, father_phone: '' }, TODAY)
+      expect(r.ok, word).toBe(true)
+      if (r.ok) expect(r.value).toMatchObject({ father_name: 'немає', father_phone: '' })
+    }
+    const r = validateQuestionnaire({ ...valid, father_name: 'немає', father_phone: 'немає' }, TODAY)
+    expect(r.ok && r.value.father_phone).toBe('')
+    expect(validateQuestionnaire({ ...valid, father_name: 'немає', father_phone: '0991112233' }, TODAY).ok).toBe(false)
+  })
+
+  it('сирота: обидвох батьків немає → потрібен опікун з телефоном', () => {
+    const orphan = { ...valid, mother_name: 'немає', mother_phone: '', father_name: 'немає', father_phone: '' }
+    const r = validateQuestionnaire(orphan, TODAY)
+    expect(!r.ok && r.errors.guardian_name).toBeTruthy()
+    expect(validateQuestionnaire({ ...orphan, guardian_name: 'Опікун О.', guardian_phone: '0991112233' }, TODAY).ok).toBe(true)
+  })
+
+  it('опікун необовʼязковий, але ПІБ і телефон — парою', () => {
     const r = validateQuestionnaire({ ...valid, guardian_name: 'Опікун О.' }, TODAY)
     expect(!r.ok && r.errors.guardian_phone).toBeTruthy()
+    expect(validateQuestionnaire({ ...valid, guardian_phone: '0991112233' }, TODAY).ok).toBe(false)
     expect(validateQuestionnaire({ ...valid, guardian_name: 'Опікун О.', guardian_phone: '0991112233' }, TODAY).ok).toBe(true)
   })
 
