@@ -1,8 +1,4 @@
-import { useMemo, useState } from 'react'
-import {
-  DndContext, DragOverlay, KeyboardSensor, MouseSensor, TouchSensor, pointerWithin, rectIntersection, useDroppable, useSensor, useSensors,
-  type CollisionDetection, type DragEndEvent, type DragStartEvent,
-} from '@dnd-kit/core'
+import { useMemo, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import { assignStudent, createRoom, fetchCurrentRoomId, moveStudent, unassignStudent, updateRoom } from './api'
 import { ConfirmMoveDialog, EditRoomDialog, HistoryDialog, NewRoomDialog, PickRoomDialog } from './Dialogs'
@@ -13,6 +9,7 @@ import {
   type DropTarget, type Pupil, type RoomInfo,
 } from './logic'
 import { useRoomsBoard } from './useRoomsBoard'
+import { usePointerDrag } from './usePointerDrag'
 import './rooms.css'
 
 interface Pending {
@@ -23,23 +20,20 @@ interface Pending {
 
 type HistoryTarget = { title: string; filter: { studentId: string } | { roomId: string }; showStudent: boolean }
 
-// Для миші/дотику — за позицією вказівника; для клавіатури (вказівника немає) — за перетином прямокутників.
-const collisionDetection: CollisionDetection = (args) => {
-  return args.pointerCoordinates ? pointerWithin(args) : rectIntersection(args)
-}
-
-function Pool({ pupils, lastRoom, canEdit, hint, onMove, onHistory }: {
+function Pool({ pupils, lastRoom, canEdit, hint, isOver, draggingId, onDragStart, onMove, onHistory }: {
   pupils: Pupil[]
   lastRoom: Record<string, string>
   canEdit: boolean
   hint: DropHint
+  isOver: boolean
+  draggingId: string | null
+  onDragStart: (e: ReactPointerEvent, pupil: Pupil, roomId: string | null) => void
   onMove: (p: Pupil, roomId: string | null) => void
   onHistory: (p: Pupil) => void
 }) {
-  const { setNodeRef, isOver } = useDroppable({ id: 'pool', data: { kind: 'pool' } })
   return (
     <section
-      ref={setNodeRef}
+      data-drop="pool"
       className={`rm-pool${hint === 'ok' ? ' hint-ok' : ''}${hint === 'blocked' ? ' hint-blocked' : ''}${isOver ? ' over' : ''}`}
       aria-label="Нерозподілені"
       data-testid="pool"
@@ -49,7 +43,7 @@ function Pool({ pupils, lastRoom, canEdit, hint, onMove, onHistory }: {
       </header>
       <ul>
         {pupils.map((p) => (
-          <PupilChip key={p.id} pupil={p} roomId={null} canEdit={canEdit} note={lastRoom[p.id] ? `було: ${lastRoom[p.id]}` : undefined} onMove={onMove} onHistory={onHistory} />
+          <PupilChip key={p.id} pupil={p} roomId={null} canEdit={canEdit} dragging={draggingId === p.id} onDragStart={onDragStart} note={lastRoom[p.id] ? `було: ${lastRoom[p.id]}` : undefined} onMove={onMove} onHistory={onHistory} />
         ))}
         {pupils.length === 0 && <li className="muted small">Усіх учнів розподілено.</li>}
       </ul>
@@ -65,7 +59,6 @@ export function RoomsPage() {
 
   const { data, error, loading, refresh } = useRoomsBoard()
   const [floorTab, setFloorTab] = useState<number>(profile?.floor ?? FLOORS[0])
-  const [dragging, setDragging] = useState<{ pupil: Pupil; fromRoomId: string | null } | null>(null)
   const [picking, setPicking] = useState<{ pupil: Pupil; fromRoomId: string | null } | null>(null)
   const [pending, setPending] = useState<Pending | null>(null)
   const [editing, setEditing] = useState<RoomInfo | null>(null)
@@ -75,11 +68,14 @@ export function RoomsPage() {
   const [dialogError, setDialogError] = useState<string | null>(null)
   const [notice, setNotice] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null)
 
-  const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
-    useSensor(KeyboardSensor),
-  )
+  const { drag, begin } = usePointerDrag({
+    onStart: () => setNotice(null),
+    onDrop: (item, target) => requestMove(item.pupil, item.fromRoomId, target),
+  })
+  const dragging = drag?.item ?? null
+  const onDragStart = (e: ReactPointerEvent, pupil: Pupil, fromRoomId: string | null) => begin(e, { pupil, fromRoomId })
+  const isOver = (t: DropTarget) =>
+    drag?.over != null && (t.kind === 'pool' ? drag.over.kind === 'pool' : drag.over.kind === 'room' && drag.over.roomId === t.roomId)
 
   const rooms = useMemo(() => data?.rooms ?? [], [data])
   const roomMap = useMemo(() => new Map(rooms.map((r) => [r.id, r])), [rooms])
@@ -102,21 +98,6 @@ export function RoomsPage() {
     setNotice(null)
     setDialogError(null)
     setPending({ pupil, fromRoomId, target })
-  }
-
-  function onDragStart(e: DragStartEvent) {
-    const d = e.active.data.current as { pupil: Pupil; roomId: string | null }
-    setNotice(null)
-    setDragging({ pupil: d.pupil, fromRoomId: d.roomId })
-  }
-
-  function onDragEnd(e: DragEndEvent) {
-    const d = dragging
-    setDragging(null)
-    if (!d || !e.over) return
-    const o = e.over.data.current as { kind: 'room'; roomId: string } | { kind: 'pool' }
-    const target: DropTarget = o.kind === 'pool' ? { kind: 'pool' } : { kind: 'room', roomId: o.roomId }
-    requestMove(d.pupil, d.fromRoomId, target)
   }
 
   async function confirm(reason: string | null) {
@@ -212,12 +193,15 @@ export function RoomsPage() {
         </p>
       )}
 
-      <DndContext sensors={sensors} collisionDetection={collisionDetection} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setDragging(null)}>
+      <>
         <Pool
           pupils={data?.unplaced ?? []}
           lastRoom={data?.lastRoom ?? {}}
           canEdit={canEdit}
           hint={dragging ? hintFor({ kind: 'pool' }) : null}
+          isOver={isOver({ kind: 'pool' })}
+          draggingId={dragging?.pupil.id ?? null}
+          onDragStart={onDragStart}
           onMove={startPick}
           onHistory={openHistory}
         />
@@ -242,6 +226,9 @@ export function RoomsPage() {
                     pupils={pupilsByRoom.get(r.id) ?? []}
                     canEdit={canEdit}
                     isAdmin={isAdmin}
+                    isOver={isOver({ kind: 'room', roomId: r.id })}
+                    draggingId={dragging?.pupil.id ?? null}
+                    onDragStart={onDragStart}
                     onCapacity={(room, cap) => void changeCapacity(room, cap)}
                     hint={hintFor({ kind: 'room', roomId: r.id })}
                     onMove={startPick}
@@ -256,8 +243,12 @@ export function RoomsPage() {
           ))}
         </div>
 
-        <DragOverlay>{dragging ? <div className="rm-overlay">{pupilName(dragging.pupil)}</div> : null}</DragOverlay>
-      </DndContext>
+        {drag && (
+          <div className="rm-overlay" style={{ left: drag.x + 12, top: drag.y + 12 }}>
+            {pupilName(drag.item.pupil)}
+          </div>
+        )}
+      </>
 
       {picking && (
         <PickRoomDialog
