@@ -4,15 +4,18 @@ import { RequireRole } from '../auth/RequireRole'
 import { Layout } from '../components/Layout'
 import { LoginPage } from '../pages/LoginPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
+import { ApprovalsPage } from '../pages/ApprovalsPage'
+import { StudentCardPage } from '../pages/StudentCardPage'
+import { StudentEditPage } from '../pages/StudentEditPage'
 import { StudentFormPage } from '../pages/StudentFormPage'
+import { RoomsPage } from '../features/rooms/RoomsPage'
+import { StudentsPage } from '../pages/StudentsPage'
+import { AdminDocumentSettings, DocumentsPage } from '../features/documents'
 import {
   AdminPage,
   CalendarPage,
-  DocumentsPage,
   EventsPage,
   HomePage,
-  RoomsPage,
-  StudentsPage,
 } from '../pages/placeholders'
 
 export function AppRoutes() {
@@ -24,6 +27,17 @@ export function AppRoutes() {
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="students" element={<StudentsPage />} />
+          <Route path="students/new" element={<StudentEditPage />} />
+          <Route path="students/:id" element={<StudentCardPage />} />
+          <Route path="students/:id/edit" element={<StudentEditPage />} />
+          <Route
+            path="updates"
+            element={
+              <RequireRole roles={['admin', 'educator']}>
+                <ApprovalsPage />
+              </RequireRole>
+            }
+          />
           <Route path="rooms" element={<RoomsPage />} />
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="events" element={<EventsPage />} />
@@ -33,6 +47,7 @@ export function AppRoutes() {
             element={
               <RequireRole roles={['admin']}>
                 <AdminPage />
+                <AdminDocumentSettings />
               </RequireRole>
             }
           />
