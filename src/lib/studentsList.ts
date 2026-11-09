@@ -1,0 +1,110 @@
+import { toCsv } from './csv'
+import { fullName, STATUS_LABELS, type StudentStatus } from './format'
+
+export interface StudentRow {
+  id: string
+  last_name: string
+  first_name: string
+  patronymic: string | null
+  birth_date: string | null
+  grade: number
+  status: StudentStatus
+  room: string | null
+  floor: number | null
+  student_phone: string | null
+  mother_phone: string | null
+  father_phone: string | null
+  guardian_phone: string | null
+}
+
+export interface Filters {
+  query: string
+  grade: string // '' | '9' | '10' | '11'
+  floor: string // '' | '2'..'5'
+  room: string // '' | номер кімнати
+  status: string // '' | active | graduated | left
+  unplacedOnly: boolean
+}
+
+export const DEFAULT_FILTERS: Filters = { query: '', grade: '', floor: '', room: '', status: 'active', unplacedOnly: false }
+
+const digits = (s: string) => s.replace(/\D/g, '')
+const fold = (s: string) => s.toLowerCase().replace(/[’ʼ`']/g, "'")
+
+export function matchesQuery(r: StudentRow, query: string): boolean {
+  const q = fold(query.trim())
+  if (!q) return true
+  const qDigits = digits(q)
+  const phoneQuery = qDigits.length >= 3 && qDigits.length >= q.replace(/[\s+()-]/g, '').length
+  if (phoneQuery) {
+    const phones = [r.student_phone, r.mother_phone, r.father_phone, r.guardian_phone]
+    if (phones.some((p) => p && digits(p).includes(qDigits))) return true
+    // дозволяємо також номер кімнати, що складається лише з цифр
+    return r.room != null && r.room.toLowerCase() === q
+  }
+  const hay = fold(`${fullName(r)} ${r.room ?? ''}`)
+  return q.split(/\s+/).every((t) => hay.includes(t))
+}
+
+export function filterStudents(rows: StudentRow[], f: Filters): StudentRow[] {
+  return rows.filter(
+    (r) =>
+      matchesQuery(r, f.query) &&
+      (!f.grade || r.grade === Number(f.grade)) &&
+      (!f.floor || r.floor === Number(f.floor)) &&
+      (!f.room || r.room === f.room) &&
+      (!f.status || r.status === f.status) &&
+      (!f.unplacedOnly || r.room == null),
+  )
+}
+
+export type SortKey = 'name' | 'grade' | 'room' | 'floor' | 'status'
+export type SortDir = 'asc' | 'desc'
+
+const collator = new Intl.Collator('uk', { numeric: true, sensitivity: 'base' })
+
+export function sortStudents(rows: StudentRow[], key: SortKey, dir: SortDir): StudentRow[] {
+  const sign = dir === 'asc' ? 1 : -1
+  const byName = (a: StudentRow, b: StudentRow) => collator.compare(fullName(a), fullName(b))
+  return [...rows].sort((a, b) => {
+    let c = 0
+    switch (key) {
+      case 'name':
+        return sign * byName(a, b)
+      case 'grade':
+        c = a.grade - b.grade
+        break
+      case 'status':
+        c = collator.compare(a.status, b.status)
+        break
+      case 'room':
+      case 'floor': {
+        const av = key === 'room' ? a.room : a.floor
+        const bv = key === 'room' ? b.room : b.floor
+        if (av == null || bv == null) {
+          // нерозподілені завжди в кінці, незалежно від напрямку
+          if (av == null && bv == null) return byName(a, b)
+          return av == null ? 1 : -1
+        }
+        c = key === 'room' ? collator.compare(String(av), String(bv)) : Number(av) - Number(bv)
+        break
+      }
+    }
+    return c !== 0 ? sign * c : byName(a, b)
+  })
+}
+
+export const CSV_HEADERS = [
+  'ПІБ', 'Клас', 'Статус', 'Поверх', 'Кімната', 'Телефон учня', 'Мама', 'Тато', 'Опікун',
+]
+
+/** Експорт того, що зараз показано (з урахуванням фільтрів). Медичних даних немає. */
+export function studentsToCsv(rows: StudentRow[]): string {
+  return toCsv(
+    CSV_HEADERS,
+    rows.map((r) => [
+      fullName(r), r.grade, STATUS_LABELS[r.status], r.floor ?? '', r.room ?? 'нерозподілений',
+      r.student_phone ?? '', r.mother_phone ?? '', r.father_phone ?? '', r.guardian_phone ?? '',
+    ]),
+  )
+}
