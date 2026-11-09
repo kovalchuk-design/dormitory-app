@@ -13,11 +13,13 @@ interface ProfileState {
 async function fetchProfile(userId: string): Promise<ProfileState> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, full_name, role, floor')
+    .select('id, full_name, role, floor, is_active')
     .eq('id', userId)
     .maybeSingle()
   if (error) return { userId, profile: null, error: true }
-  if (!data || !isRole(data.role)) return { userId, profile: null, error: false }
+  // Деактивований акаунт (is_active=false) = «доступ відсутній»: RLS і так не віддасть йому даних,
+  // тож не показуємо порожню оболонку застосунку.
+  if (!data || !data.is_active || !isRole(data.role)) return { userId, profile: null, error: false }
   return {
     userId,
     profile: { id: data.id, full_name: data.full_name, role: data.role, floor: data.floor ?? null },
