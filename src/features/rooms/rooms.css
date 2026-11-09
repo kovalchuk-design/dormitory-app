@@ -28,7 +28,8 @@
 }
 .rm-pupil.dragging { opacity: .35; }
 .rm-pupil-name { flex: 1 1 100%; min-width: 0; overflow-wrap: anywhere; }
-.rm-pupil-name.draggable { cursor: grab; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }
+.rm-pupil.draggable { cursor: grab; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }
+.rm-pupil.draggable button { cursor: pointer; }
 body.rm-dragging, body.rm-dragging * { cursor: grabbing !important; user-select: none !important; -webkit-user-select: none !important; }
 .rm-mini { padding: .15rem .45rem; font-size: .75rem; }
 .rm-overlay { position: fixed; z-index: 70; pointer-events: none; padding: .4rem .7rem; background: var(--accent); color: #fff; border-radius: 8px; box-shadow: 0 4px 14px #0003; }

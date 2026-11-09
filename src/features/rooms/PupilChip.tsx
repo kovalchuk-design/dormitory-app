@@ -15,15 +15,16 @@ interface Props {
 
 export function PupilChip({ pupil, roomId, canEdit, note, dragging, onDragStart, onMove, onHistory }: Props) {
   return (
-    <li className={`rm-pupil${dragging ? ' dragging' : ''}`}>
-      <span
-        className={`rm-pupil-name${canEdit ? ' draggable' : ''}`}
-        draggable={false}
-        onPointerDown={canEdit ? (e) => onDragStart(e, pupil, roomId) : undefined}
-        onMouseDown={canEdit ? (e) => e.preventDefault() : undefined}
-        onDragStart={(e) => e.preventDefault()}
-        title={canEdit ? 'Перетягніть у іншу кімнату' : undefined}
-      >
+    <li
+      className={`rm-pupil${canEdit ? ' draggable' : ''}${dragging ? ' dragging' : ''}`}
+      draggable={false}
+      // Тягнути можна за всю картку учня, окрім кнопок усередині.
+      onPointerDown={canEdit ? (e) => !(e.target as HTMLElement).closest('button') && onDragStart(e, pupil, roomId) : undefined}
+      onMouseDown={canEdit ? (e) => !(e.target as HTMLElement).closest('button') && e.preventDefault() : undefined}
+      onDragStart={(e) => e.preventDefault()}
+      title={canEdit ? 'Перетягніть у іншу кімнату' : undefined}
+    >
+      <span className="rm-pupil-name">
         {pupilName(pupil)} <span className="muted small">{pupil.grade} кл.</span>
         {note && <span className="muted small"> · {note}</span>}
       </span>
