@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
+import { BirthDateField } from '../components/BirthDateField'
 import { errorMessage, isStudentStatus, STATUS_LABELS, type StudentStatus } from '../lib/format'
 import { supabase } from '../lib/supabase'
 import { useLoad } from '../lib/useLoad'
@@ -49,6 +50,7 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
   const [serverError, setServerError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [dateIncomplete, setDateIncomplete] = useState(false)
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => setF((p) => ({ ...p, [k]: v }))
 
   async function submit(e: FormEvent) {
@@ -56,7 +58,8 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
     const errs: typeof errors = {}
     if (!f.last_name.trim()) errs.last_name = "Обов'язкове поле"
     if (!f.first_name.trim()) errs.first_name = "Обов'язкове поле"
-    if (f.birth_date && !/^\d{4}-\d{2}-\d{2}$/.test(f.birth_date)) errs.birth_date = 'Некоректна дата'
+    if (dateIncomplete) errs.birth_date = 'Оберіть день, місяць і рік (або приберіть усі три)'
+    else if (f.birth_date && !/^\d{4}-\d{2}-\d{2}$/.test(f.birth_date)) errs.birth_date = 'Некоректна дата'
     setErrors(errs)
     if (Object.keys(errs).length) return
 
@@ -97,7 +100,11 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
         {field('last_name', 'Прізвище *', <input value={f.last_name} onChange={(e) => set('last_name', e.target.value)} autoComplete="off" aria-invalid={!!errors.last_name} aria-describedby={errors.last_name ? 'e-last_name' : undefined} />)}
         {field('first_name', "Ім'я *", <input value={f.first_name} onChange={(e) => set('first_name', e.target.value)} autoComplete="off" aria-invalid={!!errors.first_name} aria-describedby={errors.first_name ? 'e-first_name' : undefined} />)}
         {field('patronymic', 'По батькові', <input value={f.patronymic} onChange={(e) => set('patronymic', e.target.value)} autoComplete="off" />)}
-        {field('birth_date', 'Дата народження', <input type="date" value={f.birth_date} onChange={(e) => set('birth_date', e.target.value)} />)}
+        {field('birth_date', 'Дата народження', (
+          <BirthDateField id="f-birth_date" name="birth_date" value={f.birth_date}
+            onChange={(iso, incomplete) => { set('birth_date', iso); setDateIncomplete(incomplete) }}
+            minYear={new Date().getFullYear() - 30} maxYear={new Date().getFullYear() - 8} invalid={!!errors.birth_date} />
+        ))}
         {field('grade', 'Клас *', (
           <select value={f.grade} onChange={(e) => set('grade', e.target.value)}>
             {[9, 10, 11].map((g) => <option key={g} value={g}>{g}</option>)}
