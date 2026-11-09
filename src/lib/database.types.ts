@@ -44,6 +44,35 @@ export type Database = {
         }
         Relationships: []
       }
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_log: {
         Row: {
           action: string
@@ -209,6 +238,13 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "v_unplaced_students"
             referencedColumns: ["id"]
           },
         ]
@@ -383,6 +419,8 @@ export type Database = {
       room_assignments: {
         Row: {
           created_at: string
+          end_reason: string | null
+          ended_by: string | null
           from_date: string
           id: string
           moved_by: string | null
@@ -393,6 +431,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          end_reason?: string | null
+          ended_by?: string | null
           from_date?: string
           id?: string
           moved_by?: string | null
@@ -403,6 +443,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          end_reason?: string | null
+          ended_by?: string | null
           from_date?: string
           id?: string
           moved_by?: string | null
@@ -412,6 +454,13 @@ export type Database = {
           to_date?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "room_assignments_ended_by_fkey"
+            columns: ["ended_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "room_assignments_moved_by_fkey"
             columns: ["moved_by"]
@@ -438,6 +487,13 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_assignments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "v_unplaced_students"
             referencedColumns: ["id"]
           },
         ]
@@ -506,6 +562,13 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: true
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_medical_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "v_unplaced_students"
             referencedColumns: ["id"]
           },
         ]
@@ -602,6 +665,13 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_profiles_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "v_unplaced_students"
             referencedColumns: ["id"]
           },
         ]
@@ -709,6 +779,13 @@ export type Database = {
             referencedRelation: "students"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "update_requests_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "v_unplaced_students"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
@@ -724,6 +801,44 @@ export type Database = {
           room_id: string | null
         }
         Relationships: []
+      }
+      v_unplaced_students: {
+        Row: {
+          academic_year_id: string | null
+          created_at: string | null
+          first_name: string | null
+          grade: number | null
+          id: string | null
+          last_name: string | null
+          patronymic: string | null
+        }
+        Insert: {
+          academic_year_id?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          grade?: number | null
+          id?: string | null
+          last_name?: string | null
+          patronymic?: string | null
+        }
+        Update: {
+          academic_year_id?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          grade?: number | null
+          id?: string | null
+          last_name?: string | null
+          patronymic?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "students_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
@@ -759,6 +874,10 @@ export type Database = {
       set_current_academic_year: {
         Args: { p_year_id: string }
         Returns: undefined
+      }
+      unassign_student: {
+        Args: { p_reason?: string; p_student_id: string }
+        Returns: string
       }
     }
     Enums: {
