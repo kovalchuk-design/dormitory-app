@@ -24,6 +24,13 @@ describe('diffRecords', () => {
     const d = diffRecords(null, { profession: 'Кухар' }, PROFILE_FIELDS)
     expect(d.find((x) => x.key === 'profession')).toMatchObject({ before: '', after: 'Кухар', changed: true })
   })
+  it('повторне подання: різниця між двома версіями показує виправлення помилки', () => {
+    const v1 = { group_number: 'К-21', profession: 'Кухр', mother_phone: '+380501234567' }
+    const v2 = { group_number: 'К-21', profession: 'Кухар', mother_phone: '+380501234567' }
+    const d = diffRecords(v1, v2, PROFILE_FIELDS).filter((x) => x.changed)
+    expect(d).toEqual([expect.objectContaining({ key: 'profession', before: 'Кухр', after: 'Кухар' })])
+    expect(changedCount(diffRecords(v2, { ...v2 }, PROFILE_FIELDS))).toBe(0)
+  })
   it('withStudentIdentity підставляє ПІБ і дату з картки', () => {
     const p = withStudentIdentity({ group_number: 'A' }, { last_name: 'І', first_name: 'П', patronymic: 'Б', birth_date: '2010-01-01' })
     expect(p).toMatchObject({ submitted_full_name: 'І П Б', submitted_birth_date: '2010-01-01' })

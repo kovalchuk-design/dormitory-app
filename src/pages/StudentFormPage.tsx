@@ -155,23 +155,23 @@ export function StudentFormPage() {
           {phone('student_phone', 'Твій мобільний телефон', true)}
         </fieldset>
         <fieldset><legend>Батьки та опікун</legend>
-          <p className="muted small">Вкажи принаймні одного з батьків або опікуна — зі телефоном.</p>
-          {text('mother_name', 'Мама — ПІБ')}
-          {phone('mother_phone', 'Мама — телефон')}
-          {text('father_name', 'Тато — ПІБ')}
-          {phone('father_phone', 'Тато — телефон')}
+          <p className="muted small">Опікун — лише якщо він є.</p>
+          {text('mother_name', 'Мама — ПІБ', { required: true })}
+          {phone('mother_phone', 'Мама — телефон', true)}
+          {text('father_name', 'Тато — ПІБ', { required: true })}
+          {phone('father_phone', 'Тато — телефон', true)}
           {text('guardian_name', 'Опікун — ПІБ (якщо є)')}
           {phone('guardian_phone', 'Опікун — телефон')}
         </fieldset>
         <fieldset><legend>Інтереси</legend>
-          {area('school_activities', 'Чим займався(лась) у школі')}
-          {area('college_plans', 'Чим хочеш займатися у коледжі')}
-          {area('social_status', 'Соціальний статус', 'Наприклад: повна сімʼя, багатодітна, ВПО… (необовʼязково)')}
+          {area('school_activities', 'Чим займався(лась) у школі *')}
+          {area('college_plans', 'Чим хочеш займатися у коледжі *')}
+          {area('social_status', 'Соціальний статус *', 'Наприклад: повна сімʼя, багатодітна, ВПО…')}
         </fieldset>
         <fieldset><legend>Здоровʼя</legend>
           <p className="muted small">Ці дані бачать лише вихователі й адміністратор.</p>
-          {area('allergies', 'Алергії', 'Якщо немає — залиш порожнім')}
-          {area('chronic_conditions', 'Хронічні хвороби', 'Якщо немає — залиш порожнім')}
+          {area('allergies', 'Алергії *', 'Якщо немає — напиши «немає»')}
+          {area('chronic_conditions', 'Хронічні хвороби *', 'Якщо немає — напиши «немає»')}
         </fieldset>
         <div className="consent">
           <label className="check">

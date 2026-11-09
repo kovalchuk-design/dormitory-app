@@ -38,17 +38,32 @@ async function loadPending() {
           chronic_conditions: submission.chronic_conditions ?? medical?.chronic_conditions,
         }, MEDICAL_FIELDS)
       : []
-    return { id: p.id, version_no: p.version_no, submitted_at: p.submitted_at, student, hasCurrent: approved != null, profileDiff, medDiff }
+    // попередня ще не оброблена версія цього ж учня (повторне подання) — показуємо, що змінилось між ними
+    const prevP = pend.data.filter((x) => x.student_id === p.student_id && x.version_no < p.version_no).sort((a, b) => b.version_no - a.version_no)[0]
+    let prev: { version_no: number; submitted_at: string; diff: FieldDiff[]; medDiff: FieldDiff[] } | null = null
+    if (prevP) {
+      const prevSub = sub.data.find((x) => x.profile_id === prevP.id) ?? null
+      const medKey = (r: typeof submission) => ({ allergies: r?.allergies, chronic_conditions: r?.chronic_conditions })
+      prev = {
+        version_no: prevP.version_no,
+        submitted_at: prevP.submitted_at,
+        diff: diffRecords(prevP, p, PROFILE_FIELDS),
+        medDiff: prevSub || submission ? diffRecords(medKey(prevSub), medKey(submission), MEDICAL_FIELDS) : [],
+      }
+    }
+    return { id: p.id, version_no: p.version_no, submitted_at: p.submitted_at, student, hasCurrent: approved != null, profileDiff, medDiff, prev }
   })
 }
 
-function DiffTable({ rows, title, onlyChanged }: { rows: FieldDiff[]; title: string; onlyChanged: boolean }) {
+function DiffTable({ rows, title, onlyChanged, beforeLabel = 'Чинна версія', afterLabel = 'Нова версія' }: {
+  rows: FieldDiff[]; title: string; onlyChanged: boolean; beforeLabel?: string; afterLabel?: string
+}) {
   const shown = onlyChanged ? rows.filter((r) => r.changed) : rows
   return (
     <div className="table-wrap">
       <table className="data diff">
         <caption className="sr-only">{title}</caption>
-        <thead><tr><th scope="col">Поле</th><th scope="col">Чинна версія</th><th scope="col">Нова версія</th></tr></thead>
+        <thead><tr><th scope="col">Поле</th><th scope="col">{beforeLabel}</th><th scope="col">{afterLabel}</th></tr></thead>
         <tbody>
           {shown.map((r) => (
             <tr key={r.key} className={r.changed ? 'changed' : undefined}>
@@ -100,6 +115,24 @@ export function ApprovalsPage() {
               Версія {item.version_no} · подано {formatDateTime(item.submitted_at)} · змінених полів: {n}
               {!item.hasCurrent && ' · чинної версії ще немає (перша анкета)'}
             </p>
+            {item.prev && (() => {
+              const pn = item.prev.version_no
+              const rows = [...item.prev.diff, ...item.prev.medDiff]
+              const n = changedCount(rows)
+              return (
+                <div className="notice" role="note">
+                  {n === 0 ? (
+                    <p><strong>Дубль:</strong> ця версія повністю збігається з версією {pn}, поданою {formatDateTime(item.prev.submitted_at)}. Достатньо обробити одну з них.</p>
+                  ) : (
+                    <>
+                      <p><strong>Повторне подання:</strong> цей учень уже надсилав версію {pn} ({formatDateTime(item.prev.submitted_at)}), яка ще не оброблена. У версії {item.version_no} змінено полів: {n}.</p>
+                      <DiffTable rows={rows} title={`Зміни у версії ${item.version_no} порівняно з версією ${pn}`} onlyChanged
+                        beforeLabel={`Версія ${pn}`} afterLabel={`Версія ${item.version_no}`} />
+                    </>
+                  )}
+                </div>
+              )
+            })()}
             <DiffTable rows={item.profileDiff} title="Порівняння анкети" onlyChanged={onlyChanged && item.hasCurrent} />
             {item.medDiff.length > 0 && (
               <>

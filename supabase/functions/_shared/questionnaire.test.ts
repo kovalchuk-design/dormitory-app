@@ -6,7 +6,9 @@ const valid = {
   full_name: 'Тестенко Тест Тестович', birth_date: '2010-05-17', room: '305', group_number: 'К-21',
   profession: 'Кухар', class_teacher: 'Іваненко І.І.', master: 'Петренко П.П.', address: 'м. Тест, вул. Тестова 1',
   student_phone: '067 123 45 67', mother_name: 'Тестенко Мама', mother_phone: '+380501234567',
-  consent: true,
+  father_name: 'Тестенко Тато', father_phone: '0991112233',
+  school_activities: 'Футбол', college_plans: 'Кулінарія', social_status: 'Повна сімʼя',
+  allergies: 'немає', chronic_conditions: 'немає', consent: true,
 }
 
 describe('normalizePhone / isValidPhone', () => {
@@ -36,7 +38,8 @@ describe('validateQuestionnaire', () => {
     expect(r.ok).toBe(true)
     if (r.ok) {
       expect(r.value.student_phone).toBe('+380671234567')
-      expect(r.value.father_phone).toBe('')
+      expect(r.value.father_phone).toBe('+380991112233')
+      expect(r.value.guardian_phone).toBe('')
     }
   })
 
@@ -44,7 +47,7 @@ describe('validateQuestionnaire', () => {
     const r = validateQuestionnaire({}, TODAY)
     expect(r.ok).toBe(false)
     if (!r.ok) {
-      for (const k of ['full_name', 'birth_date', 'group_number', 'profession', 'class_teacher', 'master', 'address', 'student_phone', 'consent'] as const)
+      for (const k of ['full_name', 'birth_date', 'group_number', 'profession', 'class_teacher', 'master', 'address', 'student_phone', 'mother_name', 'mother_phone', 'father_name', 'father_phone', 'school_activities', 'college_plans', 'social_status', 'allergies', 'chronic_conditions', 'consent'] as const)
         expect(r.errors[k], k).toBeTruthy()
     }
   })
@@ -75,11 +78,13 @@ describe('validateQuestionnaire', () => {
     expect(validateQuestionnaire({ ...valid, birth_date: '2010-13-45' }, TODAY).ok).toBe(false)
   })
 
-  it('потрібен хоча б один контакт батьків/опікуна; імʼя і телефон — парою', () => {
+  it('опікун необов\'язковий, але ПІБ і телефон — парою; мама й тато обов\'язкові', () => {
+    expect(validateQuestionnaire(valid, TODAY).ok).toBe(true)
     expect(validateQuestionnaire({ ...valid, mother_name: '', mother_phone: '' }, TODAY).ok).toBe(false)
-    expect(validateQuestionnaire({ ...valid, mother_name: '', mother_phone: '', guardian_name: 'Опікун О.', guardian_phone: '0991112233' }, TODAY).ok).toBe(true)
-    const r = validateQuestionnaire({ ...valid, father_name: 'Тато Т.' }, TODAY)
-    expect(!r.ok && r.errors.father_phone).toBeTruthy()
+    expect(validateQuestionnaire({ ...valid, father_phone: '' }, TODAY).ok).toBe(false)
+    const r = validateQuestionnaire({ ...valid, guardian_name: 'Опікун О.' }, TODAY)
+    expect(!r.ok && r.errors.guardian_phone).toBeTruthy()
+    expect(validateQuestionnaire({ ...valid, guardian_name: 'Опікун О.', guardian_phone: '0991112233' }, TODAY).ok).toBe(true)
   })
 
   it('обмеження довжини та керівні символи', () => {

@@ -43,8 +43,11 @@ export const MAX_LEN: Record<Exclude<FieldKey, 'consent'>, number> = {
   allergies: 1000, chronic_conditions: 1000,
 }
 
+// Усі поля анкети обов'язкові, крім: номера кімнати (інформаційний, може бути не призначений) та опікуна (необов'язково).
 const REQUIRED: Exclude<FieldKey, 'consent'>[] = [
   'full_name', 'birth_date', 'group_number', 'profession', 'class_teacher', 'master', 'address', 'student_phone',
+  'mother_name', 'mother_phone', 'father_name', 'father_phone',
+  'school_activities', 'college_plans', 'social_status', 'allergies', 'chronic_conditions',
 ]
 const MULTILINE = new Set<FieldKey>(['school_activities', 'college_plans', 'social_status', 'allergies', 'chronic_conditions', 'address'])
 const PHONE_FIELDS = ['student_phone', 'mother_phone', 'father_phone', 'guardian_phone'] as const
@@ -140,15 +143,10 @@ export function validateQuestionnaire(input: unknown, today: Date = new Date()):
     else errors[key] = 'Формат: +380XXXXXXXXX'
   }
 
-  // parents / guardian: name and phone go together
-  let haveContact = false
+  // опікун необов'язковий, але ПІБ і телефон вказуються парою
   for (const [nameKey, phoneKey] of PERSON_PAIRS) {
-    if (v[nameKey] && v[phoneKey] && !errors[phoneKey]) haveContact = true
     if (v[nameKey] && !v[phoneKey] && !errors[phoneKey]) errors[phoneKey] = 'Вкажіть телефон'
     if (!v[nameKey] && v[phoneKey] && !errors[nameKey]) errors[nameKey] = 'Вкажіть ПІБ'
-  }
-  if (!haveContact && !errors.mother_name && !errors.mother_phone) {
-    errors.mother_name = 'Вкажіть принаймні одного з батьків або опікуна'
   }
 
   if (!v.consent) errors.consent = 'Потрібна згода на обробку персональних даних'
