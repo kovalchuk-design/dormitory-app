@@ -91,8 +91,9 @@ insert into test_results (name, ok) select 'pending version has pupil data + con
   student_phone='+380671234567' and submitted_full_name='Тест Активний Іванович' and consent_at is not null and approved_by is null and approved_at is null
   from public.student_profiles where student_id='51000000-0000-0000-0000-000000000001' and status='pending';
 insert into test_results (name, ok) select 'medical held in submissions (blank field → NULL), NOT yet in student_medical',
-  (select count(*) from public.student_medical_submissions where allergies='пилок' and chronic_conditions is null) = 1
-  and (select count(*) from public.student_medical) = 0;
+  (select count(*) from public.student_medical_submissions sm join public.student_profiles sp on sp.id = sm.profile_id
+    where sp.student_id='51000000-0000-0000-0000-000000000001' and sm.allergies='пилок' and sm.chronic_conditions is null) = 1
+  and (select count(*) from public.student_medical where student_id='51000000-0000-0000-0000-000000000001') = 0;
 
 set local role service_role;
 insert into test_results (name, ok) select 'token used twice → second submit false',
@@ -164,14 +165,15 @@ do $$ declare ok boolean := false; begin
   insert into test_results (name, ok) values ('educator cannot self-reject via UPDATE (guard)', ok);
 end $$;
 insert into test_results (name, ok) select 'educator sees pending version and held medical', 
-  (select count(*) from public.student_profiles where status='pending') = 1
-  and (select count(*) from public.student_medical_submissions) = 1;
+  (select count(*) from public.student_profiles where status='pending' and student_id='51000000-0000-0000-0000-000000000001') = 1
+  and (select count(*) from public.student_medical_submissions sm join public.student_profiles sp on sp.id = sm.profile_id where sp.student_id='51000000-0000-0000-0000-000000000001') = 1;
 reset role;
 
 set local role authenticated;
 select set_config('request.jwt.claims','{"sub":"e1000000-0000-0000-0000-000000000002","role":"authenticated"}',true);
 insert into test_results (name, ok) select 'staff_readonly cannot see pending versions or medical submissions',
-  (select count(*) from public.student_profiles) = 0 and (select count(*) from public.student_medical_submissions) = 0;
+  (select count(*) from public.student_profiles where student_id='51000000-0000-0000-0000-000000000001') = 0
+  and (select count(*) from public.student_medical_submissions sm join public.student_profiles sp on sp.id = sm.profile_id where sp.student_id='51000000-0000-0000-0000-000000000001') = 0;
 do $$ declare ok boolean := false; begin
   begin perform public.approve_student_profile((select id from public.student_profiles limit 1)); exception when others then ok := true; end;
   insert into test_results (name, ok) values ('staff_readonly cannot approve', ok);
@@ -184,11 +186,11 @@ reset role;
 -- ---------------------------------------------------------------- approve applies held medical; version history
 set local role authenticated;
 select set_config('request.jwt.claims','{"sub":"e1000000-0000-0000-0000-000000000001","role":"authenticated"}',true);
-select public.approve_student_profile((select id from public.student_profiles where status='pending'));
+select public.approve_student_profile((select id from public.student_profiles where status='pending' and student_id='51000000-0000-0000-0000-000000000001'));
 reset role;
 insert into test_results (name, ok) select 'approve: version approved with approver, medical applied with authorship',
   (select status='approved' and approved_by='e1000000-0000-0000-0000-000000000001' from public.student_profiles where version_no=1 and student_id='51000000-0000-0000-0000-000000000001')
-  and (select allergies='пилок' and chronic_conditions is null and updated_by='e1000000-0000-0000-0000-000000000001' from public.student_medical);
+  and (select allergies='пилок' and chronic_conditions is null and updated_by='e1000000-0000-0000-0000-000000000001' from public.student_medical where student_id='51000000-0000-0000-0000-000000000001');
 
 -- second round: new link → prefill shows approved data (no medical) → submit → approve supersedes → reject another
 set local role authenticated;
@@ -209,24 +211,24 @@ reset role;
 
 set local role authenticated;
 select set_config('request.jwt.claims','{"sub":"e1000000-0000-0000-0000-000000000001","role":"authenticated"}',true);
-select public.approve_student_profile((select id from public.student_profiles where status='pending' order by version_no limit 1));
-select public.reject_student_profile((select id from public.student_profiles where status='pending'));
+select public.approve_student_profile((select id from public.student_profiles where status='pending' and student_id='51000000-0000-0000-0000-000000000001' order by version_no limit 1));
+select public.reject_student_profile((select id from public.student_profiles where status='pending' and student_id='51000000-0000-0000-0000-000000000001'));
 do $$ declare ok boolean := false; begin
-  begin perform public.approve_student_profile((select id from public.student_profiles where status='rejected')); exception when others then ok := sqlerrm like 'NOT_PENDING%'; end;
+  begin perform public.approve_student_profile((select id from public.student_profiles where status='rejected' and student_id='51000000-0000-0000-0000-000000000001')); exception when others then ok := sqlerrm like 'NOT_PENDING%'; end;
   insert into test_results (name, ok) values ('approving a rejected version → NOT_PENDING', ok);
   ok := false;
-  begin perform public.reject_student_profile((select id from public.student_profiles where status='rejected')); exception when others then ok := sqlerrm like 'NOT_PENDING%'; end;
+  begin perform public.reject_student_profile((select id from public.student_profiles where status='rejected' and student_id='51000000-0000-0000-0000-000000000001')); exception when others then ok := sqlerrm like 'NOT_PENDING%'; end;
   insert into test_results (name, ok) values ('rejecting twice → NOT_PENDING', ok);
 end $$;
 reset role;
 insert into test_results (name, ok, info) select 'history: v1 superseded, v2 approved, v3 rejected (by educator), exactly one approved',
   string_agg(status, ',' order by version_no) = 'superseded,approved,rejected'
-  and (select count(*) from public.student_profiles where status='approved') = 1
+  and (select count(*) from public.student_profiles where status='approved' and student_id='51000000-0000-0000-0000-000000000001') = 1
   and (select rejected_by='e1000000-0000-0000-0000-000000000001' and rejected_at is not null and approved_at is null
-       from public.student_profiles where status='rejected'), string_agg(status, ',' order by version_no)
+       from public.student_profiles where status='rejected' and student_id='51000000-0000-0000-0000-000000000001'), string_agg(status, ',' order by version_no)
   from public.student_profiles where student_id='51000000-0000-0000-0000-000000000001';
 insert into test_results (name, ok) select 'blank medical in a later (approved) submission keeps existing student_medical',
-  allergies = 'пилок' from public.student_medical;
+  allergies = 'пилок' from public.student_medical where student_id='51000000-0000-0000-0000-000000000001';
 
 -- DB-level constraint: approved needs approved_at; rejected must not have it
 do $$ declare ok boolean := false; begin

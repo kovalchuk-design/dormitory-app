@@ -386,6 +386,121 @@ export type Database = {
           },
         ]
       }
+      intake_links: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          floor: number | null
+          id: string
+          max_submissions: number
+          revoked_at: string | null
+          token_hash: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at: string
+          floor?: number | null
+          id?: string
+          max_submissions?: number
+          revoked_at?: string | null
+          token_hash: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          floor?: number | null
+          id?: string
+          max_submissions?: number
+          revoked_at?: string | null
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intake_links_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intake_submissions: {
+        Row: {
+          id: string
+          link_id: string
+          match_method: string | null
+          payload: Json | null
+          profile_id: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          student_id: string | null
+          submitted_at: string
+          submitted_birth_date: string
+          submitted_full_name: string
+        }
+        Insert: {
+          id?: string
+          link_id: string
+          match_method?: string | null
+          payload?: Json | null
+          profile_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          student_id?: string | null
+          submitted_at?: string
+          submitted_birth_date: string
+          submitted_full_name: string
+        }
+        Update: {
+          id?: string
+          link_id?: string
+          match_method?: string | null
+          payload?: Json | null
+          profile_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          student_id?: string | null
+          submitted_at?: string
+          submitted_birth_date?: string
+          submitted_full_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intake_submissions_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "intake_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_submissions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "student_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_submissions_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_submissions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -956,6 +1071,28 @@ export type Database = {
       assign_student: {
         Args: { p_reason?: string; p_room_id: string; p_student_id: string }
         Returns: string
+      }
+      create_intake_link: {
+        Args: { p_floor: number; p_ttl_days?: number }
+        Returns: string
+      }
+      create_student_from_intake: {
+        Args: { p_grade: number; p_submission_id: string }
+        Returns: string
+      }
+      dismiss_intake_submission: {
+        Args: { p_submission_id: string }
+        Returns: undefined
+      }
+      get_intake_link_state: { Args: { p_token_hash: string }; Returns: boolean }
+      resolve_intake_submission: {
+        Args: { p_student_id: string; p_submission_id: string }
+        Returns: string
+      }
+      revoke_intake_link: { Args: { p_link_id: string }; Returns: undefined }
+      submit_intake: {
+        Args: { p_payload: Json; p_token_hash: string }
+        Returns: boolean
       }
       create_update_request: {
         Args: { p_kind: string; p_student_id: string; p_ttl_days?: number }

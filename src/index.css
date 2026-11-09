@@ -151,6 +151,7 @@ input[type='checkbox'] { width: 1.4rem; height: 1.4rem; min-height: 0; flex: non
 .social-opt { margin-bottom: .25rem; }
 .social-detail { margin: 0 0 .5rem 1.9rem; }
 .filters-toggle { display: none; }
+.filters-extra { display: contents; } /* на комп'ютері фільтри — звичайні елементи рядка; на телефоні — згортаються (див. нижче) */
 .topbar-user { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 
 @media (max-width: 720px) {
@@ -179,3 +180,12 @@ input[type='checkbox'] { width: 1.4rem; height: 1.4rem; min-height: 0; flex: non
   .public-card { padding: 1rem; border-radius: 0; border-left: 0; border-right: 0; }
   .public-page { padding: 0; }
 }
+
+/* ---- Збір анкет ---- */
+.floor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: .75rem; }
+.floor-card, .subcard { border: 1px solid var(--border); border-radius: 10px; padding: .75rem; background: var(--bg); }
+.floor-card h3, .subcard h3 { margin: 0 0 .4rem; }
+.subcard h4 { margin: .6rem 0 .3rem; font-size: .9rem; color: var(--muted); }
+.subcard { margin-bottom: .75rem; }
+.candidate { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; padding: .4rem .5rem; background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
+details > summary { cursor: pointer; padding: .5rem 0; min-height: 2.75rem; display: flex; align-items: center; font-weight: 500; }

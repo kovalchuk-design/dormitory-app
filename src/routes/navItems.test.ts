@@ -6,7 +6,7 @@ const labels = (r: Parameters<typeof navItemsForRole>[0]) => navItemsForRole(r).
 describe('navItemsForRole', () => {
   it('адміністратор бачить «Адміністрування»', () => {
     expect(labels('admin')).toContain('Адміністрування')
-    expect(labels('admin')).toHaveLength(8)
+    expect(labels('admin')).toHaveLength(9)
   })
 
   it.each(['educator', 'staff_readonly'] as const)('%s не бачить «Адміністрування»', (role) => {
@@ -21,12 +21,19 @@ describe('navItemsForRole', () => {
     expect(navItemsForRole('educator').find((i) => i.to === '/updates')?.badge).toBe('pending')
   })
 
+  it('«Збір анкет» — для admin і educator, зі значком unmatched', () => {
+    expect(labels('admin')).toContain('Збір анкет')
+    expect(labels('educator')).toContain('Збір анкет')
+    expect(labels('staff_readonly')).not.toContain('Збір анкет')
+    expect(navItemsForRole('educator').find((i) => i.to === '/collect')?.badge).toBe('unmatched')
+  })
+
   it('без ролі бачимо лише публічні пункти', () => {
     expect(labels(null)).not.toContain('Адміністрування')
   })
 
   it('зберігає порядок пунктів', () => {
-    expect(labels('educator')).toEqual(['Головна', 'Студенти', 'Оновлення даних', 'Кімнати', 'Документи', 'Івенти', 'Календар'])
+    expect(labels('educator')).toEqual(['Головна', 'Студенти', 'Оновлення даних', 'Збір анкет', 'Кімнати', 'Документи', 'Івенти', 'Календар'])
   })
 })
 
@@ -35,6 +42,10 @@ describe('canAccess', () => {
     expect(canAccess('admin', '/admin')).toBe(true)
     expect(canAccess('educator', '/admin')).toBe(false)
     expect(canAccess(null, '/admin')).toBe(false)
+  })
+  it('/collect недоступний для staff_readonly', () => {
+    expect(canAccess('staff_readonly', '/collect')).toBe(false)
+    expect(canAccess('admin', '/collect')).toBe(true)
   })
   it('/updates недоступний для staff_readonly', () => {
     expect(canAccess('staff_readonly', '/updates')).toBe(false)

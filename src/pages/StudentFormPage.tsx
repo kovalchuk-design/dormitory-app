@@ -24,6 +24,7 @@ export function StudentFormPage() {
   const [phase, setPhase] = useState<Phase>({ name: 'loading' })
   const [values, setValues] = useState<QuestionnaireData>(EMPTY_QUESTIONNAIRE)
   const [roomLocked, setRoomLocked] = useState(false)
+  const [shared, setShared] = useState(false)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
@@ -54,6 +55,7 @@ export function StudentFormPage() {
         social_ato: typeof sd?.ato === 'string' ? sd.ato : '', social_zsu: typeof sd?.zsu === 'string' ? sd.zsu : '',
       })
       setRoomLocked(!!r.data.room)
+      setShared(r.data.mode === 'shared')
       setPhase({ name: 'form' })
     })
     return () => { alive = false }
@@ -158,8 +160,8 @@ export function StudentFormPage() {
       <p className="muted">Привіт! Заповни, будь ласка, анкету — це займе кілька хвилин. Поля з * обовʼязкові. Вхід не потрібен.</p>
       <form ref={formRef} onSubmit={(e) => void onSubmit(e)} noValidate className="form">
         <fieldset><legend>Про тебе</legend>
-          {text('full_name', 'ПІБ', { required: true, auto: 'name', hint: 'Прізвище, імʼя, по батькові' })}
-          {text('birth_date', 'Дата народження', { required: true, type: 'date', auto: 'bday' })}
+          {text('full_name', 'ПІБ', { required: true, auto: 'name', hint: shared ? 'Пиши так, як у документах: прізвище, імʼя, по батькові — за цим ми знайдемо тебе у списку' : 'Прізвище, імʼя, по батькові' })}
+          {text('birth_date', 'Дата народження', { required: true, type: 'date', auto: 'bday', hint: shared ? 'Потрібна, щоб правильно знайти тебе у списку' : undefined })}
           {text('room', 'Номер кімнати', { readOnly: roomLocked, hint: roomLocked ? 'Це тільки для інформації — змінює вихователь' : 'Якщо знаєш — вкажи (необовʼязково)' })}
           {text('group_number', 'Номер групи', { required: true })}
           {text('profession', 'Професія', { required: true })}

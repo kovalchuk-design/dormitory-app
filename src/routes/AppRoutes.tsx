@@ -5,6 +5,7 @@ import { Layout } from '../components/Layout'
 import { LoginPage } from '../pages/LoginPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { ApprovalsPage } from '../pages/ApprovalsPage'
+import { CollectPage } from '../pages/CollectPage'
 import { StudentCardPage } from '../pages/StudentCardPage'
 import { StudentEditPage } from '../pages/StudentEditPage'
 import { StudentFormPage } from '../pages/StudentFormPage'
@@ -35,6 +36,14 @@ export function AppRoutes() {
             element={
               <RequireRole roles={['admin', 'educator']}>
                 <ApprovalsPage />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="collect"
+            element={
+              <RequireRole roles={['admin', 'educator']}>
+                <CollectPage />
               </RequireRole>
             }
           />
