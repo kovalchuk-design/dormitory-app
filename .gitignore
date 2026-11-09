@@ -147,3 +147,6 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Публічні значення Supabase (publishable key) можна комітити
+!.env.production
