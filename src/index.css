@@ -65,3 +65,77 @@ label { display: block; margin-bottom: 1rem; font-size: .9rem; }
   .sidebar.open { display: flex; }
   .content { padding: 1rem; }
 }
+
+/* ---- Stage 2: students, card, approvals, public form ---- */
+a.btn { display: inline-block; padding: .6rem 1rem; border-radius: 8px; background: var(--accent); color: #fff; text-decoration: none; }
+a.btn.secondary { background: transparent; color: var(--fg); border: 1px solid var(--border); }
+button.danger { background: var(--danger); }
+:focus-visible { outline: 3px solid #f2a900; outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+select, textarea { font: inherit; width: 100%; padding: .6rem .7rem; margin-top: .25rem; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+textarea { resize: vertical; }
+.page-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; margin-bottom: .75rem; }
+.page-head h1 { margin: 0; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; }
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+.panel h2 { font-size: 1.1rem; margin: 0 0 .5rem; }
+.panel h3 { font-size: 1rem; margin: 1rem 0 .4rem; }
+ul.plain { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .4rem; }
+.notice { background: #eef3ff; border: 1px solid #c9d6ff; border-radius: 8px; padding: .75rem; margin: .75rem 0; }
+.notice input { margin: .25rem 0 .5rem; }
+label.inline { display: flex; align-items: center; gap: .5rem; margin: 0; }
+label.inline select { width: auto; margin: 0; }
+label.check { display: flex; align-items: center; gap: .5rem; margin: 0; }
+label.check input { width: auto; margin: 0; }
+
+.filters { display: flex; flex-wrap: wrap; align-items: end; gap: .5rem .75rem; margin-bottom: .75rem; }
+.filters label { margin: 0; flex: 0 1 8rem; }
+.filters label.grow { flex: 1 1 14rem; }
+.filters label.check { flex: 0 0 auto; padding-bottom: .6rem; }
+.table-wrap { overflow-x: auto; }
+table.data { width: 100%; border-collapse: collapse; background: var(--card); }
+table.data th, table.data td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.th-btn { background: transparent; color: var(--fg); padding: 0; font-weight: 600; }
+a.phone { white-space: nowrap; font-weight: 500; }
+
+.tag { display: inline-block; padding: .1rem .5rem; border-radius: 999px; font-size: .75rem; background: #eef0f4; color: var(--fg); vertical-align: middle; }
+.tag-unplaced { background: #fff1d6; color: #7a4b00; }
+.tag-active, .tag-v-approved { background: #dff5e3; color: #17692d; }
+.tag-graduated { background: #e6e9ff; color: #2a3a9c; }
+.tag-left, .tag-v-superseded { background: #eceef2; color: #555d6e; }
+.tag-v-pending { background: #fff1d6; color: #7a4b00; }
+.tag-v-rejected { background: #fde4e4; color: var(--danger); }
+.badge { margin-left: .5rem; min-width: 1.4rem; padding: 0 .4rem; display: inline-block; text-align: center; border-radius: 999px; background: var(--danger); color: #fff; font-size: .75rem; line-height: 1.4rem; }
+
+.contacts { list-style: none; padding: 0; margin: 0; display: grid; gap: .5rem; }
+.contacts li { display: grid; grid-template-columns: 5.5rem 1fr auto; gap: .5rem; align-items: center; }
+.contacts a.phone { font-size: 1.05rem; padding: .35rem .6rem; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; }
+dl.kv { margin: 0; display: grid; gap: .5rem; }
+dl.kv dt { color: var(--muted); font-size: .8rem; }
+dl.kv dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+table.diff tr.changed td:last-child, table.diff tr.changed th { background: #fff8d6; }
+table.diff tr.changed td:last-child { font-weight: 600; }
+.form { display: flex; flex-direction: column; gap: .5rem; max-width: 34rem; }
+.form fieldset { border: 1px solid var(--border); border-radius: 12px; padding: .75rem 1rem; margin: 0 0 .75rem; min-width: 0; }
+.form legend { font-weight: 600; padding: 0 .4rem; }
+.field { margin-bottom: .9rem; display: flex; flex-direction: column; }
+.field > label { margin: 0 0 .1rem; font-weight: 500; }
+.hint { color: var(--muted); font-size: .8rem; margin-top: .2rem; }
+.field-error { color: var(--danger); font-size: .85rem; margin-top: .2rem; }
+[aria-invalid='true'] { border-color: var(--danger); }
+.consent { margin: .5rem 0 1rem; }
+.public-page { min-height: 100vh; display: flex; justify-content: center; padding: 1rem; }
+.public-card { width: 100%; max-width: 38rem; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; height: fit-content; }
+.public-card input, .public-card textarea { font-size: 1rem; }
+.public-card button[type='submit'] { width: 100%; padding: .85rem 1rem; font-size: 1.05rem; }
+
+@media (max-width: 720px) {
+  table.cards-on-mobile thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  table.cards-on-mobile, table.cards-on-mobile tbody, table.cards-on-mobile tr, table.cards-on-mobile td { display: block; width: 100%; }
+  table.cards-on-mobile tr { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: .4rem .6rem; margin-bottom: .6rem; }
+  table.cards-on-mobile td { border: 0; padding: .2rem 0; display: flex; justify-content: space-between; gap: 1rem; }
+  table.cards-on-mobile td::before { content: attr(data-label); color: var(--muted); font-size: .8rem; }
+  table.diff { font-size: .9rem; }
+  .contacts li { grid-template-columns: 4.5rem 1fr; }
+  .contacts li a.phone, .contacts li > span.muted:last-child { grid-column: 1 / -1; }
+}

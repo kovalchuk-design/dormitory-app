@@ -5,11 +5,14 @@ export interface NavItem {
   label: string
   /** Ролі, яким доступний пункт. Якщо не задано — усім. */
   roles?: Role[]
+  /** Значок-лічильник біля пункту (дані дає Layout). */
+  badge?: 'pending'
 }
 
 export const NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Головна' },
   { to: '/students', label: 'Студенти' },
+  { to: '/updates', label: 'Оновлення даних', roles: ['admin', 'educator'], badge: 'pending' },
   { to: '/rooms', label: 'Кімнати' },
   { to: '/documents', label: 'Документи' },
   { to: '/events', label: 'Івенти' },

@@ -416,6 +416,24 @@ export type Database = {
         }
         Relationships: []
       }
+      questionnaire_rate_limits: {
+        Row: {
+          hits: number
+          key: string
+          window_start: string
+        }
+        Insert: {
+          hits?: number
+          key: string
+          window_start?: string
+        }
+        Update: {
+          hits?: number
+          key?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       room_assignments: {
         Row: {
           created_at: string
@@ -593,6 +611,35 @@ export type Database = {
           },
         ]
       }
+      student_medical_submissions: {
+        Row: {
+          allergies: string | null
+          chronic_conditions: string | null
+          created_at: string
+          profile_id: string
+        }
+        Insert: {
+          allergies?: string | null
+          chronic_conditions?: string | null
+          created_at?: string
+          profile_id: string
+        }
+        Update: {
+          allergies?: string | null
+          chronic_conditions?: string | null
+          created_at?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_medical_submissions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "student_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_profiles: {
         Row: {
           address: string | null
@@ -600,6 +647,7 @@ export type Database = {
           approved_by: string | null
           class_teacher: string | null
           college_plans: string | null
+          consent_at: string | null
           created_at: string
           father_name: string | null
           father_phone: string | null
@@ -611,12 +659,17 @@ export type Database = {
           mother_name: string | null
           mother_phone: string | null
           profession: string | null
+          rejected_at: string | null
+          rejected_by: string | null
           school_activities: string | null
           social_status: string | null
           status: string
           student_id: string
           student_phone: string | null
           submitted_at: string
+          submitted_birth_date: string | null
+          submitted_full_name: string | null
+          submitted_room: string | null
           updated_at: string
           version_no: number
         }
@@ -626,6 +679,7 @@ export type Database = {
           approved_by?: string | null
           class_teacher?: string | null
           college_plans?: string | null
+          consent_at?: string | null
           created_at?: string
           father_name?: string | null
           father_phone?: string | null
@@ -637,12 +691,17 @@ export type Database = {
           mother_name?: string | null
           mother_phone?: string | null
           profession?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
           school_activities?: string | null
           social_status?: string | null
           status?: string
           student_id: string
           student_phone?: string | null
           submitted_at?: string
+          submitted_birth_date?: string | null
+          submitted_full_name?: string | null
+          submitted_room?: string | null
           updated_at?: string
           version_no: number
         }
@@ -652,6 +711,7 @@ export type Database = {
           approved_by?: string | null
           class_teacher?: string | null
           college_plans?: string | null
+          consent_at?: string | null
           created_at?: string
           father_name?: string | null
           father_phone?: string | null
@@ -663,12 +723,17 @@ export type Database = {
           mother_name?: string | null
           mother_phone?: string | null
           profession?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
           school_activities?: string | null
           social_status?: string | null
           status?: string
           student_id?: string
           student_phone?: string | null
           submitted_at?: string
+          submitted_birth_date?: string | null
+          submitted_full_name?: string | null
+          submitted_room?: string | null
           updated_at?: string
           version_no?: number
         }
@@ -676,6 +741,13 @@ export type Database = {
           {
             foreignKeyName: "student_profiles_approved_by_fkey"
             columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_profiles_rejected_by_fkey"
+            columns: ["rejected_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -883,9 +955,18 @@ export type Database = {
         Args: { p_kind: string; p_student_id: string; p_ttl_days?: number }
         Returns: string
       }
+      get_questionnaire_data: { Args: { p_token_hash: string }; Returns: Json }
       move_student: {
         Args: { p_reason?: string; p_room_id: string; p_student_id: string }
         Returns: string
+      }
+      questionnaire_rate_hit: {
+        Args: { p_key: string; p_limit: number; p_window_seconds: number }
+        Returns: boolean
+      }
+      reject_student_profile: {
+        Args: { p_profile_id: string }
+        Returns: undefined
       }
       revoke_update_request: {
         Args: { p_request_id: string }
@@ -894,6 +975,10 @@ export type Database = {
       set_current_academic_year: {
         Args: { p_year_id: string }
         Returns: undefined
+      }
+      submit_questionnaire: {
+        Args: { p_payload: Json; p_token_hash: string }
+        Returns: boolean
       }
       unassign_student: {
         Args: { p_reason?: string; p_student_id: string }

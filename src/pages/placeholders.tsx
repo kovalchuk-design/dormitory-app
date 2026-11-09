@@ -8,7 +8,6 @@ function Placeholder({ title }: { title: string }) {
 }
 
 export const HomePage = () => <Placeholder title="Головна" />
-export const StudentsPage = () => <Placeholder title="Студенти" />
 export const RoomsPage = () => <Placeholder title="Кімнати" />
 export const DocumentsPage = () => <Placeholder title="Документи" />
 export const EventsPage = () => <Placeholder title="Івенти" />
