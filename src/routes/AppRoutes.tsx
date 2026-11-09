@@ -10,10 +10,10 @@ import { StudentEditPage } from '../pages/StudentEditPage'
 import { StudentFormPage } from '../pages/StudentFormPage'
 import { RoomsPage } from '../features/rooms/RoomsPage'
 import { StudentsPage } from '../pages/StudentsPage'
+import { AdminDocumentSettings, DocumentsPage } from '../features/documents'
 import {
   AdminPage,
   CalendarPage,
-  DocumentsPage,
   EventsPage,
   HomePage,
 } from '../pages/placeholders'
@@ -47,6 +47,7 @@ export function AppRoutes() {
             element={
               <RequireRole roles={['admin']}>
                 <AdminPage />
+                <AdminDocumentSettings />
               </RequireRole>
             }
           />
