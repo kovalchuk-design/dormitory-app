@@ -1,9 +1,9 @@
 // Чиста логіка сторінки «Кімнати»: правила місткості, перевірка скидання, групування, повідомлення про помилки.
 
 export const FLOORS = [2, 3, 4, 5] as const
-export const MIN_CAPACITY = 1
-export const MAX_CAPACITY = 10
-export const DEFAULT_CAPACITY = 4
+export const MIN_CAPACITY = 4
+export const MAX_CAPACITY = 6
+export const DEFAULT_CAPACITY = 6
 
 export interface RoomInfo {
   id: string
@@ -118,7 +118,7 @@ export type Validation = { ok: true } | { ok: false; message: string }
 
 export function validateCapacity(capacity: number, occupied: number): Validation {
   if (!Number.isInteger(capacity) || capacity < MIN_CAPACITY || capacity > MAX_CAPACITY) {
-    return { ok: false, message: `Місткість — ціле число від ${MIN_CAPACITY} до ${MAX_CAPACITY}.` }
+    return { ok: false, message: `Місткість — 4, 5 або 6 місць.` }
   }
   if (capacity < occupied) {
     return {
