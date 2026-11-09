@@ -5,13 +5,13 @@ import { Layout } from '../components/Layout'
 import { LoginPage } from '../pages/LoginPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { StudentFormPage } from '../pages/StudentFormPage'
+import { RoomsPage } from '../features/rooms/RoomsPage'
 import {
   AdminPage,
   CalendarPage,
   DocumentsPage,
   EventsPage,
   HomePage,
-  RoomsPage,
   StudentsPage,
 } from '../pages/placeholders'
 
