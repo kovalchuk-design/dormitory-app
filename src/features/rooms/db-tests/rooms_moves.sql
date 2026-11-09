@@ -67,6 +67,7 @@ select pg_temp.chk('move: old row closed with ended_by/end_reason, new row has m
   and (select to_date is null and moved_by='e0000000-0000-0000-0000-000000000003' and reason='за проханням' from room_assignments where student_id='10000000-0000-0000-0000-000000000001' and room_id='20000000-0000-0000-0000-000000000412'));
 
 -- unassign -> assign зберігає історію
+select pg_temp.chk('move: from_room_id of the new row = 202 (потрібна міграція room_assignments_from_room)', (select from_room_id='20000000-0000-0000-0000-000000000202' from room_assignments where student_id='10000000-0000-0000-0000-000000000001' and room_id='20000000-0000-0000-0000-000000000412'));
 select pg_temp.t('unassign S1 (назад у пул)','e0000000-0000-0000-0000-000000000002',$$select public.unassign_student('10000000-0000-0000-0000-000000000001','помилка')$$,'ok');
 select pg_temp.chk('S1 у пулі', exists (select 1 from v_unplaced_students where id='10000000-0000-0000-0000-000000000001'));
 select pg_temp.t('assign S1 з пулу -> 202','e0000000-0000-0000-0000-000000000002',$$select public.assign_student('10000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000202',null)$$,'ok');

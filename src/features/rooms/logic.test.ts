@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  buildHistory, compareRooms, describeError, errorCode, groupPupilsByRoom, groupRoomsByFloor, pickOperation,
+  buildHistory, capacityOptions, compareRooms, describeError, errorCode, groupPupilsByRoom, groupRoomsByFloor, pickOperation,
   roomState, validateCapacity, validateDeactivate, validateDrop, validateNewRoom,
   type Pupil, type RoomInfo, type Stay,
 } from './logic'
@@ -115,25 +115,34 @@ describe('помилки', () => {
   })
 })
 
+describe('capacityOptions', () => {
+  it('4–6 і поточне значення, менші за заселеність недоступні', () => {
+    expect(capacityOptions(4, 5)).toEqual([{ value: 4, disabled: true }, { value: 5, disabled: false }, { value: 6, disabled: false }])
+    expect(capacityOptions(8, 0).map((o) => o.value)).toEqual([4, 5, 6, 8])
+  })
+})
+
 describe('buildHistory', () => {
   const st = (o: Partial<Stay> & { id: string }): Stay => ({
     studentId: 's1', studentName: 'Іваненко', roomId: o.id, roomNumber: o.id, fromDate: '2026-09-01', toDate: null,
-    createdAt: '2026-09-01T08:00:00Z', movedBy: null, reason: null, endedBy: null, endReason: null, ...o,
+    createdAt: '2026-09-01T08:00:00Z', fromRoomId: null, fromRoomNumber: null, movedBy: null, reason: null, endedBy: null, endReason: null, ...o,
   })
-  it('визначає «звідки» і сортує від нових до старих', () => {
+  it('прямий перехід: явне «звідки» і «куди»', () => {
     const h = buildHistory([
-      st({ id: '412', fromDate: '2026-10-01', createdAt: '2026-10-01T08:00:00Z' }),
+      st({ id: '412', fromDate: '2026-10-01', createdAt: '2026-10-01T08:00:00Z', fromRoomId: '202', fromRoomNumber: '202' }),
       st({ id: '202', toDate: '2026-10-01' }),
     ])
     expect(h.map((e) => e.roomNumber)).toEqual(['412', '202'])
     expect(h[0].fromRoomNumber).toBe('202')
-    expect(h[1].fromRoomNumber).toBeNull()
+    expect(h[0].end).toEqual({ kind: 'current' })
+    expect(h[1].end).toEqual({ kind: 'moved', toRoomNumber: '412' })
   })
-  it('після виселення в пул «звідки» порожнє', () => {
+  it('виселення і заселення в той самий день не плутається з переміщенням', () => {
     const h = buildHistory([
       st({ id: '202', toDate: '2026-10-01' }),
-      st({ id: '305', fromDate: '2026-10-20', createdAt: '2026-10-20T08:00:00Z' }),
+      st({ id: '305', fromDate: '2026-10-01', createdAt: '2026-10-01T10:00:00Z' }),
     ])
     expect(h[0].fromRoomNumber).toBeNull()
+    expect(h[1].end).toEqual({ kind: 'unplaced' })
   })
 })

@@ -55,3 +55,6 @@
   .rm-floor.current { display: block; }
   .rm-floor h2 { display: none; }
 }
+
+.rm-cap { display: flex; align-items: center; gap: .4rem; font-size: .8rem; margin: 0 0 .4rem; color: var(--muted); }
+.rm-cap select { font: inherit; padding: .15rem .3rem; border: 1px solid var(--border); border-radius: 6px; }

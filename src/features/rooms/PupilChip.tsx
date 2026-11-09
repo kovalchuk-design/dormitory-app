@@ -5,11 +5,13 @@ interface Props {
   pupil: Pupil
   roomId: string | null
   canEdit: boolean
+  /** Додатковий підпис, напр. «було: 202» для нерозподілених. */
+  note?: string
   onMove: (p: Pupil, roomId: string | null) => void
   onHistory: (p: Pupil) => void
 }
 
-export function PupilChip({ pupil, roomId, canEdit, onMove, onHistory }: Props) {
+export function PupilChip({ pupil, roomId, canEdit, note, onMove, onHistory }: Props) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: pupil.id,
     data: { pupil, roomId },
@@ -24,6 +26,7 @@ export function PupilChip({ pupil, roomId, canEdit, onMove, onHistory }: Props) 
         aria-label={canEdit ? `${pupilName(pupil)}, ${pupil.grade} клас. Натисніть пробіл, щоб перетягнути` : undefined}
       >
         {pupilName(pupil)} <span className="muted small">{pupil.grade} кл.</span>
+        {note && <span className="muted small"> · {note}</span>}
       </span>
       <button type="button" className="secondary rm-mini" title="Історія" aria-label={`Історія ${pupilName(pupil)}`} onClick={() => onHistory(pupil)}>
         🕘

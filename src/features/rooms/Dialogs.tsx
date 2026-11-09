@@ -219,7 +219,9 @@ export function HistoryDialog(props: {
               {e.reason && <span className="muted"> · «{e.reason}»</span>}
               {e.toDate && (
                 <div className="muted small">
-                  до {formatDate(e.toDate)}{src?.endedByName ? ` · завершив(ла): ${src.endedByName}` : ''}
+                  до {formatDate(e.toDate)}
+                  {e.end.kind === 'moved' ? ` · далі: кімната ${e.end.toRoomNumber}` : ' · далі: Нерозподілені'}
+                  {src?.endedByName ? ` · завершив(ла): ${src.endedByName}` : ''}
                   {e.endReason ? ` · «${e.endReason}»` : ''}
                 </div>
               )}

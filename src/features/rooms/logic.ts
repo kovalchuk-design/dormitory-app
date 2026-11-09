@@ -197,21 +197,37 @@ export interface Stay {
   fromDate: string
   toDate: string | null
   createdAt: string
+  /** Кімната, з якої учня переселено напряму (move_student); null — прийшов з пулу «Нерозподілені». */
+  fromRoomId: string | null
+  fromRoomNumber: string | null
   movedBy: string | null
   reason: string | null
   endedBy: string | null
   endReason: string | null
 }
 
+export type StayEnd =
+  | { kind: 'current' }
+  | { kind: 'moved'; toRoomNumber: string }
+  | { kind: 'unplaced' }
+
 export interface HistoryEntry extends Stay {
-  /** Звідки учня переведено: номер кімнати, або null, якщо це було заселення з пулу. */
-  fromRoomNumber: string | null
+  /** Куди учень пішов після цього проживання. */
+  end: StayEnd
+}
+
+export const CAPACITY_CHOICES = [4, 5, 6] as const
+
+/** Варіанти випадаючого списку місткості: 4–6 і поточне значення; менші за заселеність — недоступні. */
+export function capacityOptions(current: number, occupied: number): { value: number; disabled: boolean }[] {
+  const values = [...new Set<number>([...CAPACITY_CHOICES, current])].sort((a, b) => a - b)
+  return values.map((value) => ({ value, disabled: value < occupied }))
 }
 
 /**
- * Для кожного запису проживання визначає «звідки». Попередній запис того ж учня
- * вважається джерелом, якщо він закінчився тієї ж дати, коли почався цей.
- * (Виселення і заселення в один день неможливо відрізнити від переміщення — обмеження схеми.)
+ * «Звідки» береться з явного поля from_room_id (його пише move_student), а не вгадується за датами.
+ * «Куди» після проживання: якщо наступне проживання того ж учня має from_room_id = ця кімната —
+ * переселено туди; інакше, якщо проживання закрите, — повернуто в «Нерозподілені».
  * Результат відсортовано від нових до старих.
  */
 export function buildHistory(stays: readonly Stay[]): HistoryEntry[] {
@@ -225,9 +241,14 @@ export function buildHistory(stays: readonly Stay[]): HistoryEntry[] {
   for (const list of byStudent.values()) {
     list.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
     list.forEach((s, i) => {
-      const prev = i > 0 ? list[i - 1] : null
-      const fromRoomNumber = prev && prev.toDate !== null && prev.toDate === s.fromDate ? prev.roomNumber : null
-      out.push({ ...s, fromRoomNumber })
+      const next = i + 1 < list.length ? list[i + 1] : null
+      const end: StayEnd =
+        s.toDate === null
+          ? { kind: 'current' }
+          : next && next.fromRoomId === s.roomId
+            ? { kind: 'moved', toRoomNumber: next.roomNumber }
+            : { kind: 'unplaced' }
+      out.push({ ...s, end })
     })
   }
   return out.sort((a, b) => b.createdAt.localeCompare(a.createdAt))

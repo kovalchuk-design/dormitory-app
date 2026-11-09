@@ -15,6 +15,8 @@ export interface BoardData {
   rooms: RoomInfo[]
   placed: PlacedPupil[]
   unplaced: Pupil[]
+  /** Остання кімната кожного нерозподіленого учня (studentId → номер), якщо він раніше жив у кімнаті. */
+  lastRoom: Record<string, string>
 }
 
 type Result<T = void> = { data: T; error: null } | { data: null; error: ApiError }
@@ -56,7 +58,20 @@ export async function fetchBoard(): Promise<Result<BoardData>> {
     pupil: toPupil(a.students),
   }))
   const unplaced = ((pool.data ?? []) as unknown as StudentRow[]).map(toPupil)
-  return { data: { rooms, placed, unplaced }, error: null }
+  const lastRoom: Record<string, string> = {}
+  if (unplaced.length > 0) {
+    const last = await supabase
+      .from('room_assignments')
+      .select('student_id, created_at, rooms!room_assignments_room_id_fkey(number)')
+      .in('student_id', unplaced.map((p) => p.id))
+      .not('to_date', 'is', null)
+      .order('created_at', { ascending: false })
+    if (last.error) return { data: null, error: last.error }
+    for (const r of (last.data ?? []) as unknown as { student_id: string; rooms: { number: string } | null }[]) {
+      if (r.rooms && !(r.student_id in lastRoom)) lastRoom[r.student_id] = r.rooms.number
+    }
+  }
+  return { data: { rooms, placed, unplaced, lastRoom }, error: null }
 }
 
 /** Поточна кімната учня на сервері (null — не заселений). Для виявлення застарілого стану. */
@@ -101,8 +116,10 @@ interface HistoryRow {
   created_at: string
   reason: string | null
   end_reason: string | null
+  from_room_id: string | null
   students: { last_name: string; first_name: string } | null
   rooms: { number: string } | null
+  from_room: { number: string } | null
   mover: { full_name: string } | null
   ender: { full_name: string } | null
 }
@@ -116,8 +133,9 @@ export async function fetchHistory(filter: { studentId: string } | { roomId: str
   let q = supabase
     .from('room_assignments')
     .select(
-      'id,student_id,room_id,from_date,to_date,created_at,reason,end_reason,' +
-        'students(last_name,first_name),rooms(number),' +
+      'id,student_id,room_id,from_room_id,from_date,to_date,created_at,reason,end_reason,' +
+        'students(last_name,first_name),rooms!room_assignments_room_id_fkey(number),' +
+        'from_room:rooms!room_assignments_from_room_id_fkey(number),' +
         'mover:profiles!room_assignments_moved_by_fkey(full_name),ender:profiles!room_assignments_ended_by_fkey(full_name)',
     )
     .order('created_at', { ascending: false })
@@ -136,6 +154,8 @@ export async function fetchHistory(filter: { studentId: string } | { roomId: str
       fromDate: r.from_date,
       toDate: r.to_date,
       createdAt: r.created_at,
+      fromRoomId: r.from_room_id,
+      fromRoomNumber: r.from_room?.number ?? null,
       movedBy: null,
       reason: r.reason,
       endedBy: null,

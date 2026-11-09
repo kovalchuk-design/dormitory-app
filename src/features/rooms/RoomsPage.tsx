@@ -9,7 +9,7 @@ import { ConfirmMoveDialog, EditRoomDialog, HistoryDialog, NewRoomDialog, PickRo
 import { PupilChip } from './PupilChip'
 import { RoomCard, type DropHint } from './RoomCard'
 import {
-  FLOORS, STALE_CODES, describeError, errorCode, groupPupilsByRoom, groupRoomsByFloor, pickOperation, pupilName, validateDrop,
+  FLOORS, STALE_CODES, describeError, errorCode, groupPupilsByRoom, groupRoomsByFloor, pickOperation, pupilName, validateCapacity, validateDrop,
   type DropTarget, type Pupil, type RoomInfo,
 } from './logic'
 import { useRoomsBoard } from './useRoomsBoard'
@@ -28,8 +28,9 @@ const collisionDetection: CollisionDetection = (args) => {
   return args.pointerCoordinates ? pointerWithin(args) : rectIntersection(args)
 }
 
-function Pool({ pupils, canEdit, hint, onMove, onHistory }: {
+function Pool({ pupils, lastRoom, canEdit, hint, onMove, onHistory }: {
   pupils: Pupil[]
+  lastRoom: Record<string, string>
   canEdit: boolean
   hint: DropHint
   onMove: (p: Pupil, roomId: string | null) => void
@@ -48,7 +49,7 @@ function Pool({ pupils, canEdit, hint, onMove, onHistory }: {
       </header>
       <ul>
         {pupils.map((p) => (
-          <PupilChip key={p.id} pupil={p} roomId={null} canEdit={canEdit} onMove={onMove} onHistory={onHistory} />
+          <PupilChip key={p.id} pupil={p} roomId={null} canEdit={canEdit} note={lastRoom[p.id] ? `було: ${lastRoom[p.id]}` : undefined} onMove={onMove} onHistory={onHistory} />
         ))}
         {pupils.length === 0 && <li className="muted small">Усіх учнів розподілено.</li>}
       </ul>
@@ -170,6 +171,15 @@ export function RoomsPage() {
     void refresh()
   }
 
+  async function changeCapacity(room: RoomInfo, capacity: number) {
+    const check = validateCapacity(capacity, room.occupied)
+    if (!check.ok) return setNotice({ kind: 'error', text: check.message })
+    const res = await updateRoom(room.id, { capacity })
+    if (res.error) setNotice({ kind: 'error', text: describeError(res.error) })
+    else setNotice({ kind: 'ok', text: `Кімната ${room.number}: місткість ${capacity}.` })
+    void refresh()
+  }
+
   async function addRoom(v: { floor: number; number: string; capacity: number }) {
     setBusy(true)
     setDialogError(null)
@@ -205,6 +215,7 @@ export function RoomsPage() {
       <DndContext sensors={sensors} collisionDetection={collisionDetection} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setDragging(null)}>
         <Pool
           pupils={data?.unplaced ?? []}
+          lastRoom={data?.lastRoom ?? {}}
           canEdit={canEdit}
           hint={dragging ? hintFor({ kind: 'pool' }) : null}
           onMove={startPick}
@@ -230,6 +241,8 @@ export function RoomsPage() {
                     room={r}
                     pupils={pupilsByRoom.get(r.id) ?? []}
                     canEdit={canEdit}
+                    isAdmin={isAdmin}
+                    onCapacity={(room, cap) => void changeCapacity(room, cap)}
                     hint={hintFor({ kind: 'room', roomId: r.id })}
                     onMove={startPick}
                     onHistory={openHistory}
