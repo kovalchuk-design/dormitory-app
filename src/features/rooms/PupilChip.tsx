@@ -18,8 +18,8 @@ export function PupilChip({ pupil, roomId, canEdit, note, dragging, onDragStart,
     <li
       className={`rm-pupil${canEdit ? ' draggable' : ''}${dragging ? ' dragging' : ''}`}
       draggable={false}
-      // Тягнути можна за всю картку учня, окрім кнопок усередині.
-      onPointerDown={canEdit ? (e) => !(e.target as HTMLElement).closest('button') && onDragStart(e, pupil, roomId) : undefined}
+      // Тягнути можна за будь-яке місце картки, зокрема за кнопки: клік без руху (<5 px) працює як звичайний клік.
+      onPointerDown={canEdit ? (e) => onDragStart(e, pupil, roomId) : undefined}
       onMouseDown={canEdit ? (e) => !(e.target as HTMLElement).closest('button') && e.preventDefault() : undefined}
       onDragStart={(e) => e.preventDefault()}
       title={canEdit ? 'Перетягніть у іншу кімнату' : undefined}
