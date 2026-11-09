@@ -150,3 +150,7 @@ vite.config.ts.timestamp-*
 
 # Публічні значення Supabase (publishable key) можна комітити
 !.env.production
+
+# Реальні дані імпорту (персональні дані!)
+/data-import/input/
+/data-import/output/
