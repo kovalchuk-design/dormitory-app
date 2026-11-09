@@ -81,6 +81,11 @@ const nameOf = (page, n) => chip(page, n).locator('.rm-pupil-name')
   await h.check('rooms: drag pool → T902 (mouse) shows confirm dialog and applies', async () => {
     await tab(A, 3)
     await drag(A, nameOf(A, P.c), A.getByTestId('room-T902'))
+    if (!(await A.getByRole('dialog').count())) {
+      await A.waitForTimeout(500)
+      console.log('   [debug] no dialog; notice:', (await notice(A).count()) ? await notice(A).innerText() : '-', '| T902 class:', await A.getByTestId('room-T902').getAttribute('class'))
+      await A.screenshot({ path: process.env.DEBUG_SHOT || 'screenshots/debug-drag.png' })
+    }
     await confirmDialog(A, 'ТЕСТ dnd')
     await A.waitForFunction(() => document.querySelector('[data-testid="occ-T902"]')?.textContent?.trim() === '1/1')
   })
