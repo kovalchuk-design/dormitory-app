@@ -19,7 +19,7 @@ async function loadCard(id: string, withMedical: boolean) {
     supabase.from('students').select('*').eq('id', id).maybeSingle(),
     supabase
       .from('room_assignments')
-      .select('id,from_date,to_date,reason,end_reason, rooms(number,floor), mover:profiles!room_assignments_moved_by_fkey(full_name), ender:profiles!room_assignments_ended_by_fkey(full_name)')
+      .select('id,from_date,to_date,reason,end_reason, rooms!room_assignments_room_id_fkey(number,floor), mover:profiles!room_assignments_moved_by_fkey(full_name), ender:profiles!room_assignments_ended_by_fkey(full_name)')
       .eq('student_id', id)
       .order('from_date', { ascending: false })
       .order('created_at', { ascending: false }),

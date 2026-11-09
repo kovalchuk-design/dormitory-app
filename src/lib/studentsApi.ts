@@ -8,7 +8,7 @@ type RoomRef = { number: string; floor: number } | null
 export async function fetchStudentRows(): Promise<StudentRow[]> {
   const [st, asg, prof] = await Promise.all([
     supabase.from('students').select('id,last_name,first_name,patronymic,birth_date,grade,status').order('last_name').limit(2000),
-    supabase.from('room_assignments').select('student_id, rooms(number,floor)').is('to_date', null).limit(2000),
+    supabase.from('room_assignments').select('student_id, rooms!room_assignments_room_id_fkey(number,floor)').is('to_date', null).limit(2000),
     supabase
       .from('student_profiles')
       .select('student_id,student_phone,mother_phone,father_phone,guardian_phone')

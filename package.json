@@ -11,7 +11,12 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/utilities": "^3.2.2",
     "@supabase/supabase-js": "^2.119.0",
+    "docx-preview": "^0.4.1",
+    "docxtemplater": "^3.71.1",
+    "pizzip": "^3.3.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.5"
