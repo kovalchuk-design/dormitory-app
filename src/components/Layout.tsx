@@ -1,11 +1,9 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
-import { ROLE_LABELS } from '../auth/roles'
 import { useQueueCounts } from '../lib/pending'
-import { useTheme } from '../lib/theme'
 import { navItemsForRole, type NavItem } from '../routes/navItems'
 import { Icon, type IconName } from './ui/icons'
-import { ElevateButton } from '../features/pin-login'
+import { AccountMenu } from './AccountMenu'
 
 const NAV_ICONS: Record<string, IconName> = {
   '/hostel': 'bed',
@@ -17,12 +15,9 @@ const NAV_ICONS: Record<string, IconName> = {
   '/admin': 'settings',
 }
 
-const THEME_LABELS = { system: 'Тема: як у системі', light: 'Тема: світла', dark: 'Тема: темна' } as const
-const THEME_ICONS = { system: 'auto', light: 'sun', dark: 'moon' } as const
 
 export function Layout() {
-  const { profile, signOut } = useAuth()
-  const { pref, cycle } = useTheme()
+  const { profile } = useAuth()
   const { pathname } = useLocation()
   // картка учня (/students/…) належить розділу «Гуртожиток»
   const navClass = (to: string, base: string) => ({ isActive }: { isActive: boolean }) =>
@@ -30,7 +25,6 @@ export function Layout() {
   const items = navItemsForRole(profile?.role)
   const counts = useQueueCounts(profile?.role === 'admin')
 
-  const logoutLabel = profile ? `Вийти (${profile.full_name} · ${ROLE_LABELS[profile.role]})` : 'Вийти'
 
   const badge = (i: NavItem) =>
     i.badge && counts[i.badge] > 0 ? (
@@ -53,21 +47,7 @@ export function Layout() {
           </NavLink>
         ))}
         <div className="rail-spacer" />
-        <button type="button" className="rail-btn" onClick={cycle} title={THEME_LABELS[pref]} aria-label={THEME_LABELS[pref]}>
-          <Icon name={THEME_ICONS[pref]} />
-          <span className="rail-tip" aria-hidden="true">{THEME_LABELS[pref]}</span>
-        </button>
-        <ElevateButton variant="rail" />
-        {!profile?.pinSession && (
-          <NavLink to="/password" className={navClass('/password', 'rail-btn')} title="Змінити пароль" aria-label="Змінити пароль">
-            <Icon name="settings" />
-            <span className="rail-tip" aria-hidden="true">Змінити пароль</span>
-          </NavLink>
-        )}
-        <button type="button" className="rail-btn" onClick={() => void signOut()} title={logoutLabel} aria-label={logoutLabel}>
-          <Icon name="logout" />
-          <span className="rail-tip" aria-hidden="true">Вийти</span>
-        </button>
+        <AccountMenu variant="rail" />
       </nav>
       <div className="shell-panel">
         <main className="content">
@@ -82,21 +62,7 @@ export function Layout() {
             <span>{i.label.replace('Оновлення даних', 'Оновлення').replace('Адміністрування', 'Адмін')}</span>
           </NavLink>
         ))}
-        <button type="button" className="tab-m" onClick={cycle} aria-label={THEME_LABELS[pref]}>
-          <Icon name={THEME_ICONS[pref]} />
-          <span>Тема</span>
-        </button>
-        <ElevateButton variant="tab" />
-        {!profile?.pinSession && (
-          <NavLink to="/password" className={navClass('/password', 'tab-m')}>
-            <Icon name="settings" />
-            <span>Пароль</span>
-          </NavLink>
-        )}
-        <button type="button" className="tab-m" onClick={() => void signOut()} aria-label={logoutLabel}>
-          <Icon name="logout" />
-          <span>Вийти</span>
-        </button>
+        <AccountMenu variant="tab" />
       </nav>
     </div>
   )

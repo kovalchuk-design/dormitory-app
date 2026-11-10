@@ -21,7 +21,11 @@
 
 /* Фон і системні смуги телефона: один безперервний градієнт, без «зелених» смужок зверху/знизу (було: --page як запасний колір) */
 @media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
-  html, body { background: linear-gradient(160deg, var(--g1), var(--g2)) fixed, var(--g1); }
+  /* iOS Safari не вміє background-attachment: fixed — градієнт на html обрізався висотою сторінки, а нижче (під панеллю Safari) лишався плаский синій.
+     Тому градієнт — на фіксованому шарі на весь екран (100lvh), а html має градієнт-запас для «гумової» прокрутки. */
+  html { background: linear-gradient(to bottom, var(--g1), var(--g2)); min-height: 100%; }
+  body { background: transparent; min-height: 100vh; }
+  body::before { content: ''; position: fixed; left: 0; right: 0; top: 0; height: 100vh; height: 100lvh; z-index: -1; pointer-events: none; background: linear-gradient(160deg, var(--g1), var(--g2)); }
   .shell-panel { background: transparent; padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
   .content { padding-top: calc(20px + env(safe-area-inset-top)); }
 
@@ -35,3 +39,61 @@
   .row.sticky-actions { bottom: calc(88px + env(safe-area-inset-bottom)); }
 }
 @media (max-width: 560px) { .form-actions { bottom: calc(88px + env(safe-area-inset-bottom)); } }
+
+/* Контакти учня — компактна таблиця замість чотирьох великих квадратів */
+.contacts-table { width: 100%; border-collapse: collapse; }
+.contacts-table th[scope='row'] { width: 1%; white-space: nowrap; padding: 8px 14px 8px 0; text-align: left; font-size: 13px; font-weight: 600; color: var(--text2Hi); }
+.contacts-table td { padding: 8px 0; vertical-align: middle; font-size: 15px; }
+.contacts-table tr + tr > * { border-top: 1px solid var(--border); }
+.contacts-table .ct-phone { text-align: right; white-space: nowrap; width: 1%; }
+.contacts-table a.phone { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border-radius: 12px; background: var(--in-bg); color: #1F6A25; font-weight: 700; text-decoration: none; font-size: 15px; }
+[data-theme='dark'] .contacts-table a.phone { color: var(--in); }
+.contacts-table a.phone::before { content: ''; width: 16px; height: 16px; background: currentColor; flex: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z'/%3E%3C/svg%3E") center / contain no-repeat; }
+.drawer .contacts-table .ct-name { min-width: 0; overflow-wrap: anywhere; }
+
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  /* «Гуртожиток»: один рядок — перемикач ліворуч, «+» праворуч; без великого заголовка і експорту */
+  .hostel-head { flex-wrap: nowrap; gap: 8px; }
+  .hostel-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .hostel-export { display: none; }
+  .view-switch { flex: 1 1 auto; min-width: 0; }
+  .hostel-actions { width: auto; margin-left: 0; flex: none; flex-wrap: nowrap; }
+  .hostel-actions > * { flex: none; }
+  .hostel-actions .compact, .action-menu > button.compact { min-width: 44px; width: 44px; padding: 0; font-size: 24px; line-height: 1; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; }
+
+  /* список студентів: біла плашка, як у десктопній таблиці; прокрутка всередині */
+  .fill-page > .sl-scroll { flex: 1 1 0; min-height: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 0 14px; }
+  .sl-list li:last-child { border-bottom: 0; }
+
+  /* картка учня в шухляді — компактніше */
+  .drawer .card-page { gap: 10px; }
+  .drawer .card-page h1 { font-size: 22px; }
+  .drawer .panel { padding: 10px 14px; border-radius: 18px; }
+  .drawer .panel h2 { font-size: 15px; margin-bottom: 4px; }
+  .drawer .fold { padding: 0 14px; }
+  .drawer .fold > summary { min-height: 48px; font-size: 15px; }
+  .drawer .kv > div { padding: 6px 0; }
+  .drawer-scroll > .scrollrows { padding: 4px 14px 24px 14px; }
+}
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .drawer .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .drawer .page-head .btn { flex: none; min-height: 40px; padding: 0 12px; font-size: 14px; }
+  .drawer .card-page > p.muted { font-size: 14px; }
+}
+
+/* Меню акаунта (одна іконка: тема, права адміністратора, пароль, вихід) */
+.account-pop { position: fixed; z-index: 200; min-width: 15rem; max-width: calc(100vw - 24px); padding: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadowPop); animation: pop-in .16s var(--ease); }
+.account-who { display: grid; padding: 8px 12px 10px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.account-pop .action-item { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 0 12px; border-radius: 12px; background: transparent; color: var(--text); border: 0; font-size: 15px; font-weight: 500; text-align: left; text-decoration: none; justify-content: flex-start; }
+.account-pop .action-item:hover { background: var(--muted); opacity: 1; }
+
+/* Контакти: імʼя під підписом, лише заповнені рядки */
+.contacts-table th[scope='row'] { white-space: normal; width: auto; }
+.contacts-table th[scope='row'] .ct-name { display: block; margin-top: 1px; font-size: 14px; font-weight: 500; color: var(--text); }
+.contacts-table td { padding: 2px 0; }
+.contacts-table th[scope='row'] { padding: 6px 12px 6px 0; }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .drawer .page-head h1 { flex: 1 1 0; min-width: 0; }
+}

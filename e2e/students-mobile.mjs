@@ -20,6 +20,20 @@ assert.match(await page.locator('.sl-sub').first().innerText(), /^(\d пов\. �
 assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, 'немає горизонтального скролу')
 await page.screenshot({ path: process.env.SHOT_LIST ?? 'ux-audit/shots/students-mobile-after.png' })
 
+// список прокручується всередині білої плашки (регресія: був flex:none і обрізався)
+const sc = page.locator('.sl-scroll')
+assert.ok((await sc.evaluate((e) => e.scrollHeight - e.clientHeight)) > 500, 'є що прокручувати')
+await sc.evaluate((e) => e.scrollTo(0, 400))
+assert.ok((await sc.evaluate((e) => e.scrollTop)) > 300, 'scrollTop змінюється')
+await sc.evaluate((e) => e.scrollTo(0, 0))
+assert.notEqual(await sc.evaluate((e) => getComputedStyle(e).backgroundColor), 'rgba(0, 0, 0, 0)', 'біла плашка')
+// шапка: один рядок, без великого заголовка
+const sw = await page.locator('.view-switch').boundingBox()
+const plus = await page.getByRole('button', { name: /^Додати/ }).or(page.getByRole('link', { name: /^Додати/ })).first().boundingBox()
+assert.ok(Math.abs((sw.y + sw.height / 2) - (plus.y + plus.height / 2)) < 6, 'перемикач і «+» в одному рядку')
+assert.ok(sw.y < 40, 'без заголовка зверху')
+await page.screenshot({ path: 'ux-audit/shots/students-mobile-v2.png' })
+
 // пошук + лічильник + скидання
 await page.fill('#sl-q', 'ТЕСТ_Коваленко')
 const found = await rows.count()
@@ -48,6 +62,8 @@ await page.getByRole('button', { name: 'Скинути', exact: true }).click()
 await page.fill('#sl-q', 'ТЕСТ_Мельник')
 await rows.first().click()
 await page.getByRole('dialog', { name: 'Картка учня' }).waitFor()
+await page.waitForTimeout(500)
+await page.screenshot({ path: 'ux-audit/shots/student-card-mobile.png' })
 await page.keyboard.press('Escape')
 assert.equal(await page.inputValue('#sl-q'), 'ТЕСТ_Мельник')
 

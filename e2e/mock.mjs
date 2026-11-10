@@ -20,7 +20,7 @@ export function makeData(n = 250) {
     if (i % 7 !== 0) { const r = rooms[i % rooms.length]; assignments.push({ student_id: id, rooms: { number: r.number, floor: r.floor } }) }
     profiles.push({
       student_id: id, student_phone: `067000${String(i).padStart(4, '0')}`, mother_phone: `050111${String(i).padStart(4, '0')}`, father_phone: null, guardian_phone: null,
-      group_number: String(21 + (i % 6)), social_status: i % 11 === 0 ? 'Сирота' : null,
+      status: 'approved', version_no: 1, approved_at: '2026-09-01T10:00:00Z', mother_name: 'ТЕСТ Мама Олена', father_name: null, group_number: String(21 + (i % 6)), social_status: i % 11 === 0 ? 'Сирота' : null,
     })
   }
   return { students, assignments, profiles, rooms }
@@ -56,7 +56,10 @@ export async function installMock(context, { role = 'admin', data = makeData(), 
       return json(data.assignments.map((a) => ({ room_id: data.rooms.find((r) => r.number === a.rooms.number).id, students: data.students.find((s) => s.id === a.student_id) })))
     }
     if (p === '/rest/v1/room_assignments') return json(data.assignments)
-    if (p === '/rest/v1/student_profiles') return json(data.profiles)
+    if (p === '/rest/v1/student_profiles') {
+      const sid = url.searchParams.get('student_id')?.replace('eq.', '')
+      return json(sid ? data.profiles.filter((x) => x.student_id === sid) : data.profiles)
+    }
     if (p === '/rest/v1/rooms') return json(data.rooms)
     return json([])
   })

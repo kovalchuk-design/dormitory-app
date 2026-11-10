@@ -1,2 +1,2 @@
 export { PinLogin } from './PinLogin'
-export { ElevateButton } from './ElevateButton'
+export { ElevateDialog } from './ElevateButton'

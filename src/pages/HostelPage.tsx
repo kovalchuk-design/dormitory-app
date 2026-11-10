@@ -11,12 +11,14 @@ import { studentsToCsv, type StudentRow } from '../lib/studentsList'
 import { HostelExportRegistry, HostelNewRoom, HostelStudentCard } from './hostelContext'
 import { StudentCardPage } from './StudentCardPage'
 import { StudentsPage } from './StudentsPage'
+import { useIsMobile } from '../features/students-list/logic'
 
 /** «Гуртожиток»: одна сторінка з перемикачем виду — Студенти / Кімнати. Кнопки в шапці однакові в обох видах. */
 export function HostelPage() {
   const { view } = useParams<{ view: string }>()
   const { profile } = useAuth()
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
   const canEdit = profile?.role === 'admin' || profile?.role === 'educator'
   const isAdmin = profile?.role === 'admin'
   const getRows = useRef<(() => StudentRow[]) | null>(null)
@@ -50,15 +52,15 @@ export function HostelPage() {
   return (
     <section className="fill-page hostel">
       <div className="hostel-head">
-        <h1>Гуртожиток</h1>
+        <h1 className="hostel-title">Гуртожиток</h1>
         <nav className="view-switch" aria-label="Вигляд">
           <NavLink to="/hostel/rooms" replace>Кімнати</NavLink>
           <NavLink to="/hostel/students" replace>Студенти</NavLink>
         </nav>
         <div className="hostel-actions">
           {exportError && <span className="error" role="alert">{exportError}</span>}
-          <button type="button" className="secondary" disabled={exporting} onClick={() => void exportCsv()}>Експорт CSV</button>
-          <ActionMenu label="+ Додати" items={addItems} />
+          <button type="button" className="secondary hostel-export" disabled={exporting} onClick={() => void exportCsv()}>Експорт CSV</button>
+          <ActionMenu label="+ Додати" items={addItems} compact={isMobile} />
         </div>
       </div>
       <HostelExportRegistry.Provider value={register}>
