@@ -3,6 +3,7 @@ import { ROLE_LABELS } from '../../auth/roles'
 import { ROLES, validateCreateUser, validateUpdateUser, type AppRole, type CreateMode } from '../../../supabase/functions/_shared/adminUsers.ts'
 import { AdminApiError, createUser, updateUser } from './api'
 import { errorText, type AdminUser } from './logic'
+import { Select } from '../../components/ui/Select'
 import { Dialog, PasswordResultDialog, PinResultDialog } from './Dialogs'
 
 const FLOORS = [2, 3, 4, 5]
@@ -100,18 +101,18 @@ export function UserFormDialog({ user, selfId, onClose, onDone }: {
         </div>
         <div className="field">
           <label htmlFor="au-role">Роль</label>
-          <select id="au-role" value={role} onChange={(e) => { const r = e.target.value as AppRole; setRole(r); if (!editing) setMode(r === 'admin' ? 'password' : 'pin') }} disabled={isSelf}>
+          <Select id="au-role" value={role} onChange={(e) => { const r = e.target.value as AppRole; setRole(r); if (!editing) setMode(r === 'admin' ? 'password' : 'pin') }} disabled={isSelf}>
             {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
-          </select>
+          </Select>
           {isSelf && <span className="muted small">Власну роль змінити не можна.</span>}
           {fieldErrors.role && <span className="field-error">{fieldErrors.role}</span>}
         </div>
         <div className="field">
           <label htmlFor="au-floor">Поверх (довідково)</label>
-          <select id="au-floor" value={floor} onChange={(e) => setFloor(e.target.value)}>
+          <Select id="au-floor" value={floor} onChange={(e) => setFloor(e.target.value)}>
             <option value="">—</option>
             {FLOORS.map((f) => <option key={f} value={f}>{f}</option>)}
-          </select>
+          </Select>
           <span className="muted small">Поверх не обмежує доступ: вихователі на зміні відповідають за всі поверхи.</span>
           {fieldErrors.floor && <span className="field-error">{fieldErrors.floor}</span>}
         </div>
