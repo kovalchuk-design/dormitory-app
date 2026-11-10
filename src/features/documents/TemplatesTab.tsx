@@ -18,7 +18,7 @@ import { downloadName, validateUploadFile } from './filters'
 import { canEditTemplates } from './permissions'
 import { buildTemplateData, checkTemplate, fullName, renderDocxTemplate } from './templating'
 import type { TemplateRow } from './types'
-import { Select } from '../../components/ui/Select'
+import { MultiSelect, type MultiOption } from '../../components/ui/MultiSelect'
 
 const errText = (e: unknown) => (e instanceof Error ? e.message : String(e))
 
@@ -212,6 +212,7 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<{ blob: Blob; name: string } | null>(null)
+  const [zoomed, setZoomed] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -225,6 +226,38 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
   }, [])
 
   const rooms = useMemo(() => [...new Set((pupils ?? []).map((p) => p.room).filter((r): r is string => !!r))].sort((a, b) => a.localeCompare(b, 'uk', { numeric: true })), [pupils])
+  const roomInfo = useMemo(() => {
+    const m = new Map<string, { floor: number | null; ids: string[] }>()
+    for (const p of pupils ?? []) {
+      if (!p.room) continue
+      const e = m.get(p.room) ?? { floor: p.floor ?? null, ids: [] }
+      e.ids.push(p.id)
+      m.set(p.room, e)
+    }
+    return m
+  }, [pupils])
+  const roomOptions: MultiOption[] = useMemo(
+    () =>
+      rooms
+        .map((r) => ({ r, ...roomInfo.get(r)! }))
+        .sort((a, b) => (a.floor ?? 99) - (b.floor ?? 99) || a.r.localeCompare(b.r, 'uk', { numeric: true }))
+        .map(({ r, floor, ids }) => ({ value: r, label: `Кімната ${r} · ${ids.length} учн.`, group: floor != null ? `${floor} поверх` : 'Без поверху' })),
+    [rooms, roomInfo],
+  )
+  const pickedRooms = useMemo(() => rooms.filter((r) => roomInfo.get(r)!.ids.every((id) => chosen.has(id))), [rooms, roomInfo, chosen])
+  function setRooms(next: string[]) {
+    const now = new Set(next)
+    const was = new Set(pickedRooms)
+    change((s) => {
+      const n = new Set(s)
+      for (const r of rooms) {
+        const ids = roomInfo.get(r)!.ids
+        if (now.has(r) && !was.has(r)) ids.forEach((id) => n.add(id))
+        if (!now.has(r) && was.has(r)) ids.forEach((id) => n.delete(id))
+      }
+      return n
+    })
+  }
   const floors = useMemo(
     () =>
       [...new Set((pupils ?? []).map((p) => p.floor).filter((f): f is number => f != null))]
@@ -268,7 +301,6 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
       }
       return n
     })
-  const addRoom = (room: string) => change((s) => new Set([...s, ...(pupils ?? []).filter((p) => p.room === room).map((p) => p.id)]))
 
   async function generate() {
     if (!profile || !pupils) return
@@ -334,11 +366,8 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
           </div>
           <div className="filters">
             <input type="search" placeholder="Пошук учня…" aria-label="Пошук учня" value={search} onChange={(e) => setSearch(e.target.value)} />
-            <Select aria-label="Додати кімнату" value="" onChange={(e) => e.target.value && addRoom(e.target.value)}>
-              <option value="">Додати всю кімнату…</option>
-              {rooms.map((r) => <option key={r} value={r}>Кімната {r}</option>)}
-            </Select>
-            <button type="button" className={`chip${onlyChosen ? ' on' : ''}`} aria-pressed={onlyChosen} onClick={() => setOnlyChosen((v) => !v)}>Лише вибрані</button>
+            <MultiSelect label="Кімнати" aria-label="Вибрати кімнати" options={roomOptions} value={pickedRooms} onChange={setRooms} />
+            <button type="button" className="secondary" aria-pressed={onlyChosen} onClick={() => setOnlyChosen((v) => !v)}>Лише вибрані</button>
             <button type="button" className="secondary" onClick={() => change(() => new Set())} disabled={chosen.size === 0}>Очистити вибір</button>
           </div>
           {pupils.length === 0 && <p className="muted">Немає учнів, дані яких вам доступні.</p>}
@@ -362,10 +391,29 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
         </>
       )}
       {result && (
-        <div className="tpl-result">
-          <div className="card-actions"><button type="button" onClick={save}>Завантажити {result.name}</button></div>
+        <div className="tpl-result" aria-label="Готовий документ">
+          <h3>Готовий документ</h3>
           <DocxViewer source={result.blob} />
+          <div className="tpl-result-actions">
+            <button type="button" className="secondary" onClick={() => setZoomed(true)}>Відкрити на весь екран</button>
+            <button type="button" onClick={save} title={result.name}>Завантажити документ (.docx)</button>
+          </div>
         </div>
+      )}
+      {zoomed && result && (
+        <Modal
+          title={result.name.replace(/\.docx$/, '')}
+          onClose={() => setZoomed(false)}
+          wide
+          footer={
+            <>
+              <button type="button" onClick={save}>Завантажити документ (.docx)</button>
+              <button type="button" className="secondary" onClick={() => setZoomed(false)}>Закрити</button>
+            </>
+          }
+        >
+          <DocxViewer source={result.blob} />
+        </Modal>
       )}
     </section>
   )
