@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { listLoginUsers, signInWithSecret, type LoginUser } from './api'
 import { Select } from '../../components/ui/Select'
+import './pinLogin.css'
 
 /** Вхід: вибір вихователя + PIN (4 цифри) або повний пароль (для адміністратора). */
 export function PinLogin() {
@@ -56,7 +57,7 @@ export function PinLogin() {
         <div className="field">
           <label htmlFor="pl-secret">Пароль</label>
           <input
-            id="pl-secret" type="password" autoComplete="off" value={secret} maxLength={72} disabled={!userId}
+            id="pl-secret" type="password" autoComplete="off" value={secret} maxLength={72} disabled={!userId} placeholder={userId ? '' : 'Спочатку оберіть вихователя'}
             onChange={(e) => { setSecret(e.target.value); setError(null) }}
           />
         </div>
