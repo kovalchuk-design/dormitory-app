@@ -154,7 +154,7 @@ export function TemplatesTab({ lib }: { lib: Library }) {
         </Modal>
       )}
       {adding && (
-        <Modal title="Додати шаблон" onClose={closeAdd}>
+        <Modal title="Додати шаблон" onClose={closeAdd} narrow>
           <TemplateUpload onDone={async () => { setAdding(false); setNotice('Шаблон додано.'); await refresh() }} />
           <TemplateHelp />
         </Modal>
@@ -190,16 +190,34 @@ function TemplateUpload({ onDone }: { onDone: () => Promise<void> }) {
     }
   }
 
+  function pick(f: File | null) {
+    setFile(f)
+    setError(null)
+    if (f && !title.trim()) setTitle(f.name.replace(/\.[^.]+$/, ''))
+  }
+
   return (
     <form className="tpl-upload" onSubmit={(e) => void submit(e)}>
-      <label>Файл .docx з полями {'{{…}}'}
-        <input type="file" accept=".docx" onChange={(e) => { setFile(e.target.files?.[0] ?? null); setError(null) }} />
-      </label>
       <label>Назва шаблону
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Наприклад: Заява на поселення" />
+        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Наприклад: Заява на поселення" autoFocus />
       </label>
+      <div className="file-field">
+        <span className="file-field-label">Файл .docx з полями {'{{…}}'}</span>
+        <label
+          className={`file-drop${file ? ' has-file' : ''}`}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => { e.preventDefault(); pick(e.dataTransfer.files?.[0] ?? null) }}
+        >
+          <input type="file" accept=".docx" className="visually-hidden" onChange={(e) => pick(e.target.files?.[0] ?? null)} />
+          <span className="file-drop-icon" aria-hidden="true">{file ? '✓' : '+'}</span>
+          <span className="file-drop-text">
+            {file ? <strong>{file.name}</strong> : <>Натисніть, щоб обрати файл<span className="muted small"> або перетягніть сюди</span></>}
+          </span>
+          {file && <span className="file-drop-change">Змінити</span>}
+        </label>
+      </div>
       {error && <p className="error">{error}</p>}
-      <button type="submit" disabled={busy}>{busy ? 'Перевірка…' : 'Додати шаблон'}</button>
+      <button type="submit" disabled={busy || !file}>{busy ? 'Перевірка…' : 'Додати шаблон'}</button>
     </form>
   )
 }

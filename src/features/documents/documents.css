@@ -100,3 +100,20 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 .docx-viewer section.docx { border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,.12) !important; }
 .docx-viewer section.docx:last-of-type { margin-bottom: 0 !important; }
 .filters button[aria-pressed='true'] { background: var(--muted); border-color: var(--text); }
+
+/* ---- Вікно «Додати шаблон» ---- */
+.modal-narrow { width: min(34rem, 100%); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; opacity: 0; }
+.file-field { display: grid; gap: .35rem; }
+.file-field-label { font-size: .9rem; color: var(--text2); }
+.documents .file-drop { display: flex; align-items: center; gap: .8rem; margin: 0; padding: .9rem 1rem; min-height: 64px; border: 1.5px dashed var(--fieldBorder); border-radius: 16px; background: var(--field); cursor: pointer; }
+.documents .file-drop:hover, .documents .file-drop:focus-within { border-color: var(--out); background: var(--out-bg); }
+.documents .file-drop.has-file { border-style: solid; border-color: var(--in); background: var(--in-bg); }
+.file-drop-icon { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--muted); font-size: 1.2rem; font-weight: 600; }
+.has-file .file-drop-icon { background: var(--in); color: #fff; }
+.file-drop-text { flex: 1; min-width: 0; overflow-wrap: anywhere; display: grid; gap: .1rem; }
+.file-drop-change { flex: none; font-size: .85rem; color: var(--outInk); font-weight: 600; }
+.help-compact { margin-top: .4rem; font-size: .85rem; color: var(--text2); }
+.help-compact summary { cursor: pointer; font-weight: 500; padding: .3rem 0; }
+.help-compact .help-steps, .help-compact .help-table { font-size: .82rem; }
+.help-compact h3, .help-compact h4 { font-size: .9rem; }
