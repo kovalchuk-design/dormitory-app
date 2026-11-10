@@ -99,3 +99,15 @@ export function toProfileRow(studentId: string, x: ProfileExtra) {
     },
   }
 }
+
+/**
+ * Режим «Батьки / Опікун», як в анкеті учня: обраний варіант лишається, другий очищається.
+ * У режимі «Опікун» батьків позначаємо «немає» — лише якщо опікуна вказано (інакше нічого не вигадуємо).
+ */
+export function applyContactMode(x: ProfileExtra, mode: 'parents' | 'guardian'): ProfileExtra {
+  if (mode === 'guardian') {
+    const hasGuardian = x.guardian_name.trim() !== ''
+    return { ...x, mother_name: hasGuardian ? 'немає' : '', mother_phone: '', father_name: hasGuardian ? 'немає' : '', father_phone: '' }
+  }
+  return { ...x, guardian_name: '', guardian_relation: '', guardian_phone: '' }
+}
