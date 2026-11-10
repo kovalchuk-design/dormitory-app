@@ -194,7 +194,7 @@ table.data td:first-child a:hover { text-decoration: underline; }
 .rm-page > .rm-floors { flex: 1 1 0; min-height: 0; }
 .rm-pool { padding: 16px 20px; }
 .rm-pool-scroll { max-height: min(30vh, 220px); }
-.rm-pool-scroll > .scrollrows { max-height: inherit; padding-right: 18px; }
+.rm-pool-scroll > .scrollrows { max-height: inherit; padding: 6px 18px 6px 6px; margin: -6px 0 -6px -6px; } /* запас під рамку наведення/фокусу: скролбокс обрізає все, що виступає */
 .rm-floors { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
 .rm-floor { display: flex; flex-direction: column; min-height: 0; padding: 14px 12px 12px; border-radius: 28px; background: var(--glass); border: 1px solid var(--border); }
 .rm-floor h2 { flex: none; font-size: 16px; margin: 0 0 10px; padding-left: 6px; }
@@ -218,3 +218,4 @@ table.data td:first-child a:hover { text-decoration: underline; }
   .rm-pool ul { grid-template-columns: 1fr; }
   .rm-title h1 { font-size: 28px; }
 }
+.modal-body { padding-top: 6px; } /* запас під рамку фокусу першого поля: .modal-body скролиться й обрізає */
