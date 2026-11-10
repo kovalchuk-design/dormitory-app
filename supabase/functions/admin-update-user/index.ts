@@ -1,6 +1,7 @@
-// Admin edits role / floor / active flag / name, or force-signs-out a user. Never deletes.
+// Admin edits role / floor / active flag / name, sets or unlocks a PIN, or force-signs-out a user. Never deletes.
 import { adminClient, dbErrorCode, preflight, readBody, reply, requireAdmin } from '../_shared/adminAuth.ts'
 import { protectionError, validateUpdateUser } from '../_shared/adminUsers.ts'
+import { generatePin, hashPin } from '../_shared/pin.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return preflight()
@@ -48,12 +49,28 @@ Deno.serve(async (req) => {
     }
   }
 
+  // PIN: set / generate (replaces the old one, clears the lock) or just unlock.
+  let newPin: string | undefined
+  if (u.pin !== undefined || u.generate_pin) {
+    newPin = u.pin ?? generatePin()
+    const up = await db.from('pin_credentials').upsert({
+      user_id: u.user_id, pin_hash: await hashPin(newPin), failed_attempts: 0, locked_at: null, updated_at: new Date().toISOString(),
+    })
+    if (up.error) return reply({ ok: false, error: 'unavailable' }, 503)
+    await db.rpc('svc_admin_audit', { p_actor: actor, p_target: u.user_id, p_event: 'pin_set', p_details: {} })
+  } else if (u.unlock) {
+    const up = await db.from('pin_credentials').update({ failed_attempts: 0, locked_at: null, updated_at: new Date().toISOString() }).eq('user_id', u.user_id)
+    if (up.error) return reply({ ok: false, error: 'unavailable' }, 503)
+    await db.rpc('svc_admin_audit', { p_actor: actor, p_target: u.user_id, p_event: 'pin_unlocked', p_details: {} })
+  }
+
   let revoked: number | null = null
-  if (u.revoke_sessions === true || u.is_active === false) {
+  // never cut the admin's own session (e.g. when setting their own PIN)
+  if ((u.revoke_sessions === true || u.is_active === false || newPin !== undefined) && u.user_id !== actor) {
     const r = await db.rpc('svc_admin_revoke_sessions', { p_user: u.user_id })
     if (r.error) return reply({ ok: false, error: 'unavailable' }, 503)
     revoked = r.data as number
     await db.rpc('svc_admin_audit', { p_actor: actor, p_target: u.user_id, p_event: 'sessions_revoked', p_details: { count: revoked } })
   }
-  return reply({ ok: true, revoked_sessions: revoked })
+  return reply({ ok: true, revoked_sessions: revoked, ...(u.generate_pin && newPin ? { pin: newPin } : {}) })
 })

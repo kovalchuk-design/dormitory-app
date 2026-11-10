@@ -5,6 +5,7 @@ import { useQueueCounts } from '../lib/pending'
 import { useTheme } from '../lib/theme'
 import { navItemsForRole, type NavItem } from '../routes/navItems'
 import { Icon, type IconName } from './ui/icons'
+import { ElevateButton } from '../features/pin-login'
 
 const NAV_ICONS: Record<string, IconName> = {
   '/': 'home',
@@ -57,10 +58,13 @@ export function Layout() {
           <Icon name={THEME_ICONS[pref]} />
           <span className="rail-tip" aria-hidden="true">{THEME_LABELS[pref]}</span>
         </button>
-        <NavLink to="/password" className={navClass('/password', 'rail-btn')} title="Змінити пароль" aria-label="Змінити пароль">
-          <Icon name="settings" />
-          <span className="rail-tip" aria-hidden="true">Змінити пароль</span>
-        </NavLink>
+        <ElevateButton variant="rail" />
+        {!profile?.pinSession && (
+          <NavLink to="/password" className={navClass('/password', 'rail-btn')} title="Змінити пароль" aria-label="Змінити пароль">
+            <Icon name="settings" />
+            <span className="rail-tip" aria-hidden="true">Змінити пароль</span>
+          </NavLink>
+        )}
         <button type="button" className="rail-btn" onClick={() => void signOut()} title={logoutLabel} aria-label={logoutLabel}>
           <Icon name="logout" />
           <span className="rail-tip" aria-hidden="true">Вийти</span>
@@ -83,10 +87,13 @@ export function Layout() {
           <Icon name={THEME_ICONS[pref]} />
           <span>Тема</span>
         </button>
-        <NavLink to="/password" className={navClass('/password', 'tab-m')}>
-          <Icon name="settings" />
-          <span>Пароль</span>
-        </NavLink>
+        <ElevateButton variant="tab" />
+        {!profile?.pinSession && (
+          <NavLink to="/password" className={navClass('/password', 'tab-m')}>
+            <Icon name="settings" />
+            <span>Пароль</span>
+          </NavLink>
+        )}
         <button type="button" className="tab-m" onClick={() => void signOut()} aria-label={logoutLabel}>
           <Icon name="logout" />
           <span>Вийти</span>

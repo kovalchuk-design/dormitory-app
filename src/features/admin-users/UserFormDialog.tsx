@@ -3,7 +3,7 @@ import { ROLE_LABELS } from '../../auth/roles'
 import { ROLES, validateCreateUser, validateUpdateUser, type AppRole, type CreateMode } from '../../../supabase/functions/_shared/adminUsers.ts'
 import { AdminApiError, createUser, updateUser } from './api'
 import { errorText, type AdminUser } from './logic'
-import { Dialog, PasswordResultDialog } from './Dialogs'
+import { Dialog, PasswordResultDialog, PinResultDialog } from './Dialogs'
 
 const FLOORS = [2, 3, 4, 5]
 
@@ -18,11 +18,13 @@ export function UserFormDialog({ user, selfId, onClose, onDone }: {
   const [role, setRole] = useState<AppRole>(user?.role ?? 'educator')
   const [floor, setFloor] = useState<string>(user?.floor != null ? String(user.floor) : '')
   const [active, setActive] = useState(user?.is_active ?? true)
-  const [mode, setMode] = useState<CreateMode>('password')
+  const [mode, setMode] = useState<CreateMode>('pin')
+  const [pin, setPin] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [created, setCreated] = useState<{ email: string; password: string } | null>(null)
+  const [createdPin, setCreatedPin] = useState<string | null>(null)
   const [invited, setInvited] = useState<string | null>(null)
 
   async function submit(e: FormEvent) {
@@ -39,11 +41,12 @@ export function UserFormDialog({ user, selfId, onClose, onDone }: {
         onDone()
         onClose()
       } else {
-        const v = validateCreateUser({ full_name: fullName, email, role, floor: floorValue, is_active: active, mode })
+        const v = validateCreateUser({ full_name: fullName, email, role, floor: floorValue, is_active: active, mode, pin: pin || null })
         if (!v.ok) return setFieldErrors(v.errors)
         const r = await createUser(v.value)
         onDone()
-        if (r.temporary_password) setCreated({ email: v.value.email, password: r.temporary_password })
+        if (r.pin) setCreatedPin(r.pin)
+        else if (r.temporary_password) setCreated({ email: v.value.email, password: r.temporary_password })
         else setInvited(v.value.email)
       }
     } catch (err) {
@@ -56,6 +59,7 @@ export function UserFormDialog({ user, selfId, onClose, onDone }: {
     }
   }
 
+  if (createdPin) return <PinResultDialog title="Користувача створено" name={fullName} pin={createdPin} onClose={onClose} />
   if (created) {
     return <PasswordResultDialog title="Користувача створено" email={created.email} password={created.password} onClose={onClose} />
   }
@@ -95,7 +99,7 @@ export function UserFormDialog({ user, selfId, onClose, onDone }: {
         </div>
         <div className="field">
           <label htmlFor="au-role">Роль</label>
-          <select id="au-role" value={role} onChange={(e) => setRole(e.target.value as AppRole)} disabled={isSelf}>
+          <select id="au-role" value={role} onChange={(e) => { const r = e.target.value as AppRole; setRole(r); if (!editing) setMode(r === 'admin' ? 'password' : 'pin') }} disabled={isSelf}>
             {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
           </select>
           {isSelf && <span className="muted small">Власну роль змінити не можна.</span>}
@@ -118,8 +122,19 @@ export function UserFormDialog({ user, selfId, onClose, onDone }: {
           <fieldset className="au-modes">
             <legend>Як передати доступ</legend>
             <label>
+              <input type="radio" name="au-mode" checked={mode === 'pin'} onChange={() => setMode('pin')} />
+              PIN-код (4 цифри) — для вихователів, вхід зі списку на головній
+            </label>
+            {mode === 'pin' && (
+              <div className="field">
+                <label htmlFor="au-newpin">PIN (залиште порожнім — згенерується випадковий)</label>
+                <input id="au-newpin" inputMode="numeric" maxLength={4} autoComplete="off" value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} />
+                {fieldErrors.pin && <span className="field-error">{fieldErrors.pin}</span>}
+              </div>
+            )}
+            <label>
               <input type="radio" name="au-mode" checked={mode === 'password'} onChange={() => setMode('password')} />
-              Тимчасовий пароль (рекомендовано) — буде показано один раз
+              Тимчасовий пароль — для адміністратора, буде показано один раз
             </label>
             <label>
               <input type="radio" name="au-mode" checked={mode === 'invite'} onChange={() => setMode('invite')} />

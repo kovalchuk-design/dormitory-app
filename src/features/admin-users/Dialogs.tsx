@@ -66,6 +66,24 @@ async function copyText(text: string): Promise<boolean> {
   }
 }
 
+/** Показує згенерований PIN один раз. */
+export function PinResultDialog({ title, name, pin, onClose }: { title: string; name: string; pin: string; onClose: () => void }) {
+  const [copied, setCopied] = useState<'ok' | 'fail' | null>(null)
+  return (
+    <Dialog title={title} onClose={onClose} footer={<button type="button" onClick={onClose}>Готово, я зберіг(ла) PIN</button>}>
+      <p className="muted">Користувач: <strong>{name}</strong></p>
+      <p>PIN для входу (показується <strong>лише один раз</strong>):</p>
+      <div className="au-secret">
+        <code data-testid="pin-value">{pin}</code>
+        <button type="button" onClick={async () => setCopied((await copyText(pin)) ? 'ok' : 'fail')}>Копіювати</button>
+      </div>
+      {copied === 'ok' && <p role="status" className="muted small">Скопійовано.</p>}
+      {copied === 'fail' && <p role="alert" className="error">Не вдалося скопіювати — запишіть PIN вручну.</p>}
+      <p className="muted small">Передайте PIN особисто. Змінити його може лише адміністратор. Після 3 невдалих спроб вхід блокується.</p>
+    </Dialog>
+  )
+}
+
 /** Показує тимчасовий пароль ОДИН раз: після закриття діалогу значення зникає зі стану. */
 export function PasswordResultDialog({ title, email, password, note, onClose }: {
   title: string; email: string | null; password: string; note?: string; onClose: () => void

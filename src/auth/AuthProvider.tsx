@@ -18,9 +18,16 @@ async function fetchProfile(userId: string): Promise<ProfileState> {
     .maybeSingle()
   if (error) return { userId, profile: null, error: true }
   if (!data || !isRole(data.role)) return { userId, profile: null, error: false }
+  // вхід за PIN = права вихователя (сервер так само не вважає таку сесію адмінською)
+  const { data: pin } = await supabase.rpc('my_session_is_pin')
+  const pinSession = pin === true
   return {
     userId,
-    profile: { id: data.id, full_name: data.full_name, role: data.role, floor: data.floor ?? null, mustChangePassword: data.must_change_password === true },
+    profile: {
+      id: data.id, full_name: data.full_name, floor: data.floor ?? null, mustChangePassword: data.must_change_password === true,
+      role: data.role === 'admin' && pinSession ? 'educator' : data.role,
+      pinSession, adminAccount: data.role === 'admin',
+    },
     error: false,
   }
 }

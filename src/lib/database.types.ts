@@ -1107,6 +1107,7 @@ export type Database = {
         Args: { p_reason?: string; p_room_id: string; p_student_id: string }
         Returns: string
       }
+      my_session_is_pin: { Args: never; Returns: boolean }
       questionnaire_rate_hit: {
         Args: { p_key: string; p_limit: number; p_window_seconds: number }
         Returns: boolean
@@ -1127,6 +1128,9 @@ export type Database = {
         Args: { p_payload: Json; p_token_hash: string }
         Returns: boolean
       }
+      svc_pin_begin_attempt: { Args: { p_user: string }; Returns: number }
+      svc_pin_fail: { Args: { p_user: string }; Returns: boolean }
+      svc_pin_success: { Args: { p_user: string }; Returns: undefined }
       svc_admin_audit: {
         Args: { p_actor: string; p_details?: Json; p_event: string; p_target: string }
         Returns: undefined

@@ -10,6 +10,8 @@ export interface AdminUser {
   created_at: string
   email: string | null
   last_sign_in_at: string | null
+  has_pin: boolean
+  pin_locked: boolean
 }
 
 export interface UserFilters {
@@ -62,6 +64,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   rate_limited: 'Забагато запитів. Зачекайте кілька хвилин',
   self_demote: 'Не можна понизити власну роль',
   self_deactivate: 'Не можна деактивувати власний обліковий запис',
+  pin_locked: 'Вхід заблоковано',
   self_change: 'Для власного облікового запису ця дія недоступна (пароль змінюється в меню «Пароль»)',
   last_admin: 'У системі має лишатися хоча б один активний адміністратор',
   not_found: 'Користувача не знайдено',

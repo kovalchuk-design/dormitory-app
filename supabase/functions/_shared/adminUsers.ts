@@ -1,4 +1,5 @@
 // Pure rules for user administration. Shared by the admin-* Edge Functions and the browser (no Deno/DOM imports).
+import { pinProblem } from './pin.ts'
 
 export const ROLES = ['admin', 'educator', 'staff_readonly'] as const
 export type AppRole = (typeof ROLES)[number]
@@ -7,7 +8,7 @@ export const MIN_PASSWORD_LENGTH = 10
 const EMAIL_RE = /^[^\s@<>()[\],;:"\\]+@[^\s@<>()[\],;:"\\]+\.[^\s@<>()[\],;:"\\]{2,}$/
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-export type CreateMode = 'password' | 'invite'
+export type CreateMode = 'password' | 'invite' | 'pin'
 
 export interface CreateUserInput {
   full_name: string
@@ -16,6 +17,8 @@ export interface CreateUserInput {
   floor: number | null
   is_active: boolean
   mode: CreateMode
+  /** mode 'pin': explicit 4-digit PIN; null → generated and shown once */
+  pin: string | null
 }
 
 export interface UpdateUserInput {
@@ -25,6 +28,12 @@ export interface UpdateUserInput {
   floor?: number | null
   is_active?: boolean
   revoke_sessions?: boolean
+  /** set this 4-digit PIN */
+  pin?: string
+  /** generate a random PIN (returned once) */
+  generate_pin?: boolean
+  /** clear the failed-attempts counter / lock of the PIN */
+  unlock?: boolean
 }
 
 export type Validation<T> = { ok: true; value: T } | { ok: false; errors: Record<string, string> }
@@ -60,12 +69,18 @@ export function validateCreateUser(input: unknown): Validation<CreateUserInput> 
   const floor = checkFloor(o.floor)
   if (!floor.ok) errors.floor = 'Поверх має бути від 2 до 5'
   if (typeof o.is_active !== 'boolean') errors.is_active = 'Вкажіть статус'
-  if (o.mode !== 'password' && o.mode !== 'invite') errors.mode = 'Оберіть спосіб створення'
+  if (o.mode !== 'password' && o.mode !== 'invite' && o.mode !== 'pin') errors.mode = 'Оберіть спосіб створення'
+  let pin: string | null = null
+  if (o.mode === 'pin' && o.pin !== undefined && o.pin !== null && o.pin !== '') {
+    const problem = pinProblem(o.pin)
+    if (problem) errors.pin = problem
+    else pin = o.pin as string
+  }
   if (Object.keys(errors).length > 0) return { ok: false, errors }
   return {
     ok: true,
     value: {
-      full_name, email, role: role as AppRole,
+      full_name, email, role: role as AppRole, pin,
       floor: floor.ok ? floor.value : null,
       is_active: o.is_active as boolean, mode: o.mode as CreateMode,
     },
@@ -99,6 +114,18 @@ export function validateUpdateUser(input: unknown): Validation<UpdateUserInput> 
     if (typeof o.revoke_sessions !== 'boolean') errors.revoke_sessions = 'Некоректне значення'
     else value.revoke_sessions = o.revoke_sessions
   }
+  if (o.pin !== undefined) {
+    const problem = pinProblem(o.pin)
+    if (problem) errors.pin = problem
+    else value.pin = o.pin as string
+  }
+  for (const k of ['generate_pin', 'unlock'] as const) {
+    if (o[k] !== undefined) {
+      if (typeof o[k] !== 'boolean') errors[k] = 'Некоректне значення'
+      else value[k] = o[k] as boolean
+    }
+  }
+  if (value.pin !== undefined && value.generate_pin) errors.pin = 'Вкажіть PIN або оберіть генерацію, не обидва'
   if (Object.keys(errors).length > 0) return { ok: false, errors }
   return { ok: true, value }
 }

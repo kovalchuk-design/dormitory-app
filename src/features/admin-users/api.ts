@@ -44,10 +44,11 @@ export interface CreateUserPayload {
   floor: number | null
   is_active: boolean
   mode: CreateMode
+  pin?: string | null
 }
 
 export const createUser = (p: CreateUserPayload) =>
-  call<{ user_id: string; mode: CreateMode; temporary_password?: string }>('admin-create-user', { ...p })
+  call<{ user_id: string; mode: CreateMode; temporary_password?: string; pin?: string }>('admin-create-user', { ...p })
 
 export interface UpdateUserPayload {
   user_id: string
@@ -56,9 +57,12 @@ export interface UpdateUserPayload {
   floor?: number | null
   is_active?: boolean
   revoke_sessions?: boolean
+  pin?: string
+  generate_pin?: boolean
+  unlock?: boolean
 }
 
-export const updateUser = (p: UpdateUserPayload) => call<{ revoked_sessions: number | null }>('admin-update-user', { ...p })
+export const updateUser = (p: UpdateUserPayload) => call<{ revoked_sessions: number | null; pin?: string }>('admin-update-user', { ...p })
 
 export const resetPassword = (user_id: string) =>
   call<{ temporary_password: string }>('admin-reset-password', { user_id })

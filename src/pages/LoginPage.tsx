@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import { FullScreenMessage } from '../components/FullScreenMessage'
+import { PinLogin } from '../features/pin-login'
 
 export function LoginPage() {
   const { status, signIn } = useAuth()
@@ -10,12 +11,15 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [emailMode, setEmailMode] = useState(false)
 
   if (status === 'loading') return <FullScreenMessage>Завантаження…</FullScreenMessage>
   if (status !== 'signed_out') {
     const from = (location.state as { from?: string } | null)?.from
     return <Navigate to={from ?? '/'} replace />
   }
+
+  if (!emailMode) return <PinLogin onUseEmail={() => setEmailMode(true)} />
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
@@ -51,6 +55,9 @@ export function LoginPage() {
         )}
         <button type="submit" disabled={busy}>
           {busy ? 'Вхід…' : 'Увійти'}
+        </button>
+        <button type="button" className="link" onClick={() => setEmailMode(false)}>
+          Назад до вибору вихователя
         </button>
       </form>
     </div>

@@ -19,6 +19,12 @@ Deno.serve(async (req) => {
     for (const u of data.users) auth.set(u.id, { email: u.email ?? null, last_sign_in_at: u.last_sign_in_at ?? null })
     if (data.users.length < 200) break
   }
-  const users = profiles.data.map((p) => ({ ...p, email: auth.get(p.id)?.email ?? null, last_sign_in_at: auth.get(p.id)?.last_sign_in_at ?? null }))
+  const pins = await db.from('pin_credentials').select('user_id, locked_at')
+  if (pins.error) return reply({ ok: false, error: 'unavailable' }, 503)
+  const pinState = new Map(pins.data.map((r) => [r.user_id, r.locked_at !== null]))
+  const users = profiles.data.map((p) => ({
+    ...p, email: auth.get(p.id)?.email ?? null, last_sign_in_at: auth.get(p.id)?.last_sign_in_at ?? null,
+    has_pin: pinState.has(p.id), pin_locked: pinState.get(p.id) === true,
+  }))
   return reply({ ok: true, users })
 })

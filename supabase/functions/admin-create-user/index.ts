@@ -1,6 +1,7 @@
-// Admin creates an account: temporary password (shown once to the admin) or email invite.
+// Admin creates an account: PIN (educators), temporary password (shown once) or email invite.
 import { adminClient, preflight, readBody, reply, requireAdmin } from '../_shared/adminAuth.ts'
 import { generateTempPassword, validateCreateUser } from '../_shared/adminUsers.ts'
+import { generatePin, hashPin } from '../_shared/pin.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return preflight()
@@ -18,23 +19,33 @@ Deno.serve(async (req) => {
 
   let userId: string | undefined
   let password: string | undefined
-  if (u.mode === 'password') {
-    password = generateTempPassword()
+  let pin: string | undefined
+  if (u.mode === 'invite') {
+    const { data, error } = await db.auth.admin.inviteUserByEmail(u.email, { data: { full_name: u.full_name } })
+    if (error || !data.user) return createFailure(error)
+    userId = data.user.id
+  } else {
+    // 'password': the temporary password is shown to the admin once. 'pin': the auth password is random and
+    // unknown to everyone — the person signs in with the PIN only.
+    password = generateTempPassword(u.mode === 'pin' ? 40 : 14)
     const { data, error } = await db.auth.admin.createUser({
       email: u.email, password, email_confirm: true, user_metadata: { full_name: u.full_name },
     })
     if (error || !data.user) return createFailure(error)
     userId = data.user.id
-  } else {
-    const { data, error } = await db.auth.admin.inviteUserByEmail(u.email, { data: { full_name: u.full_name } })
-    if (error || !data.user) return createFailure(error)
-    userId = data.user.id
+    if (u.mode === 'pin') {
+      pin = u.pin ?? generatePin()
+      const ins = await db.from('pin_credentials').upsert({ user_id: userId, pin_hash: await hashPin(pin), failed_attempts: 0, locked_at: null })
+      if (ins.error) {
+        await db.auth.admin.deleteUser(userId)
+        return reply({ ok: false, error: 'unavailable' }, 503)
+      }
+    }
   }
 
-  // The auth trigger made an inactive staff_readonly profile; apply the requested values.
   const upd = await db.rpc('svc_admin_update_profile', {
     p_actor: actor, p_target: userId, p_full_name: u.full_name, p_role: u.role,
-    p_floor: u.floor, p_set_floor: true, p_is_active: u.is_active, p_must_change_password: true,
+    p_floor: u.floor, p_set_floor: true, p_is_active: u.is_active, p_must_change_password: u.mode !== 'pin',
   })
   if (upd.error) {
     await db.auth.admin.deleteUser(userId) // roll back: no half-created accounts
@@ -44,7 +55,11 @@ Deno.serve(async (req) => {
     p_actor: actor, p_target: userId, p_event: 'user_created',
     p_details: { mode: u.mode, role: u.role, floor: u.floor, is_active: u.is_active },
   })
-  return reply({ ok: true, user_id: userId, mode: u.mode, ...(password ? { temporary_password: password } : {}) })
+  return reply({
+    ok: true, user_id: userId, mode: u.mode,
+    ...(u.mode === 'password' && password ? { temporary_password: password } : {}),
+    ...(pin ? { pin } : {}),
+  })
 })
 
 function createFailure(error: { code?: string; status?: number } | null) {

@@ -93,7 +93,7 @@ describe('protectionError', () => {
 
 const u = (o: Partial<AdminUser>): AdminUser => ({
   id: Math.random().toString(), full_name: 'Тест', role: 'educator', floor: null, is_active: true,
-  must_change_password: false, created_at: '', email: 'a@b.c', last_sign_in_at: null, ...o,
+  must_change_password: false, created_at: '', email: 'a@b.c', last_sign_in_at: null, has_pin: false, pin_locked: false, ...o,
 })
 
 describe('filter / sort / lastSeen', () => {

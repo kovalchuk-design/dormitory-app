@@ -5,6 +5,7 @@ import { useLoad } from '../../lib/useLoad'
 import { AdminApiError, resetPassword, updateUser } from './api'
 import { ConfirmDialog, PasswordResultDialog } from './Dialogs'
 import { UserFormDialog } from './UserFormDialog'
+import { PinDialog } from './PinDialog'
 import { EMPTY_FILTERS, errorText, filterUsers, lastSeenLabel, sortUsers, type AdminUser, type UserFilters } from './logic'
 import { listUsers } from './api'
 import './adminUsers.css'
@@ -16,6 +17,7 @@ type Action =
   | { kind: 'reset'; user: AdminUser }
   | { kind: 'revoke'; user: AdminUser }
   | { kind: 'secret'; user: AdminUser; password: string }
+  | { kind: 'pin'; user: AdminUser }
 
 export function AdminUsersPage() {
   const { profile } = useAuth()
@@ -46,7 +48,10 @@ export function AdminUsersPage() {
     <section className="panel au" aria-labelledby="au-h">
       <div className="au-head">
         <h2 id="au-h">Користувачі</h2>
-        <button type="button" onClick={() => setAction({ kind: 'create' })}>Додати користувача</button>
+        <div className="au-head-actions">
+          <button type="button" className="secondary" onClick={reload} disabled={loading}>Оновити</button>
+          <button type="button" onClick={() => setAction({ kind: 'create' })}>Додати користувача</button>
+        </div>
       </div>
 
       <div className="au-filters">
@@ -66,6 +71,7 @@ export function AdminUsersPage() {
       </div>
 
       {notice && <p role="status" className="au-notice">{notice}</p>}
+      {actionError && !action && <p role="alert" className="error">{actionError}</p>}
       {loading && !data && <p className="muted">Завантаження…</p>}
       {error && <p role="alert" className="error">Не вдалося завантажити список користувачів. <button type="button" className="link" onClick={reload}>Спробувати ще раз</button></p>}
       {data && visible.length === 0 && <p className="muted">Нікого не знайдено.</p>}
@@ -82,12 +88,17 @@ export function AdminUsersPage() {
                   <span className="badge badge-author">{ROLE_LABELS[u.role]}</span>
                   <span className="badge">{u.floor ? `Поверх ${u.floor}` : 'Поверх —'}</span>
                   <span className={`badge ${u.is_active ? 'badge-year' : 'badge-pdf'}`}>{u.is_active ? 'Активний' : 'Неактивний'}</span>
+                  <span className={`badge ${u.pin_locked ? 'badge-pdf' : 'badge-tag'}`}>{u.pin_locked ? 'PIN заблоковано' : u.has_pin ? 'Є PIN' : 'Без PIN'}</span>
                   {u.must_change_password && <span className="badge badge-tag">Має змінити пароль</span>}
                 </div>
                 <div className="muted small">Остання активність: {lastSeenLabel(u.last_sign_in_at)}</div>
               </div>
               <div className="card-actions">
                 <button type="button" className="secondary" onClick={() => setAction({ kind: 'edit', user: u })}>Редагувати</button>
+                <button type="button" className="secondary" onClick={() => setAction({ kind: 'pin', user: u })}>{u.has_pin ? 'Змінити PIN' : 'Задати PIN'}</button>
+                {u.pin_locked && (
+                  <button type="button" onClick={() => void run(async () => { await updateUser({ user_id: u.id, unlock: true }); setNotice(`Вхід користувача ${u.full_name} розблоковано.`); reload() })} disabled={busy}>Розблокувати</button>
+                )}
                 {!isSelf && <button type="button" className="secondary" onClick={() => setAction({ kind: 'reset', user: u })}>Скинути пароль</button>}
                 {!isSelf && <button type="button" className="secondary" onClick={() => setAction({ kind: 'revoke', user: u })}>Вийти з усіх пристроїв</button>}
                 {!isSelf && (
@@ -145,6 +156,7 @@ export function AdminUsersPage() {
           <p><strong>{action.user.full_name}</strong> буде розлогінено на всіх пристроях. Пароль лишається чинним.</p>
         </ConfirmDialog>
       )}
+      {action?.kind === 'pin' && <PinDialog user={action.user} onClose={close} onDone={reload} />}
       {action?.kind === 'secret' && (
         <PasswordResultDialog title="Новий тимчасовий пароль" email={action.user.email} password={action.password} onClose={close}
           note="Передайте пароль працівнику безпечним каналом. Під час наступного входу застосунок попросить змінити його." />

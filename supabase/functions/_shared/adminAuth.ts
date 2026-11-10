@@ -1,5 +1,6 @@
 // Caller check for admin-* functions: valid JWT → active profile with role admin. Uses service_role only after that.
 import { adminClient, CORS_HEADERS } from './http.ts'
+import { sessionIdFromJwt } from './pin.ts'
 
 export { adminClient }
 
@@ -24,6 +25,14 @@ export async function requireAdmin(
   const { data, error } = await db.auth.getUser(jwt)
   if (error || !data.user) return { response: reply({ ok: false, error: 'unauthorized' }, 401) }
   const id = data.user.id
+
+  // A session created by PIN login never has admin rights (even for an admin account): re-login with the password.
+  const sid = sessionIdFromJwt(jwt)
+  if (sid) {
+    const pinSession = await db.from('pin_sessions').select('session_id').eq('session_id', sid).maybeSingle()
+    if (pinSession.error) return { response: reply({ ok: false, error: 'unavailable' }, 503) }
+    if (pinSession.data) return { response: reply({ ok: false, error: 'forbidden' }, 403) }
+  }
 
   const prof = await db.from('profiles').select('role, is_active').eq('id', id).maybeSingle()
   if (prof.error) return { response: reply({ ok: false, error: 'unavailable' }, 503) }
