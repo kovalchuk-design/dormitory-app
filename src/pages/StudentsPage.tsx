@@ -156,7 +156,7 @@ export function StudentsPage() {
         </>
       )}
       {openId && (
-        <Drawer label="Картка учня" onClose={() => setOpenId(null)} actions={<Link className="btn secondary" to={`/students/${openId}`}>Відкрити окремо</Link>}>
+        <Drawer label="Картка учня" onClose={() => setOpenId(null)}>
           <StudentCardPage studentId={openId} embedded />
         </Drawer>
       )}
