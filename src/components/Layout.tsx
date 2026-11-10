@@ -28,7 +28,7 @@ export function Layout() {
   const navClass = (to: string, base: string) => ({ isActive }: { isActive: boolean }) =>
     `${base}${isActive || (to === '/hostel' && pathname.startsWith('/students')) ? ' active' : ''}`
   const items = navItemsForRole(profile?.role)
-  const counts = useQueueCounts(profile?.role === 'admin' || profile?.role === 'educator')
+  const counts = useQueueCounts(profile?.role === 'admin')
 
   const logoutLabel = profile ? `Вийти (${profile.full_name} · ${ROLE_LABELS[profile.role]})` : 'Вийти'
 

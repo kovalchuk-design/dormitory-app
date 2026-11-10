@@ -35,7 +35,7 @@ export function AppRoutes() {
           <Route
             path="updates"
             element={
-              <RequireRole roles={['admin', 'educator']}>
+              <RequireRole roles={['admin']}>
                 <ApprovalsPage />
               </RequireRole>
             }
@@ -43,7 +43,7 @@ export function AppRoutes() {
           <Route
             path="collect"
             element={
-              <RequireRole roles={['admin', 'educator']}>
+              <RequireRole roles={['admin']}>
                 <CollectPage />
               </RequireRole>
             }
@@ -51,8 +51,8 @@ export function AppRoutes() {
           <Route path="rooms" element={<Navigate to="/hostel/rooms" replace />} />
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="password" element={<ChangePasswordPage />} />
-          <Route path="events" element={<EventsPage />} />
-          <Route path="calendar" element={<CalendarPage />} />
+          <Route path="events" element={<RequireRole roles={['admin', 'staff_readonly']}><EventsPage /></RequireRole>} />
+          <Route path="calendar" element={<RequireRole roles={['admin', 'staff_readonly']}><CalendarPage /></RequireRole>} />
           <Route
             path="admin"
             element={
