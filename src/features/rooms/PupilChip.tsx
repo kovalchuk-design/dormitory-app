@@ -11,30 +11,28 @@ interface Props {
   dragging: boolean
   onDragStart: (e: ReactPointerEvent, pupil: Pupil, roomId: string | null) => void
   onMove: (p: Pupil, roomId: string | null) => void
-  onHistory: (p: Pupil) => void
 }
 
-export function PupilChip({ pupil, roomId, canEdit, note, dragging, onDragStart, onMove, onHistory }: Props) {
+/** Компактна однорядкова картка учня: ім'я ліворуч, іконка «перемістити» праворуч. */
+export function PupilChip({ pupil, roomId, canEdit, note, dragging, onDragStart, onMove }: Props) {
   return (
     <li
       className={`rm-pupil${canEdit ? ' draggable' : ''}${dragging ? ' dragging' : ''}`}
       draggable={false}
-      // Тягнути можна за будь-яке місце картки, зокрема за кнопки: клік без руху (<5 px) працює як звичайний клік.
+      // Тягнути можна за будь-яке місце картки, зокрема за кнопку: клік без руху (<5 px) працює як звичайний клік.
       onPointerDown={canEdit ? (e) => onDragStart(e, pupil, roomId) : undefined}
       onMouseDown={canEdit ? (e) => !(e.target as HTMLElement).closest('button') && e.preventDefault() : undefined}
       onDragStart={(e) => e.preventDefault()}
       title={canEdit ? 'Перетягніть у іншу кімнату' : undefined}
     >
       <span className="rm-pupil-name">
-        {pupilName(pupil)} <span className="muted small">{pupil.grade} кл.</span>
+        {pupilName(pupil)}
+        {pupil.grade ? <span className="muted small"> {pupil.grade} кл.</span> : null}
         {note && <span className="muted small"> · {note}</span>}
       </span>
-      <button type="button" className="iconbtn quiet" title="Історія" aria-label={`Історія ${pupilName(pupil)}`} onClick={() => onHistory(pupil)}>
-        <Icon name="history" size={16} />
-      </button>
       {canEdit && (
-        <button type="button" className="secondary rm-mini" onClick={() => onMove(pupil, roomId)}>
-          Перемістити
+        <button type="button" className="iconbtn quiet" title="Перемістити" aria-label={`Перемістити ${pupilName(pupil)}`} onClick={() => onMove(pupil, roomId)}>
+          <Icon name="move" size={18} />
         </button>
       )}
     </li>
