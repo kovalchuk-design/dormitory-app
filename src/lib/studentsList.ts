@@ -24,7 +24,10 @@ export interface StudentRow {
 export interface Filters {
   query: string
   grade: string // '' | '9' | '10' | '11'
-  floor: string // '' | '2'..'5'
+  /** Обрані поверхи (порожньо — усі). */
+  floors: number[]
+  /** Обрані категорії соціального статусу (див. SOCIAL_FILTERS; порожньо — усі). */
+  social: string[]
   room: string // '' | номер кімнати
   status: string // '' | active | graduated | left
   unplacedOnly: boolean
@@ -32,7 +35,7 @@ export interface Filters {
   notesOnly: boolean
 }
 
-export const DEFAULT_FILTERS: Filters = { query: '', grade: '', floor: '', room: '', status: 'active', unplacedOnly: false, notesOnly: false }
+export const DEFAULT_FILTERS: Filters = { query: '', grade: '', floors: [], social: [], room: '', status: 'active', unplacedOnly: false, notesOnly: false }
 
 const digits = (s: string) => s.replace(/\D/g, '')
 const fold = (s: string) => s.toLowerCase().replace(/[’ʼ`']/g, "'")
@@ -52,12 +55,32 @@ export function matchesQuery(r: StudentRow, query: string): boolean {
   return q.split(/\s+/).every((t) => hay.includes(t))
 }
 
+/** Категорії соціального статусу для фільтра. Тексти в базі — переважно з міток анкети, тож шукаємо за ключовими словами. */
+const L = 'а-яіїєґ'
+export const SOCIAL_FILTERS: { code: string; label: string; test: RegExp }[] = [
+  { code: 'orphan', label: 'Сирота', test: new RegExp(`(^|;\\s*)сирота`) },
+  { code: 'half_orphan', label: 'Напівсирота', test: /напівсирота/ },
+  { code: 'divorced', label: 'Батьки розлучені', test: /розлучен/ },
+  { code: 'disability', label: 'Дитина з інвалідністю', test: /інвалід/ },
+  { code: 'large_family', label: "Багатодітна сім'я", test: /багатодітн/ },
+  { code: 'ato', label: 'Учасники АТО', test: new RegExp(`(^|[^${L}])ато($|[^${L}])`) },
+  { code: 'zsu', label: 'Служба в ЗСУ', test: /зсу/ },
+  { code: 'vpo', label: 'Статус ВПО', test: new RegExp(`(^|[^${L}])впо($|[^${L}])`) },
+]
+
+export function matchesSocial(text: string | null, codes: string[]): boolean {
+  if (!text) return false
+  const t = fold(text)
+  return SOCIAL_FILTERS.some((o) => codes.includes(o.code) && o.test.test(t))
+}
+
 export function filterStudents(rows: StudentRow[], f: Filters): StudentRow[] {
   return rows.filter(
     (r) =>
       matchesQuery(r, f.query) &&
       (!f.grade || r.grade === Number(f.grade)) &&
-      (!f.floor || r.floor === Number(f.floor)) &&
+      (f.floors.length === 0 || (r.floor != null && f.floors.includes(r.floor))) &&
+      (f.social.length === 0 || matchesSocial(r.social_status, f.social)) &&
       (!f.room || r.room === f.room) &&
       (!f.status || r.status === f.status) &&
       (!f.unplacedOnly || r.room == null) &&

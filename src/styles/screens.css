@@ -367,3 +367,18 @@ button.rm-pupil-name:hover:not(:disabled) { opacity: 1; text-decoration: underli
 }
 
 .card-note { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* фільтри студентів: чипи поверхів, список соцстатусу, іконка скидання */
+.chip-group { display: inline-flex; align-items: center; gap: 6px; min-height: 48px; padding: 0 4px; }
+.chip-group-label { font-size: 13px; font-weight: 500; color: var(--text2Hi); margin-right: 4px; }
+.chip-group .chip { min-width: 40px; min-height: 40px; border-radius: 999px; font-size: 14px; }
+.filters-extra .sel { width: 15rem; margin-top: 0; }
+.filters-extra { align-items: center; }
+.reset-btn { width: 44px; height: 44px; min-height: 44px; border: 1.5px solid var(--fieldBorder); }
+.sel-opt.multi { justify-content: flex-start; gap: 12px; }
+.mchk { width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid var(--text2); display: inline-grid; place-items: center; flex: none; }
+.mchk.on { background: var(--text); border-color: var(--text); color: var(--surface); }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .filters-extra .sel { width: 100%; flex: 1 1 100%; }
+  .chip-group { flex: 1 1 100%; }
+}
