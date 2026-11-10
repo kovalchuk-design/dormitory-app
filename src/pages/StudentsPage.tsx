@@ -1,17 +1,15 @@
-import { useContext, useMemo, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { HostelActionsSlot } from './hostelContext'
+import { useContext, useEffect, useMemo, useState } from 'react'
+import { HostelExportRegistry } from './hostelContext'
 import { Link } from 'react-router-dom'
 import { Drawer } from '../components/ui/Drawer'
 import { StudentCardPage } from './StudentCardPage'
 import { ScrollArea } from '../components/ui/ScrollArea'
 import { PhoneLink } from '../components/PhoneLink'
 import { StatusBadge } from '../components/StatusBadge'
-import { downloadCsv } from '../lib/csv'
 import { fullName, STATUS_LABELS } from '../lib/format'
 import { fetchStudentRows } from '../lib/studentsApi'
 import {
-  DEFAULT_FILTERS, filterStudents, sortStudents, studentsToCsv,
+  DEFAULT_FILTERS, filterStudents, sortStudents,
   type Filters, type SortDir, type SortKey,
 } from '../lib/studentsList'
 import { useLoad } from '../lib/useLoad'
@@ -40,7 +38,7 @@ export function StudentsPage() {
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
   const [showFilters, setShowFilters] = useState(false)
   const [openId, setOpenId] = useState<string | null>(null)
-  const slot = useContext(HostelActionsSlot)
+  const registerExport = useContext(HostelExportRegistry)
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'name', dir: 'asc' })
 
   const rooms = useMemo(
@@ -48,20 +46,16 @@ export function StudentsPage() {
     [data],
   )
   const rows = useMemo(() => sortStudents(filterStudents(data ?? [], filters), sort.key, sort.dir), [data, filters, sort])
+  useEffect(() => {
+    registerExport?.(() => rows)
+    return () => registerExport?.(null)
+  }, [registerExport, rows])
   const set = <K extends keyof Filters>(k: K, v: Filters[K]) => setFilters((f) => ({ ...f, [k]: v }))
   const toggleSort = (key: SortKey) =>
     setSort((s) => (s.key === key ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' }))
 
   return (
     <section className="fill-page st-page">
-      {slot && createPortal(
-        <button type="button" className="secondary" disabled={rows.length === 0}
-          onClick={() => downloadCsv(`students-${new Date().toISOString().slice(0, 10)}.csv`, studentsToCsv(rows))}>
-          Експорт CSV
-        </button>,
-        slot,
-      )}
-
       <form className="filters" role="search" onSubmit={(e) => e.preventDefault()} aria-label="Пошук і фільтри">
         <label className="grow">Пошук (ПІБ, телефон, кімната)
           <input type="search" value={filters.query} onChange={(e) => set('query', e.target.value)} placeholder="Іваненко, 067… або 305" />

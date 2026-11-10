@@ -1,6 +1,5 @@
 import { useContext, useMemo, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { createPortal } from 'react-dom'
-import { HostelActionsSlot } from '../../pages/hostelContext'
+import { HostelNewRoom } from '../../pages/hostelContext'
 import { useAuth } from '../../auth/useAuth'
 import { ScrollArea } from '../../components/ui/ScrollArea'
 import { assignStudent, createRoom, fetchCurrentRoomId, moveStudent, unassignStudent, updateRoom } from './api'
@@ -63,14 +62,14 @@ export function RoomsPage() {
   const role = profile?.role
   const canEdit = role === 'admin' || role === 'educator'
   const isAdmin = role === 'admin'
-  const slot = useContext(HostelActionsSlot)
 
   const { data, error, loading, refresh } = useRoomsBoard()
   const [floorTab, setFloorTab] = useState<number>(profile?.floor ?? FLOORS[0])
   const [picking, setPicking] = useState<{ pupil: Pupil; fromRoomId: string | null } | null>(null)
   const [pending, setPending] = useState<Pending | null>(null)
   const [editing, setEditing] = useState<RoomInfo | null>(null)
-  const [creating, setCreating] = useState(false)
+  // «Нова кімната» відкривається кнопкою в шапці «Гуртожитку» (з обох видів), тому прапорець живе там.
+  const { creating, setCreating } = useContext(HostelNewRoom)
   const [history, setHistory] = useState<HistoryTarget | null>(null)
   const [busy, setBusy] = useState(false)
   const [dialogError, setDialogError] = useState<string | null>(null)
@@ -178,10 +177,6 @@ export function RoomsPage() {
 
   return (
     <section className="rm-page fill-page">
-      {slot && isAdmin && createPortal(
-        <button type="button" className="secondary" onClick={() => { setDialogError(null); setCreating(true) }}>+ Кімната</button>,
-        slot,
-      )}
       {!canEdit && <p className="muted small">Режим перегляду: переміщення недоступні.</p>}
       {error && <p className="error" role="alert">{error}</p>}
       {notice && (
