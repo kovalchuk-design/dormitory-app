@@ -26,7 +26,7 @@ async function loadPending() {
   if (med.error) throw med.error
   if (sub.error) throw sub.error
   return pend.data.map((p) => {
-    const student = p.students as unknown as { id: string; last_name: string; first_name: string; patronymic: string | null; grade: number; birth_date: string | null }
+    const student = p.students as unknown as { id: string; last_name: string; first_name: string; patronymic: string | null; grade: number | null; birth_date: string | null }
     const approved = cur.data.find((c) => c.student_id === p.student_id) ?? null
     const submission = sub.data.find((s) => s.profile_id === p.id) ?? null
     const medical = med.data.find((m) => m.student_id === p.student_id) ?? null
@@ -110,7 +110,7 @@ export function ApprovalsPage() {
         const n = changedCount(item.profileDiff) + changedCount(item.medDiff)
         return (
           <article key={item.id} className="panel" aria-labelledby={`h-${item.id}`}>
-            <h2 id={`h-${item.id}`}><Link to={`/students/${item.student.id}`}>{fullName(item.student)}</Link>, {item.student.grade} клас</h2>
+            <h2 id={`h-${item.id}`}><Link to={`/students/${item.student.id}`}>{fullName(item.student)}</Link>{item.student.grade ? `, ${item.student.grade} клас` : ''}</h2>
             <p className="muted small">
               Версія {item.version_no} · подано {formatDateTime(item.submitted_at)} · змінених полів: {n}
               {!item.hasCurrent && ' · чинної версії ще немає (перша анкета)'}

@@ -23,9 +23,9 @@ export function PupilChip({ pupil, roomId, canEdit, note, onMove, onHistory }: P
         className={`rm-pupil-name${canEdit ? ' draggable' : ''}`}
         {...(canEdit ? listeners : {})}
         {...(canEdit ? attributes : {})}
-        aria-label={canEdit ? `${pupilName(pupil)}, ${pupil.grade} клас. Натисніть пробіл, щоб перетягнути` : undefined}
+        aria-label={canEdit ? `${pupilName(pupil)}${pupil.grade ? `, ${pupil.grade} клас` : ''}. Натисніть пробіл, щоб перетягнути` : undefined}
       >
-        {pupilName(pupil)} <span className="muted small">{pupil.grade} кл.</span>
+        {pupilName(pupil)}{pupil.grade ? <span className="muted small"> {pupil.grade} кл.</span> : null}
         {note && <span className="muted small"> · {note}</span>}
       </span>
       <button type="button" className="secondary rm-mini" title="Історія" aria-label={`Історія ${pupilName(pupil)}`} onClick={() => onHistory(pupil)}>

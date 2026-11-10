@@ -254,7 +254,7 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
               <li key={p.id}>
                 <label>
                   <input type="checkbox" checked={chosen.has(p.id)} onChange={() => toggle(p.id)} />
-                  {fullName(p)} <span className="muted small">· {p.grade} кл.{p.room ? ` · кімн. ${p.room}` : ''}</span>
+                  {fullName(p)} <span className="muted small">{p.grade ? `· ${p.grade} кл.` : ''}{p.room ? ` · кімн. ${p.room}` : ''}</span>
                 </label>
               </li>
             ))}

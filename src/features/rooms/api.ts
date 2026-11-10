@@ -26,7 +26,7 @@ interface StudentRow {
   last_name: string
   first_name: string
   patronymic: string | null
-  grade: number
+  grade: number | null
 }
 
 const toPupil = (s: StudentRow): Pupil => ({

@@ -895,7 +895,7 @@ export type Database = {
           birth_date: string | null
           created_at: string
           first_name: string
-          grade: number
+          grade: number | null
           id: string
           last_name: string
           patronymic: string | null
@@ -907,7 +907,7 @@ export type Database = {
           birth_date?: string | null
           created_at?: string
           first_name: string
-          grade: number
+          grade?: number | null
           id?: string
           last_name: string
           patronymic?: string | null
@@ -919,7 +919,7 @@ export type Database = {
           birth_date?: string | null
           created_at?: string
           first_name?: string
-          grade?: number
+          grade?: number | null
           id?: string
           last_name?: string
           patronymic?: string | null
@@ -1077,7 +1077,7 @@ export type Database = {
         Returns: string
       }
       create_student_from_intake: {
-        Args: { p_grade: number; p_submission_id: string }
+        Args: { p_grade?: number; p_submission_id: string }
         Returns: string
       }
       dismiss_intake_submission: {

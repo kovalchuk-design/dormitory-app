@@ -25,7 +25,7 @@ export function ConfirmMoveDialog(props: {
     <Dialog title="Підтвердити переміщення?" onClose={props.onCancel}>
       <dl className="rm-summary">
         <dt>Учень</dt>
-        <dd>{pupilFullName(pupil)}, {pupil.grade} клас</dd>
+        <dd>{pupilFullName(pupil)}{pupil.grade ? `, ${pupil.grade} клас` : ''}</dd>
         <dt>Звідки</dt>
         <dd>{from ? `кімната ${from.number} (${from.floor} поверх)` : 'Нерозподілені'}</dd>
         <dt>Куди</dt>

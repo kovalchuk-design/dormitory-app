@@ -192,7 +192,7 @@ interface RawStudent {
   first_name: string
   patronymic: string | null
   birth_date: string | null
-  grade: number
+  grade: number | null
   room_assignments: { rooms: { number: string; floor: number } | null }[]
   student_profiles: Record<string, string | null>[]
 }

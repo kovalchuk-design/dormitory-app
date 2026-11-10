@@ -14,7 +14,7 @@ interface FormState {
   grade: string
   status: StudentStatus
 }
-const EMPTY: FormState = { last_name: '', first_name: '', patronymic: '', birth_date: '', grade: '9', status: 'active' }
+const EMPTY: FormState = { last_name: '', first_name: '', patronymic: '', birth_date: '', grade: '', status: 'active' }
 
 /** Створення (/students/new) і редагування (/students/:id/edit) базових даних учня. */
 export function StudentEditPage() {
@@ -38,7 +38,7 @@ export function StudentEditPage() {
   const initial: FormState = s
     ? {
         last_name: s.last_name, first_name: s.first_name, patronymic: s.patronymic ?? '', birth_date: s.birth_date ?? '',
-        grade: String(s.grade), status: isStudentStatus(s.status) ? s.status : 'active',
+        grade: s.grade == null ? '' : String(s.grade), status: isStudentStatus(s.status) ? s.status : 'active',
       }
     : EMPTY
   return <EditForm key={id ?? 'new'} id={id} initial={initial} placed={existing.data?.placed ?? false} />
@@ -69,7 +69,7 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
     setSaving(true); setServerError(null)
     const base = {
       last_name: f.last_name.trim(), first_name: f.first_name.trim(), patronymic: f.patronymic.trim() || null,
-      birth_date: f.birth_date || null, grade: Number(f.grade), status: f.status,
+      birth_date: f.birth_date || null, grade: f.grade ? Number(f.grade) : null, status: f.status,
     }
     if (!id) {
       const year = await supabase.from('academic_years').select('id').eq('is_current', true).maybeSingle()
@@ -105,8 +105,9 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
             onChange={(iso, incomplete) => { set('birth_date', iso); setDateIncomplete(incomplete) }}
             minYear={new Date().getFullYear() - 30} maxYear={new Date().getFullYear() - 8} invalid={!!errors.birth_date} />
         ))}
-        {field('grade', 'Клас *', (
+        {field('grade', 'Клас (необов’язково)', (
           <select value={f.grade} onChange={(e) => set('grade', e.target.value)}>
+            <option value="">—</option>
             {[9, 10, 11].map((g) => <option key={g} value={g}>{g}</option>)}
           </select>
         ))}

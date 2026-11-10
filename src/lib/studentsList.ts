@@ -7,7 +7,7 @@ export interface StudentRow {
   first_name: string
   patronymic: string | null
   birth_date: string | null
-  grade: number
+  grade: number | null
   status: StudentStatus
   room: string | null
   floor: number | null
@@ -72,7 +72,7 @@ export function sortStudents(rows: StudentRow[], key: SortKey, dir: SortDir): St
       case 'name':
         return sign * byName(a, b)
       case 'grade':
-        c = a.grade - b.grade
+        c = (a.grade ?? 99) - (b.grade ?? 99)
         break
       case 'status':
         c = collator.compare(a.status, b.status)
@@ -103,7 +103,7 @@ export function studentsToCsv(rows: StudentRow[]): string {
   return toCsv(
     CSV_HEADERS,
     rows.map((r) => [
-      fullName(r), r.grade, STATUS_LABELS[r.status], r.floor ?? '', r.room ?? 'нерозподілений',
+      fullName(r), r.grade ?? '', STATUS_LABELS[r.status], r.floor ?? '', r.room ?? 'нерозподілений',
       r.student_phone ?? '', r.mother_phone ?? '', r.father_phone ?? '', r.guardian_phone ?? '',
     ]),
   )

@@ -52,7 +52,7 @@ export interface StudentSource {
   first_name: string
   patronymic?: string | null
   birth_date?: string | null // YYYY-MM-DD
-  grade: number
+  grade: number | null
   room?: string | null
   floor?: number | null
   // поля затвердженої анкети (student_profiles, status = approved)
@@ -98,7 +98,7 @@ export function buildStudentFields(s: StudentSource): Record<string, string> {
     first_name: s.first_name,
     patronymic: s.patronymic ?? '',
     birth_date: formatDate(s.birth_date),
-    grade: String(s.grade),
+    grade: s.grade == null ? '' : String(s.grade),
     group_number: s.group_number ?? '',
     profession: s.profession ?? '',
     room: s.room ?? '',
@@ -140,7 +140,7 @@ export function buildTemplateData(ctx: TemplateContext): Record<string, unknown>
     room: common(ctx.students.map((s) => s.room)),
     floor: common(ctx.students.map((s) => s.floor)),
     count: String(ctx.students.length),
-    student: rows[0]?.student ?? buildStudentFields({ last_name: '', first_name: '', grade: 0 }),
+    student: rows[0]?.student ?? buildStudentFields({ last_name: '', first_name: '', grade: null }),
     students: rows,
   }
 }

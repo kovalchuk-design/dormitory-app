@@ -198,7 +198,7 @@ function UnmatchedCard({ sub, students, onDone, onError }: {
   sub: Sub; students: StudentRow[]; onDone: () => void; onError: (m: string | null) => void
 }) {
   const [q, setQ] = useState('')
-  const [grade, setGrade] = useState('10')
+  const [grade, setGrade] = useState('')
   const [busy, setBusy] = useState(false)
   const payload = (sub.payload ?? {}) as Record<string, unknown>
   const reason = useMemo(() => unmatchedReason({ name: sub.submitted_full_name, birth_date: sub.submitted_birth_date }, students), [sub, students])
@@ -223,7 +223,7 @@ function UnmatchedCard({ sub, students, onDone, onError }: {
   const pick = (s: StudentRow) => (
     <li key={s.id} className="candidate">
       <span>
-        <strong>{fullName(s)}</strong>, {s.grade} кл. {s.room ? `· кімн. ${s.room}` : '· без кімнати'} · {s.birth_date ? formatDate(s.birth_date) : 'дата народження не вказана'}
+        <strong>{fullName(s)}</strong>{s.grade ? `, ${s.grade} кл.` : ''} {s.room ? `· кімн. ${s.room}` : '· без кімнати'} · {s.birth_date ? formatDate(s.birth_date) : 'дата народження не вказана'}
       </span>
       <button type="button" disabled={busy} onClick={() => void run(() => supabase.rpc('resolve_intake_submission', { p_submission_id: sub.id, p_student_id: s.id }))}>
         Це він(вона)
@@ -253,13 +253,14 @@ function UnmatchedCard({ sub, students, onDone, onError }: {
       {found.length > 0 && <ul className="plain">{found.map(pick)}</ul>}
       <p className="muted small hint-line">Якщо це не той, хто в базі: створіть нового учня з цих даних. Якщо подання помилкове або це сміття — відхиліть (відповіді буде видалено).</p>
       <div className="row actions">
-        <label className="inline">Клас нового
+        <label className="inline">Клас нового (необов’язково)
           <select value={grade} onChange={(e) => setGrade(e.target.value)}>
+            <option value="">—</option>
             {[9, 10, 11].map((g) => <option key={g} value={g}>{g}</option>)}
           </select>
         </label>
         <button type="button" className="secondary" disabled={busy}
-          onClick={() => { if (window.confirm('Створити нового учня з цими даними?')) void run(() => supabase.rpc('create_student_from_intake', { p_submission_id: sub.id, p_grade: Number(grade) })) }}>
+          onClick={() => { if (window.confirm('Створити нового учня з цими даними?')) void run(() => supabase.rpc('create_student_from_intake', { p_submission_id: sub.id, p_grade: grade ? Number(grade) : undefined })) }}>
           Створити нового учня
         </button>
         <button type="button" className="btn-danger" disabled={busy}
@@ -288,7 +289,7 @@ function Progress({ data }: { data: Data }) {
         <details key={g.key}>
           <summary>{g.title} — {g.students.length}</summary>
           <ul className="plain">
-            {g.students.map((s) => <li key={s.id}><Link to={`/students/${s.id}`}>{fullName(s)}</Link>, {s.grade} кл.{s.room ? ` · кімн. ${s.room}` : ''}</li>)}
+            {g.students.map((s) => <li key={s.id}><Link to={`/students/${s.id}`}>{fullName(s)}</Link>{s.grade ? `, ${s.grade} кл.` : ''}{s.room ? ` · кімн. ${s.room}` : ''}</li>)}
           </ul>
         </details>
       ))}

@@ -118,7 +118,7 @@ export function StudentsPage() {
                   {rows.map((r) => (
                     <tr key={r.id}>
                       <td data-label="ПІБ"><Link to={`/students/${r.id}`}>{fullName(r)}</Link></td>
-                      <td data-label="Клас">{r.grade}</td>
+                      <td data-label="Клас">{r.grade ?? '—'}</td>
                       <td data-label="Поверх">{r.floor ?? '—'}</td>
                       <td data-label="Кімната">{r.room ?? <span className="tag tag-unplaced">нерозподілений</span>}</td>
                       <td data-label="Статус"><StatusBadge status={r.status} /></td>

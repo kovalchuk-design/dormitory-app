@@ -19,7 +19,7 @@ export interface Pupil {
   lastName: string
   firstName: string
   patronymic: string | null
-  grade: number
+  grade: number | null
 }
 
 /** Місце призначення перетягування: кімната або пул «Нерозподілені». */
