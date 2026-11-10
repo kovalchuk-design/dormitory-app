@@ -804,6 +804,7 @@ export type Database = {
           profession: string | null
           rejected_at: string | null
           rejected_by: string | null
+          review_choices: Json | null
           school_activities: string | null
           social_status: string | null
           social_status_data: Json | null
@@ -838,6 +839,7 @@ export type Database = {
           profession?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
+          review_choices?: Json | null
           school_activities?: string | null
           social_status?: string | null
           social_status_data?: Json | null
@@ -872,6 +874,7 @@ export type Database = {
           profession?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
+          review_choices?: Json | null
           school_activities?: string | null
           social_status?: string | null
           social_status_data?: Json | null
@@ -1096,6 +1099,10 @@ export type Database = {
       }
       approve_student_profile: {
         Args: { p_profile_id: string }
+        Returns: undefined
+      }
+      approve_student_profile_merged: {
+        Args: { p_choices?: Json; p_profile_id: string; p_social_data?: Json; p_values: Json }
         Returns: undefined
       }
       assign_student: {

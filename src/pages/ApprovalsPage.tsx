@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   changedCount, diffRecords, MEDICAL_FIELDS, PROFILE_FIELDS, withStudentIdentity, type FieldDiff,
 } from '../lib/diff'
+import { MergeTable } from '../components/MergeTable'
 import { errorMessage, fullName, formatDateTime } from '../lib/format'
+import { buildPlan, defaultChoice, mergeSocialData, toggleChoice, MERGEABLE, type Choice, type SocialData } from '../lib/mergeChoice'
 import { notifyPendingChanged } from '../lib/pending'
 import { supabase } from '../lib/supabase'
+import type { Json } from '../lib/database.types'
 import { useLoad } from '../lib/useLoad'
 
 async function loadPending() {
@@ -51,7 +54,11 @@ async function loadPending() {
         medDiff: prevSub || submission ? diffRecords(medKey(prevSub), medKey(submission), MEDICAL_FIELDS) : [],
       }
     }
-    return { id: p.id, version_no: p.version_no, submitted_at: p.submitted_at, student, hasCurrent: approved != null, profileDiff, medDiff, prev }
+    const asSocial = (d: unknown) => (d && typeof d === 'object' ? (d as SocialData) : null)
+    return {
+      id: p.id, version_no: p.version_no, submitted_at: p.submitted_at, student, hasCurrent: approved != null, profileDiff, medDiff, prev,
+      approvedSocial: asSocial(approved?.social_status_data), newSocial: asSocial(p.social_status_data),
+    }
   })
 }
 
@@ -78,18 +85,115 @@ function DiffTable({ rows, title, onlyChanged, beforeLabel = 'Чинна вер�
   )
 }
 
+type Item = NonNullable<Awaited<ReturnType<typeof loadPending>>>[number]
+
+function ApprovalCard({ item, onlyChanged, busy, onApprove, onReject }: {
+  item: Item
+  onlyChanged: boolean
+  busy: boolean
+  onApprove: (rpc: 'simple' | { values: Record<string, string>; choices: Record<string, string>; social: SocialData | null }) => void
+  onReject: () => void
+}) {
+  const [choices, setChoices] = useState<Record<string, Choice>>({})
+  const rows = useMemo(() => [...item.profileDiff, ...item.medDiff], [item])
+  const plan = useMemo(() => buildPlan(rows, choices), [rows, choices])
+  const n = changedCount(item.profileDiff) + changedCount(item.medDiff)
+
+  const toggle = (row: FieldDiff, side: 'old' | 'new') =>
+    setChoices((prev) => ({
+      ...prev,
+      [row.key]: toggleChoice(prev[row.key] ?? defaultChoice(row.before, row.after), side, MERGEABLE.has(row.key)),
+    }))
+
+  function approve() {
+    if (!item.hasCurrent) return onApprove('simple')
+    const kind = plan.choices.social_status
+    onApprove({
+      values: plan.values,
+      choices: plan.choices,
+      social: kind ? mergeSocialData(item.approvedSocial, item.newSocial, kind as 'old' | 'new' | 'both') : null,
+    })
+  }
+
+  return (
+    <article className="panel" aria-labelledby={`h-${item.id}`}>
+      <div className="approval-head">
+        <div className="approval-title">
+          <h2 id={`h-${item.id}`}><Link to={`/students/${item.student.id}`}>{fullName(item.student)}</Link></h2>
+          <p className="muted small">
+            Версія {item.version_no} · подано {formatDateTime(item.submitted_at)} · змінених полів: {n}
+            {!item.hasCurrent && ' · чинної версії ще немає (перша анкета)'}
+          </p>
+        </div>
+        <div className="approval-actions">
+          <button type="button" disabled={busy} onClick={approve}>Підтвердити</button>
+          <button type="button" className="btn-danger" disabled={busy} onClick={onReject}>Відхилити</button>
+        </div>
+      </div>
+      {item.hasCurrent && n > 0 && (
+        <p className="muted small merge-help">
+          Познач галочками, що залишити: стару відповідь, нову або <strong>обидві</strong> (запишеться «стара, нова»). Приглушений текст у чинну анкету не потрапить.
+          {' '}Підсумок: з нової — {plan.newCount}, зі старої — {plan.oldCount}, обох разом — {plan.bothCount}.
+        </p>
+      )}
+      {item.prev && (() => {
+        const pn = item.prev.version_no
+        const prevRows = [...item.prev.diff, ...item.prev.medDiff]
+        const pc = changedCount(prevRows)
+        return (
+          <div className="notice" role="note">
+            {pc === 0 ? (
+              <p><strong>Дубль:</strong> ця версія повністю збігається з версією {pn}, поданою {formatDateTime(item.prev.submitted_at)}. Достатньо обробити одну з них.</p>
+            ) : (
+              <>
+                <p><strong>Повторне подання:</strong> цей учень уже надсилав версію {pn} ({formatDateTime(item.prev.submitted_at)}), яка ще не оброблена. У версії {item.version_no} змінено полів: {pc}.</p>
+                <DiffTable rows={prevRows} title={`Зміни у версії ${item.version_no} порівняно з версією ${pn}`} onlyChanged
+                  beforeLabel={`Версія ${pn}`} afterLabel={`Версія ${item.version_no}`} />
+              </>
+            )}
+          </div>
+        )
+      })()}
+      {item.hasCurrent ? (
+        <MergeTable rows={item.profileDiff} title="Порівняння анкети: вибір значень" onlyChanged={onlyChanged} choices={choices} onToggle={toggle} />
+      ) : (
+        <DiffTable rows={item.profileDiff} title="Порівняння анкети" onlyChanged={false} />
+      )}
+      {item.medDiff.length > 0 && (
+        <>
+          <h3>Медична інформація (з поданої анкети)</h3>
+          {item.hasCurrent || item.medDiff.some((r) => r.before)
+            ? <MergeTable rows={item.medDiff} title="Порівняння медичних даних: вибір значень" onlyChanged={false} choices={choices} onToggle={toggle} />
+            : <DiffTable rows={item.medDiff} title="Порівняння медичних даних" onlyChanged={false} />}
+        </>
+      )}
+    </article>
+  )
+}
+
 export function ApprovalsPage() {
   const { data, error, loading, reload } = useLoad(loadPending, 'pending')
   const [busyId, setBusyId] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [onlyChanged, setOnlyChanged] = useState(true)
 
-  async function act(id: string, kind: 'approve' | 'reject') {
-    if (kind === 'reject' && !window.confirm('Відхилити цю версію? Чинна анкета залишиться без змін.')) return
+  async function approve(id: string, how: Parameters<typeof ApprovalCard>[0]['onApprove'] extends (a: infer A) => void ? A : never) {
     setBusyId(id); setActionError(null)
-    const { error: err } = kind === 'approve'
+    const { error: err } = how === 'simple'
       ? await supabase.rpc('approve_student_profile', { p_profile_id: id })
-      : await supabase.rpc('reject_student_profile', { p_profile_id: id })
+      : await supabase.rpc('approve_student_profile_merged', {
+          p_profile_id: id, p_values: how.values as Json, p_choices: how.choices as Json, p_social_data: (how.social ?? null) as Json,
+        })
+    setBusyId(null)
+    if (err) setActionError(errorMessage(err))
+    reload()
+    notifyPendingChanged()
+  }
+
+  async function reject(id: string) {
+    if (!window.confirm('Відхилити цю версію? Чинна анкета залишиться без змін.')) return
+    setBusyId(id); setActionError(null)
+    const { error: err } = await supabase.rpc('reject_student_profile', { p_profile_id: id })
     setBusyId(null)
     if (err) setActionError(errorMessage(err))
     reload()
@@ -106,51 +210,10 @@ export function ApprovalsPage() {
       {error && <p className="error" role="alert">{error}</p>}
       {actionError && <p className="error" role="alert">{actionError}</p>}
       {data && data.length === 0 && <p className="muted">Немає версій, що чекають підтвердження.</p>}
-      {data?.map((item) => {
-        const n = changedCount(item.profileDiff) + changedCount(item.medDiff)
-        return (
-          <article key={item.id} className="panel" aria-labelledby={`h-${item.id}`}>
-            <div className="approval-head">
-              <div className="approval-title">
-                <h2 id={`h-${item.id}`}><Link to={`/students/${item.student.id}`}>{fullName(item.student)}</Link></h2>
-                <p className="muted small">
-                  Версія {item.version_no} · подано {formatDateTime(item.submitted_at)} · змінених полів: {n}
-                  {!item.hasCurrent && ' · чинної версії ще немає (перша анкета)'}
-                </p>
-              </div>
-              <div className="approval-actions">
-                <button type="button" disabled={busyId === item.id} onClick={() => void act(item.id, 'approve')}>Підтвердити</button>
-                <button type="button" className="btn-danger" disabled={busyId === item.id} onClick={() => void act(item.id, 'reject')}>Відхилити</button>
-              </div>
-            </div>
-            {item.prev && (() => {
-              const pn = item.prev.version_no
-              const rows = [...item.prev.diff, ...item.prev.medDiff]
-              const n = changedCount(rows)
-              return (
-                <div className="notice" role="note">
-                  {n === 0 ? (
-                    <p><strong>Дубль:</strong> ця версія повністю збігається з версією {pn}, поданою {formatDateTime(item.prev.submitted_at)}. Достатньо обробити одну з них.</p>
-                  ) : (
-                    <>
-                      <p><strong>Повторне подання:</strong> цей учень уже надсилав версію {pn} ({formatDateTime(item.prev.submitted_at)}), яка ще не оброблена. У версії {item.version_no} змінено полів: {n}.</p>
-                      <DiffTable rows={rows} title={`Зміни у версії ${item.version_no} порівняно з версією ${pn}`} onlyChanged
-                        beforeLabel={`Версія ${pn}`} afterLabel={`Версія ${item.version_no}`} />
-                    </>
-                  )}
-                </div>
-              )
-            })()}
-            <DiffTable rows={item.profileDiff} title="Порівняння анкети" onlyChanged={onlyChanged && item.hasCurrent} />
-            {item.medDiff.length > 0 && (
-              <>
-                <h3>Медична інформація (з поданої анкети)</h3>
-                <DiffTable rows={item.medDiff} title="Порівняння медичних даних" onlyChanged={false} />
-              </>
-            )}
-          </article>
-        )
-      })}
+      {data?.map((item) => (
+        <ApprovalCard key={item.id} item={item} onlyChanged={onlyChanged} busy={busyId === item.id}
+          onApprove={(how) => void approve(item.id, how)} onReject={() => void reject(item.id)} />
+      ))}
     </section>
   )
 }
