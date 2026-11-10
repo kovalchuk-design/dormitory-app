@@ -64,7 +64,7 @@ export function MergeTable({ rows, title, onlyChanged, choices, edits, onToggle,
                 <td data-label="Нова">{cell('new', r.after)}</td>
                 <td data-label="Буде записано" className={`merge-result${edited ? ' edited' : ''}`}>
                   <textarea
-                    rows={Math.min(6, Math.max(1, Math.ceil(result.length / 28)))} value={result}
+                    rows={Math.min(6, Math.max(1, Math.ceil(result.length / 40)))} value={result}
                     aria-label={`${r.label}: підсумкове значення, можна виправити вручну`}
                     onChange={(e) => onEdit(r, e.target.value)}
                   />

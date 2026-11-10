@@ -113,8 +113,7 @@ a.phone { white-space: nowrap; font-weight: 500; }
 dl.kv { margin: 0; display: grid; gap: .5rem; }
 dl.kv dt { color: var(--muted); font-size: .8rem; }
 dl.kv dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-table.diff tr.changed td:last-child, table.diff tr.changed th { background: var(--muted); }
-table.diff tr.changed td:last-child { font-weight: 600; }
+table.diff tr.changed th { background: var(--muted); }
 .form { display: flex; flex-direction: column; gap: .5rem; max-width: 34rem; }
 .form fieldset { border: 1px solid var(--border); border-radius: 12px; padding: .75rem 1rem; margin: 0 0 .75rem; min-width: 0; }
 .form legend { font-weight: 600; padding: 0 .4rem; }
@@ -269,20 +268,22 @@ table.diff thead th { font-size: 12px; }
 button.btn-outline-danger, button.btn-outline-danger:hover { background: transparent; color: var(--danger); border: 1.5px solid var(--danger); font-weight: 600; }
 button.btn-outline-danger:hover:not(:disabled) { background: color-mix(in srgb, var(--danger) 10%, transparent); }
 
-/* Порівняння в плашці «Оновлення даних»: без другої рамки й без гострих кольорових заливок; змінений рядок має крапку-маркер */
+/* Порівняння в плашці «Оновлення даних»: заливка лише в першій колонці (назва зміненого поля); решта комірок білі.
+   Усе вирівняно по верхньому краю, рядки компактні (прості поля займають один рядок). */
 .ap-item .table-wrap { border: 0; background: transparent; padding: 0; border-radius: 0; }
+.ap-item table.diff tr.changed td, .ap-item table.diff tr.changed td:last-child { background: transparent; }
 .ap-item table.diff tbody tr:hover { background: transparent; }
-.ap-item table.diff tr.changed th[scope='row'] { color: var(--text); position: relative; padding-left: 22px; }
-.ap-item table.diff tr.changed th[scope='row']::before { content: ''; position: absolute; left: 6px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: var(--out, #11618A); }
-.ap-item table.diff tbody tr { border-radius: 12px; }
-.ap-item table.diff tr.changed > th, .ap-item table.diff tr.changed > td, .ap-item table.diff tr.changed td:last-child { background: var(--muted); }
-.ap-item table.diff tbody tr.changed > :first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-.ap-item table.diff tbody tr.changed > :last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+.ap-item table.diff th, .ap-item table.diff td { padding: 8px 12px; vertical-align: top; line-height: 20px; }
+.ap-item table.diff thead th { padding-top: 6px; padding-bottom: 6px; }
+.ap-item table.diff tbody th[scope='row'] { padding-top: 8px; }
+.ap-item table.diff tr.changed th[scope='row'] { background: var(--muted); color: var(--text); border-radius: 12px; }
+.ap-item table.diff .pick { min-height: 0; gap: 8px; align-items: flex-start; }
+.ap-item table.diff .pick input { margin: 1px 0 0; }
+.ap-item table.diff.merge .merge-result textarea { margin: -1px -7px; width: calc(100% + 14px); padding: 1px 6px; min-height: 0; field-sizing: content; line-height: 20px; border-radius: 8px; }
 .ap-item table.diff.merge .merge-result.edited textarea { background: var(--surface); border-color: var(--out, #11618A); }
 .pick.off span { opacity: .45; }
 @media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
-  .ap-item table.diff tr.changed > th, .ap-item table.diff tr.changed > td, .ap-item table.diff tr.changed td:last-child { background: transparent; }
-  .ap-item table.diff tr.changed { background: var(--muted); border-color: var(--border); }
-  .ap-item table.diff tr.changed th[scope='row'] { padding-left: 16px; }
-  .ap-item table.diff tr.changed th[scope='row']::before { left: 0; }
+  .ap-item table.diff tr { padding: 8px 12px; }
+  .ap-item table.diff th, .ap-item table.diff td { padding: 2px 0; }
+  .ap-item table.diff tr.changed th[scope='row'] { padding: 4px 10px; margin-bottom: 4px; width: fit-content; }
 }
