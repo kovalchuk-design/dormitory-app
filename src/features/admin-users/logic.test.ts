@@ -110,6 +110,10 @@ describe('filter / sort / lastSeen', () => {
   it('активні першими, далі за алфавітом', () => {
     expect(sortUsers(list).map((x) => x.full_name)).toEqual(['Бондар', 'Петренко', 'Андрієнко'])
   })
+  it('далі за поверхом, без поверху — в кінці', () => {
+    const f = [u({ full_name: 'Вихователь 5 поверху', floor: 5 }), u({ full_name: 'Адмін', floor: null }), u({ full_name: 'Вихователь 2 поверху', floor: 2 }), u({ full_name: 'Вихователь 3 поверху', floor: 3 })]
+    expect(sortUsers(f).map((x) => x.full_name)).toEqual(['Вихователь 2 поверху', 'Вихователь 3 поверху', 'Вихователь 5 поверху', 'Адмін'])
+  })
   it('остання активність', () => {
     const now = new Date('2026-11-10T12:00:00Z')
     expect(lastSeenLabel(null, now)).toBe('Ще не входив')

@@ -15,7 +15,7 @@ export function PinLogin({ onUseEmail }: { onUseEmail: () => void }) {
   useEffect(() => {
     let alive = true
     listLoginUsers().then(
-      (u) => alive && setUsers(u),
+      (u) => alive && setUsers([...u].sort((a, b) => a.name.localeCompare(b.name, 'uk', { numeric: true }))),
       () => alive && setLoadError(true),
     )
     return () => {

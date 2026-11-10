@@ -35,10 +35,13 @@ export function filterUsers(users: AdminUser[], f: UserFilters): AdminUser[] {
   })
 }
 
-/** Active first, then by name (Ukrainian collation). */
+/** Активні першими, далі за поверхом (без поверху — в кінці), далі за ПІБ (укр. сортування, числа як числа). */
 export function sortUsers(users: AdminUser[]): AdminUser[] {
   return [...users].sort(
-    (a, b) => Number(b.is_active) - Number(a.is_active) || a.full_name.localeCompare(b.full_name, 'uk'),
+    (a, b) =>
+      Number(b.is_active) - Number(a.is_active) ||
+      (a.floor ?? 99) - (b.floor ?? 99) ||
+      a.full_name.localeCompare(b.full_name, 'uk', { numeric: true }),
   )
 }
 
