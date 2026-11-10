@@ -31,7 +31,7 @@ export function HostelPage() {
     ...(isAdmin ? [{ label: 'Кімнату', onClick: () => { setCreating(true); if (view !== 'rooms') navigate('/hostel/rooms') } }] : []),
   ]
 
-  if (view !== 'students' && view !== 'rooms') return <Navigate to="/hostel/students" replace />
+  if (view !== 'students' && view !== 'rooms') return <Navigate to="/hostel/rooms" replace />
 
   // У виді «Студенти» вивантажуємо поточний (відфільтрований) список, у виді «Кімнати» — усіх учнів.
   async function exportCsv() {
@@ -52,8 +52,8 @@ export function HostelPage() {
       <div className="hostel-head">
         <h1>Гуртожиток</h1>
         <nav className="view-switch" aria-label="Вигляд">
-          <NavLink to="/hostel/students" replace>Студенти</NavLink>
           <NavLink to="/hostel/rooms" replace>Кімнати</NavLink>
+          <NavLink to="/hostel/students" replace>Студенти</NavLink>
         </nav>
         <div className="hostel-actions">
           {exportError && <span className="error" role="alert">{exportError}</span>}
