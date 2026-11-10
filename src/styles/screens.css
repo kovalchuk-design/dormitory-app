@@ -417,3 +417,9 @@ button.rm-pupil-name { font-size: 13.5px; }
   .forms .view-switch { flex: 1 1 100%; }
   .forms .view-switch a { white-space: nowrap; }
 }
+
+/* ручка перетягування: дві крапки (рівно 2 плитки 6×6, без обрізання третьої) */
+.rm-pupil.draggable::before {
+  width: 6px; height: 12px; opacity: .6;
+  background: radial-gradient(circle, var(--text2) 1.5px, transparent 1.9px) 0 0 / 6px 6px repeat-y;
+}
