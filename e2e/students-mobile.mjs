@@ -49,6 +49,18 @@ assert.equal((await page.locator('.sl-filter-btn .sl-badge').innerText()).trim()
 for (const t of await page.locator('.sl-sub').allInnerTexts()) assert.match(t, /^без кімнати/)
 await page.getByRole('button', { name: 'Скинути', exact: true }).click()
 
+// після дотику вибраний чіп читабельний (регресія: залипав :hover — світлий фон і білий текст)
+await page.getByRole('button', { name: '4 пов.' }).tap(); await page.waitForTimeout(500)
+const contrast = await page.getByRole('button', { name: '4 пов.' }).evaluate((e) => {
+  const cs = getComputedStyle(e); const rgb = (c) => c.match(/[\d.]+/g).slice(0, 3).map(Number); const L = ([r, g, b]) => 0.2126 * r + 0.7152 * g + 0.0722 * b
+  return Math.abs(L(rgb(cs.color)) - L(rgb(cs.backgroundColor)))
+})
+assert.ok(contrast > 100, `контраст вибраного чіпа після дотику: ${contrast}`)
+await page.getByRole('button', { name: 'Скинути', exact: true }).click()
+// нижнє меню: пункти розтягнуті на всю ширину, без маски
+const tabs = await page.locator('.tabs-m > *').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().width))
+assert.ok(tabs.length <= 4 ? Math.min(...tabs) > 80 : true, `пункти меню рівномірні: ${tabs}`)
+
 // нижній лист фільтрів
 await page.getByRole('button', { name: /Фільтри/ }).click()
 await page.getByRole('dialog', { name: 'Фільтри' }).waitFor()
