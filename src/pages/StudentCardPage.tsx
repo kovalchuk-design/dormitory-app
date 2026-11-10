@@ -106,7 +106,7 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
         </span>,
         slot,
       )}
-      {!embedded && <p><Link to="/students">← До списку</Link></p>}
+      {!embedded && <p><Link to="/students" className="back-link">← До списку</Link></p>}
       <div className="page-head">
         <h1 ref={embedded ? setH1 : undefined}>{name} <StatusBadge status={status} /></h1>
         {canEdit && <Link className="btn secondary" to={`/students/${id}/edit`}>Редагувати</Link>}

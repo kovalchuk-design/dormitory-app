@@ -1,0 +1,37 @@
+/* UX-аудит (мобільна версія): зони дотику ≥44px та дрібні виправлення. Окремий файл, щоб не конфліктувати з візуальним редизайном. */
+@media (pointer: coarse) {
+  .rm-pupil .iconbtn { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
+  .rm-tabs button, .documents .tab { min-height: 44px; }
+  .rm-pupil .rm-pupil-name { align-self: stretch; min-height: 44px; text-align: left; }
+  a.back-link { display: inline-flex; align-items: center; min-height: 44px; }
+}
+/* вкладки поверхів не мають обрізатися на вузьких екранах (було: «5» ховалося за краєм) */
+@media (max-width: 900px) {
+  .rm-tabs { gap: 4px; }
+  .rm-tabs button { flex: 1 1 auto; padding: 0 8px; white-space: nowrap; }
+}
+
+/* Згортуваний список «Нерозподілені» (телефон) */
+.rm-pool-toggle { width: 100%; min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 0; background: transparent; color: var(--text); border: 0; border-radius: 12px; font-size: inherit; text-align: left; justify-content: flex-start; }
+.rm-pool-toggle:hover:not(:disabled) { background: transparent; opacity: 1; }
+.rm-pool-chevron { margin-left: auto; display: grid; place-items: center; width: 44px; height: 44px; margin-right: -8px; color: var(--text2Hi); transition: transform var(--t-mid, .2s) var(--ease, ease); }
+.rm-pool-chevron.open { transform: rotate(180deg); }
+.rm-pool > header { margin-bottom: 0; }
+.rm-pool:has(.rm-pool-list) > header { margin-bottom: 8px; }
+
+/* Фон і системні смуги телефона: один безперервний градієнт, без «зелених» смужок зверху/знизу (було: --page як запасний колір) */
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  html, body { background: linear-gradient(160deg, var(--g1), var(--g2)) fixed, var(--g1); }
+  .shell-panel { background: transparent; padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+  .content { padding-top: calc(20px + env(safe-area-inset-top)); }
+
+  /* плаваюче меню-«плашка»: не притискається до країв екрана */
+  .tabs-m {
+    left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); padding: 6px;
+    border: 1px solid var(--border); border-radius: 28px; box-shadow: var(--shadowPop);
+    background: color-mix(in oklch, var(--surface) 94%, transparent);
+  }
+  .tab-m.active, button.tab-m { border-radius: 22px; }
+  .row.sticky-actions { bottom: calc(88px + env(safe-area-inset-bottom)); }
+}
+@media (max-width: 560px) { .form-actions { bottom: calc(88px + env(safe-area-inset-bottom)); } }

@@ -1,7 +1,9 @@
 import { useContext, useMemo, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { HostelNewRoom } from '../../pages/hostelContext'
 import { useAuth } from '../../auth/useAuth'
+import { Icon } from '../../components/ui/icons'
 import { ScrollArea } from '../../components/ui/ScrollArea'
+import { useIsMobile } from '../students-list/logic'
 import { assignStudent, createRoom, fetchCurrentRoomId, moveStudent, unassignStudent, updateRoom } from './api'
 import { ConfirmMoveDialog, EditRoomDialog, NewRoomDialog, PickRoomDialog } from './Dialogs'
 import { PupilChip } from './PupilChip'
@@ -31,7 +33,11 @@ function Pool({ pupils, lastRoom, canEdit, hint, isOver, draggingId, onDragStart
   onMove: (p: Pupil, roomId: string | null) => void
 }) {
   // Немає нерозподілених — розділ зникає; під час перетягування з кімнати лишається вузькою ціллю «зняти з кімнати».
+  const mobile = useIsMobile()
+  const [open, setOpen] = useState(false)
   if (pupils.length === 0 && draggingId === null) return null
+  // На телефоні список за замовчуванням згорнутий (звільняє екран для кімнат); розгортається по натисненню на заголовок.
+  const collapsed = mobile && !open && draggingId === null
   return (
     <section
       data-drop="pool"
@@ -39,17 +45,26 @@ function Pool({ pupils, lastRoom, canEdit, hint, isOver, draggingId, onDragStart
       aria-label="Нерозподілені"
       data-testid="pool"
     >
-      <header>
-        <strong>Нерозподілені</strong> <span className="rm-badge">{pupils.length}</span>
-      </header>
-      <ScrollArea className="rm-pool-scroll" body="rm-pool-list">
+      {mobile ? (
+        <header>
+          <button type="button" className="rm-pool-toggle" aria-expanded={!collapsed} onClick={() => setOpen((v) => !v)}>
+            <strong>Нерозподілені</strong> <span className="rm-badge">{pupils.length}</span>
+            <span className={`rm-pool-chevron${collapsed ? '' : ' open'}`}><Icon name="chevron" size={22} /></span>
+          </button>
+        </header>
+      ) : (
+        <header>
+          <strong>Нерозподілені</strong> <span className="rm-badge">{pupils.length}</span>
+        </header>
+      )}
+      {!collapsed && <ScrollArea className="rm-pool-scroll" body="rm-pool-list">
         <ul>
           {pupils.map((p) => (
             <PupilChip key={p.id} pupil={p} roomId={null} canEdit={canEdit} dragging={draggingId === p.id} onDragStart={onDragStart} note={lastRoom[p.id] ? `було: ${lastRoom[p.id]}` : undefined} onMove={onMove} />
           ))}
           {pupils.length === 0 && <li className="muted small">Перетягніть сюди, щоб зняти з кімнати.</li>}
         </ul>
-      </ScrollArea>
+      </ScrollArea>}
     </section>
   )
 }
