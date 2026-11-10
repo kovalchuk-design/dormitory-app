@@ -18,6 +18,7 @@ import { downloadName, validateUploadFile } from './filters'
 import { canEditTemplates } from './permissions'
 import { buildTemplateData, checkTemplate, fullName, renderDocxTemplate } from './templating'
 import type { TemplateRow } from './types'
+import { Select } from '../../components/ui/Select'
 
 const errText = (e: unknown) => (e instanceof Error ? e.message : String(e))
 
@@ -238,14 +239,14 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
         <>
           <div className="filters">
             <input type="search" placeholder="Пошук учня…" aria-label="Пошук учня" value={search} onChange={(e) => setSearch(e.target.value)} />
-            <select aria-label="Додати кімнату" value="" onChange={(e) => e.target.value && addWhere((p) => p.room === e.target.value)}>
+            <Select aria-label="Додати кімнату" value="" onChange={(e) => e.target.value && addWhere((p) => p.room === e.target.value)}>
               <option value="">Додати всю кімнату…</option>
               {rooms.map((r) => <option key={r} value={r}>Кімната {r}</option>)}
-            </select>
-            <select aria-label="Додати поверх" value="" onChange={(e) => e.target.value && addWhere((p) => String(p.floor) === e.target.value)}>
+            </Select>
+            <Select aria-label="Додати поверх" value="" onChange={(e) => e.target.value && addWhere((p) => String(p.floor) === e.target.value)}>
               <option value="">Додати весь поверх…</option>
               {floors.map((f) => <option key={f} value={f}>{f} поверх</option>)}
-            </select>
+            </Select>
             <button type="button" className="secondary" onClick={() => setChosen(new Set())} disabled={chosen.size === 0}>Очистити вибір</button>
           </div>
           {pupils.length === 0 && <p className="muted">Немає учнів, дані яких вам доступні.</p>}

@@ -72,7 +72,12 @@ export function usePointerDrag(handlers: { onStart: () => void; onDrop: (item: D
         document.body.classList.add('rm-dragging')
         handlersRef.current.onStart()
         timer = setInterval(() => {
-          if (y < EDGE_PX) window.scrollBy(0, -SCROLL_STEP)
+          // у блоці зі своєю прокруткою (поверх) гортаємо його, інакше — вікно
+          const box = document.elementFromPoint(x, y)?.closest<HTMLElement>('.scrollrows')
+          const r = box?.getBoundingClientRect()
+          if (box && r && y < r.top + EDGE_PX && box.scrollTop > 0) box.scrollTop -= SCROLL_STEP
+          else if (box && r && y > r.bottom - EDGE_PX && box.scrollTop + box.clientHeight < box.scrollHeight) box.scrollTop += SCROLL_STEP
+          else if (y < EDGE_PX) window.scrollBy(0, -SCROLL_STEP)
           else if (y > window.innerHeight - EDGE_PX) window.scrollBy(0, SCROLL_STEP)
           else return
           update() // після прокрутки ціль під вказівником змінилась

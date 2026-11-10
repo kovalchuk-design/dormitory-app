@@ -4,6 +4,8 @@
 .filters { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 0; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 28px; box-shadow: var(--shadow); }
 .filters label { margin: 0; flex: 0 1 9rem; }
 .filters label.grow { flex: 1 1 18rem; }
+.filters .sel, .documents .sel { margin-top: 6px; }
+.documents .toolbar .sel, .documents .filters .sel { width: auto; margin-top: 0; min-width: 9rem; }
 .filters label.check { flex: 0 0 auto; align-self: center; min-height: 48px; }
 .filters button.secondary { min-height: 48px; }
 .filters input[type='search'] { padding-left: 44px; background-repeat: no-repeat; background-position: 16px center;
@@ -83,13 +85,8 @@ table.data td:first-child a:hover { text-decoration: underline; }
 .rm-tabs button.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
 .rm-tabs button:hover:not(:disabled) { opacity: 1; color: var(--text); }
 .rm-cap { font-size: 13px; color: var(--text2Hi); margin: 0 0 8px; min-height: 0; }
-.rm-cap select { min-height: 36px; width: auto; margin: 0; padding: 0 32px 0 12px; border-radius: 10px; font-size: 14px; background-position: right 10px center; }
-@media (max-width: 1100px) { .rm-floors { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 900px) {
-  .rm-tabs { display: flex; }
-  .rm-floors { display: block; }
-  .rm-pool ul { grid-template-columns: 1fr; }
-}
+.rm-cap .sel { width: auto; margin: 0; }
+@media (max-width: 900px) { .rm-tabs { display: flex; } }
 
 /* ---- Публічна анкета ---- */
 .public-card h1 { font-size: 32px; margin-bottom: 8px; }
@@ -107,7 +104,8 @@ table.data td:first-child a:hover { text-decoration: underline; }
 .social-opt { margin-bottom: 4px; }
 .social-detail { margin: 0 0 8px 34px; }
 .date-parts { display: grid; grid-template-columns: 1.15fr 1.7fr 1.25fr; gap: 8px; }
-.date-parts select { margin-top: 0; min-width: 0; padding-left: 12px; padding-right: 28px; background-position: right 8px center; }
+.date-parts .sel { margin-top: 0; min-width: 0; }
+.date-parts button.sel-trigger { padding: 0 10px 0 12px; }
 .seg-opt { cursor: pointer; }
 .seg-opt input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .seg { position: relative; }
@@ -187,3 +185,36 @@ table.data td:first-child a:hover { text-decoration: underline; }
   .row.sticky-actions { position: sticky; bottom: 68px; background: var(--glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding: 10px; border-radius: 20px; z-index: 5; top: auto; }
 }
 .contacts li { align-items: stretch; text-align: left; }
+
+/* ---- Кімнати: сторінка не гортається; угорі фіксовано «Нерозподілені», у кожного поверху гортаються лише кімнати ---- */
+.shell-panel:has(.rm-page) { height: 100vh; height: 100dvh; min-height: 0; }
+.content:has(> .rm-page) { min-height: 0; grid-template-rows: minmax(0, 1fr); padding-bottom: 24px; overflow: hidden; }
+.content > .rm-page { align-self: stretch; min-height: 0; display: flex; flex-direction: column; gap: 16px; align-content: normal; }
+.rm-page > * { flex: none; }
+.rm-page > .rm-floors { flex: 1 1 0; min-height: 0; }
+.rm-pool { padding: 16px 20px; }
+.rm-pool-scroll { max-height: min(30vh, 220px); }
+.rm-pool-scroll > .scrollrows { max-height: inherit; padding-right: 18px; }
+.rm-floors { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+.rm-floor { display: flex; flex-direction: column; min-height: 0; padding: 14px 12px 12px; border-radius: 28px; background: var(--glass); border: 1px solid var(--border); }
+.rm-floor h2 { flex: none; font-size: 16px; margin: 0 0 10px; padding-left: 6px; }
+.rm-floor-scroll { position: relative; flex: 1 1 0; min-height: 0; }
+.rm-floor-scroll > .scrollrows { position: absolute; inset: 0; padding: 6px 10px 6px 6px; }
+.rm-rooms { display: flex; flex-direction: column; gap: 12px; }
+.rm-room { box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+[data-theme='dark'] .rm-room { box-shadow: none; }
+@media (max-width: 1100px) { .rm-floors { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 900px) {
+  .rm-floors { display: flex; flex-direction: column; }
+  .rm-floor { display: none; flex: 1 1 0; }
+  .rm-floor.current { display: flex; }
+  .rm-floor h2 { display: none; }
+  .rm-pool-scroll { max-height: min(26vh, 170px); }
+}
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .content:has(> .rm-page) { padding-bottom: 8px; }
+  .content > .rm-page { gap: 10px; }
+  .rm-pool { padding: 12px; border-radius: 22px; }
+  .rm-pool ul { grid-template-columns: 1fr; }
+  .rm-title h1 { font-size: 28px; }
+}

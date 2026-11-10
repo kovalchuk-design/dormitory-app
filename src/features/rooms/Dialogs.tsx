@@ -7,6 +7,7 @@ import {
 import { useEffect } from 'react'
 import { fetchHistory, type HistoryStay } from './api'
 import { describeError } from './logic'
+import { Select } from '../../components/ui/Select'
 
 // ------------------------------------------------------------------ підтвердження
 
@@ -63,7 +64,7 @@ export function PickRoomDialog(props: {
     <Dialog title={`Перемістити: ${pupilFullName(props.pupil)}`} onClose={props.onCancel}>
       <label>
         Нове місце
-        <select value={value} onChange={(e) => setValue(e.target.value)} autoFocus>
+        <Select value={value} onChange={(e) => setValue(e.target.value)} autoFocus>
           <option value="">— оберіть —</option>
           {props.fromRoomId !== null && <option value="pool">Нерозподілені</option>}
           {FLOORS.map((f) => (
@@ -80,7 +81,7 @@ export function PickRoomDialog(props: {
               })}
             </optgroup>
           ))}
-        </select>
+        </Select>
       </label>
       {check && !check.ok && <p className="error" role="alert">{check.message}</p>}
       <div className="rm-buttons">
@@ -158,9 +159,9 @@ export function NewRoomDialog(props: {
     <Dialog title="Нова кімната" onClose={props.onCancel}>
       <label>
         Поверх
-        <select value={floor} onChange={(e) => setFloor(Number(e.target.value))}>
+        <Select value={floor} onChange={(e) => setFloor(Number(e.target.value))}>
           {FLOORS.map((f) => <option key={f} value={f}>{f}</option>)}
-        </select>
+        </Select>
       </label>
       <label>
         Номер

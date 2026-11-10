@@ -21,6 +21,7 @@ import {
 import { canDeleteDocument, canUpload } from './permissions'
 import type { DocumentRow } from './types'
 import type { Library } from './api'
+import { Select } from '../../components/ui/Select'
 
 interface Props {
   lib: Library
@@ -80,11 +81,11 @@ export function ArchiveTab({ lib, reload, onBasedOn }: Props) {
           value={filters.search}
           onChange={(e) => set({ search: e.target.value })}
         />
-        <select aria-label="Сортування" value={sort} onChange={(e) => setSort(e.target.value as SortKey)}>
+        <Select aria-label="Сортування" value={sort} onChange={(e) => setSort(e.target.value as SortKey)}>
           {Object.entries(SORT_LABELS).map(([k, v]) => (
             <option key={k} value={k}>{v}</option>
           ))}
-        </select>
+        </Select>
         {uploader && (
           <button type="button" onClick={() => setShowUpload((s) => !s)}>
             {showUpload ? 'Сховати форму' : '＋ Завантажити документ'}
@@ -93,27 +94,27 @@ export function ArchiveTab({ lib, reload, onBasedOn }: Props) {
       </div>
 
       <div className="filters">
-        <select aria-label="Категорія" value={filters.category} onChange={(e) => set({ category: e.target.value })}>
+        <Select aria-label="Категорія" value={filters.category} onChange={(e) => set({ category: e.target.value })}>
           <option value="">Усі категорії</option>
           {options.categories.map((c) => <option key={c}>{c}</option>)}
-        </select>
-        <select aria-label="Тема" value={filters.topic} onChange={(e) => set({ topic: e.target.value })}>
+        </Select>
+        <Select aria-label="Тема" value={filters.topic} onChange={(e) => set({ topic: e.target.value })}>
           <option value="">Усі теми</option>
           {options.topics.map((c) => <option key={c}>{c}</option>)}
-        </select>
-        <select aria-label="Навчальний рік" value={filters.yearId} onChange={(e) => set({ yearId: e.target.value })}>
+        </Select>
+        <Select aria-label="Навчальний рік" value={filters.yearId} onChange={(e) => set({ yearId: e.target.value })}>
           <option value="">Усі роки</option>
           {lib.years.map((y) => <option key={y.id} value={y.id}>{y.name}</option>)}
-        </select>
-        <select aria-label="Автор" value={filters.authorId} onChange={(e) => set({ authorId: e.target.value })}>
+        </Select>
+        <Select aria-label="Автор" value={filters.authorId} onChange={(e) => set({ authorId: e.target.value })}>
           <option value="">Усі автори</option>
           {lib.authors.map((a) => <option key={a.id} value={a.id}>{a.full_name}</option>)}
-        </select>
-        <select aria-label="Тип файлу" value={filters.fileType} onChange={(e) => set({ fileType: e.target.value as DocumentFilters['fileType'] })}>
+        </Select>
+        <Select aria-label="Тип файлу" value={filters.fileType} onChange={(e) => set({ fileType: e.target.value as DocumentFilters['fileType'] })}>
           <option value="">Усі типи</option>
           <option value="docx">Word (.docx)</option>
           <option value="pdf">PDF</option>
-        </select>
+        </Select>
         {hasActiveFilters(filters) && (
           <button type="button" className="secondary" onClick={() => setFilters(EMPTY_FILTERS)}>Скинути</button>
         )}
@@ -279,10 +280,10 @@ function UploadForm({
           <input list="dl-topics" value={topic} onChange={(e) => setTopic(e.target.value)} />
         </label>
         <label>Навчальний рік
-          <select value={yearId} onChange={(e) => setYearId(e.target.value)}>
+          <Select value={yearId} onChange={(e) => setYearId(e.target.value)}>
             <option value="">—</option>
             {lib.years.map((y) => <option key={y.id} value={y.id}>{y.name}</option>)}
-          </select>
+          </Select>
         </label>
         <label>Теги (через кому)
           <input value={tags} onChange={(e) => setTags(e.target.value)} />

@@ -5,6 +5,7 @@ import { BirthDateField } from '../components/BirthDateField'
 import { errorMessage, isStudentStatus, STATUS_LABELS, type StudentStatus } from '../lib/format'
 import { supabase } from '../lib/supabase'
 import { useLoad } from '../lib/useLoad'
+import { Select } from '../components/ui/Select'
 
 interface FormState {
   last_name: string
@@ -106,14 +107,14 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
             minYear={new Date().getFullYear() - 30} maxYear={new Date().getFullYear() - 8} invalid={!!errors.birth_date} />
         ))}
         {field('grade', 'Клас *', (
-          <select value={f.grade} onChange={(e) => set('grade', e.target.value)}>
+          <Select value={f.grade} onChange={(e) => set('grade', e.target.value)}>
             {[9, 10, 11].map((g) => <option key={g} value={g}>{g}</option>)}
-          </select>
+          </Select>
         ))}
         {id && field('status', 'Статус', (
-          <select value={f.status} onChange={(e) => set('status', e.target.value as StudentStatus)}>
+          <Select value={f.status} onChange={(e) => set('status', e.target.value as StudentStatus)}>
             {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-          </select>
+          </Select>
         ))}
         {!id && <p className="muted small">Новий учень спочатку нерозподілений (без кімнати); дані анкети він заповнить за персональним посиланням.</p>}
         {serverError && <p className="error" role="alert">{serverError}</p>}
