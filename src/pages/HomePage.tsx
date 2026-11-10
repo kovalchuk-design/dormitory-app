@@ -44,7 +44,7 @@ export function HomePage() {
         <h1>Головна</h1>
       </header>
 
-      <Link to="/students" className="home-search">
+      <Link to="/hostel/students" className="home-search">
         <Icon name="search" />
         <span>
           <strong>Знайти учня або зателефонувати</strong>
@@ -57,9 +57,9 @@ export function HomePage() {
 
       {data && (
         <div className="grid4">
-          <Kpi label="Учнів активних" value={active} to="/students" />
+          <Kpi label="Учнів активних" value={active} to="/hostel/students" />
           <Kpi label="Нерозподілені" value={data.unplaced.length} hint={data.unplaced.length ? 'потрібна кімната' : 'усі в кімнатах'}
-            to="/rooms" tone={data.unplaced.length ? 'warn' : undefined} />
+            to="/hostel/rooms" tone={data.unplaced.length ? 'warn' : undefined} />
           {canEdit && <Kpi label="Оновлення на підтвердження" value={counts.pending} to="/updates" tone={counts.pending ? 'accent' : undefined} />}
           {canEdit && <Kpi label="Анкети без учня" value={counts.unmatched} to="/collect" tone={counts.unmatched ? 'warn' : undefined} />}
         </div>
@@ -70,7 +70,7 @@ export function HomePage() {
           <h2>Заповненість поверхів</h2>
           <div className="grid4">
             {floors.map((f) => (
-              <Link key={f.floor} to="/rooms" className="floor-tile">
+              <Link key={f.floor} to="/hostel/rooms" className="floor-tile">
                 <div className="floor-tile-head">
                   <strong>{f.floor} поверх</strong>
                   <span className={`pill ${f.free === 0 ? 'warn' : 'good'}`}>{f.free === 0 ? 'Заповнено' : `Вільно ${f.free}`}</span>

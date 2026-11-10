@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { RequireAuth } from '../auth/RequireAuth'
 import { RequireRole } from '../auth/RequireRole'
 import { Layout } from '../components/Layout'
@@ -9,9 +9,8 @@ import { CollectPage } from '../pages/CollectPage'
 import { StudentCardPage } from '../pages/StudentCardPage'
 import { StudentEditPage } from '../pages/StudentEditPage'
 import { StudentFormPage } from '../pages/StudentFormPage'
-import { RoomsPage } from '../features/rooms/RoomsPage'
+import { HostelPage } from '../pages/HostelPage'
 import { HomePage } from '../pages/HomePage'
-import { StudentsPage } from '../pages/StudentsPage'
 import { AdminDocumentSettings, DocumentsPage } from '../features/documents'
 import {
   AdminPage,
@@ -27,7 +26,9 @@ export function AppRoutes() {
       <Route element={<RequireAuth />}>
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
-          <Route path="students" element={<StudentsPage />} />
+          <Route path="hostel" element={<Navigate to="/hostel/students" replace />} />
+          <Route path="hostel/:view" element={<HostelPage />} />
+          <Route path="students" element={<Navigate to="/hostel/students" replace />} />
           <Route path="students/new" element={<StudentEditPage />} />
           <Route path="students/:id" element={<StudentCardPage />} />
           <Route path="students/:id/edit" element={<StudentEditPage />} />
@@ -47,7 +48,7 @@ export function AppRoutes() {
               </RequireRole>
             }
           />
-          <Route path="rooms" element={<RoomsPage />} />
+          <Route path="rooms" element={<Navigate to="/hostel/rooms" replace />} />
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="events" element={<EventsPage />} />
           <Route path="calendar" element={<CalendarPage />} />

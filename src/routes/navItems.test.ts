@@ -6,7 +6,7 @@ const labels = (r: Parameters<typeof navItemsForRole>[0]) => navItemsForRole(r).
 describe('navItemsForRole', () => {
   it('адміністратор бачить «Адміністрування»', () => {
     expect(labels('admin')).toContain('Адміністрування')
-    expect(labels('admin')).toHaveLength(9)
+    expect(labels('admin')).toHaveLength(8)
   })
 
   it.each(['educator', 'staff_readonly'] as const)('%s не бачить «Адміністрування»', (role) => {
@@ -33,7 +33,7 @@ describe('navItemsForRole', () => {
   })
 
   it('зберігає порядок пунктів', () => {
-    expect(labels('educator')).toEqual(['Головна', 'Студенти', 'Оновлення даних', 'Збір анкет', 'Кімнати', 'Документи', 'Івенти', 'Календар'])
+    expect(labels('educator')).toEqual(['Головна', 'Гуртожиток', 'Оновлення даних', 'Збір анкет', 'Документи', 'Івенти', 'Календар'])
   })
 })
 
@@ -52,6 +52,6 @@ describe('canAccess', () => {
     expect(canAccess('educator', '/updates')).toBe(true)
   })
   it('решта сторінок відкриті', () => {
-    expect(canAccess('staff_readonly', '/students')).toBe(true)
+    expect(canAccess('staff_readonly', '/hostel')).toBe(true)
   })
 })
