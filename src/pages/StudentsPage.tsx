@@ -22,6 +22,16 @@ const COLUMNS: { key: SortKey; label: string }[] = [
   { key: 'status', label: 'Статус' },
 ]
 
+/** Індикатор сортування фіксованої ширини: завжди видно, що за колонкою можна сортувати; активний напрям підсвічено, сусідні колонки не зсуваються. */
+function SortMark({ dir }: { dir: SortDir | null }) {
+  return (
+    <svg className={`sort-mark${dir ? ' on' : ''}`} width="10" height="14" viewBox="0 0 10 14" aria-hidden="true" focusable="false">
+      <path className={dir === 'asc' ? 'act' : ''} d="M5 1.5l4 4.5H1z" />
+      <path className={dir === 'desc' ? 'act' : ''} d="M5 12.5L1 8h8z" />
+    </svg>
+  )
+}
+
 export function StudentsPage() {
   const { profile } = useAuth()
   const canEdit = profile?.role === 'admin' || profile?.role === 'educator'
@@ -106,7 +116,8 @@ export function StudentsPage() {
                     {COLUMNS.map((c) => (
                       <th key={c.key} scope="col" aria-sort={sort.key === c.key ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
                         <button type="button" className="th-btn" onClick={() => toggleSort(c.key)}>
-                          {c.label}{sort.key === c.key ? (sort.dir === 'asc' ? ' ▲' : ' ▼') : ''}
+                          {c.label}
+                          <SortMark dir={sort.key === c.key ? sort.dir : null} />
                         </button>
                       </th>
                     ))}

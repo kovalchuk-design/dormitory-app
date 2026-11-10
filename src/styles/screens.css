@@ -232,3 +232,13 @@ table.data td:first-child a:hover { text-decoration: underline; }
   .st-scroll > .scrollrows { padding: 4px 14px 4px 0; overflow-x: hidden; }
   .st-body table.data { min-width: 0; }
 }
+
+/* індикатор сортування: фіксована ширина 10px + відступ, тому підсвітка не зсуває колонки */
+.th-btn { gap: 6px; }
+.sort-mark { flex: none; fill: currentColor; opacity: .35; transition: opacity var(--t-fast) var(--ease); }
+.sort-mark path { opacity: .6; }
+.sort-mark.on { opacity: 1; }
+.sort-mark.on path { opacity: .25; }
+.sort-mark.on path.act { opacity: 1; fill: var(--outInk); }
+.th-btn:hover .sort-mark { opacity: .8; }
+.st-body thead th { white-space: nowrap; }
