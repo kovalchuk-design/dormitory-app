@@ -6,7 +6,7 @@ import { ConfirmMoveDialog, EditRoomDialog, HistoryDialog, NewRoomDialog, PickRo
 import { PupilChip } from './PupilChip'
 import { RoomCard, type DropHint } from './RoomCard'
 import {
-  FLOORS, STALE_CODES, describeError, errorCode, groupPupilsByRoom, groupRoomsByFloor, pickOperation, pupilName, validateCapacity, validateDrop,
+  FLOORS, STALE_CODES, describeError, errorCode, groupPupilsByRoom, groupRoomsByFloor, pickOperation, pupilName, validateDrop,
   type DropTarget, type Pupil, type RoomInfo,
 } from './logic'
 import { useRoomsBoard } from './useRoomsBoard'
@@ -157,15 +157,6 @@ export function RoomsPage() {
     void refresh()
   }
 
-  async function changeCapacity(room: RoomInfo, capacity: number) {
-    const check = validateCapacity(capacity, room.occupied)
-    if (!check.ok) return setNotice({ kind: 'error', text: check.message })
-    const res = await updateRoom(room.id, { capacity })
-    if (res.error) setNotice({ kind: 'error', text: describeError(res.error) })
-    else setNotice({ kind: 'ok', text: `Кімната ${room.number}: місткість ${capacity}.` })
-    void refresh()
-  }
-
   async function addRoom(v: { floor: number; number: string; capacity: number }) {
     setBusy(true)
     setDialogError(null)
@@ -234,7 +225,6 @@ export function RoomsPage() {
                     isOver={isOver({ kind: 'room', roomId: r.id })}
                     draggingId={dragging?.pupil.id ?? null}
                     onDragStart={onDragStart}
-                    onCapacity={(room, cap) => void changeCapacity(room, cap)}
                     hint={hintFor({ kind: 'room', roomId: r.id })}
                     onMove={startPick}
                     onHistory={openHistory}
