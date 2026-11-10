@@ -59,12 +59,16 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 .tpl-right { display: grid; gap: 1rem; min-width: 0; }
 .tpl-left { display: flex; flex-direction: column; gap: .8rem; }
 .tpl-left h2, .tpl-right h2 { margin: 0; }
-.tpl-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
-.tpl-item { border: 1.5px solid var(--border); border-radius: 14px; padding: .8rem 1rem; display: flex; flex-direction: column; gap: .4rem; background: var(--surface); }
-.tpl-item h3 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; display: flex; gap: .5rem; align-items: baseline; justify-content: space-between; }
-.tpl-item.selected { border-color: var(--out); background: var(--out-bg); }
-.tpl-item.previewing:not(.selected) { border-color: var(--text2); }
-.tpl-state { font-size: .72rem; font-weight: 700; color: var(--outInk); white-space: nowrap; }
+.tpl-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .3rem; max-height: 26rem; overflow: auto; }
+.tpl-search { width: 100%; }
+.tpl-row { display: flex; align-items: center; gap: .15rem; border-radius: 12px; border: 1.5px solid transparent; padding: .1rem .2rem .1rem 0; }
+.tpl-row:hover { background: var(--muted); }
+.tpl-row.selected { background: var(--out-bg); border-color: var(--out); }
+.documents .tpl-row .tpl-pick { flex: 1; min-width: 0; min-height: 40px; height: auto; padding: .4rem .7rem; background: transparent; border: 0; color: var(--text); font-size: .95rem; font-weight: 500; text-align: left; display: flex; justify-content: flex-start; align-items: center; line-height: 1.25; overflow-wrap: anywhere; box-shadow: none; }
+.documents .tpl-row.selected .tpl-pick { font-weight: 700; }
+.documents .tpl-row .tpl-icon { flex: none; width: 34px; height: 34px; min-height: 0; padding: 0; display: grid; place-items: center; border-radius: 10px; background: transparent; border: 0; color: var(--text2Hi); box-shadow: none; }
+.documents .tpl-row .tpl-icon:hover { background: var(--surface); color: var(--text); }
+.documents .tpl-row .tpl-icon.danger:hover { color: var(--danger); }
 .tpl-add { align-self: stretch; }
 .tpl-right-head { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: space-between; align-items: center; margin-bottom: .6rem; }
 .tpl-idle { opacity: .6; }

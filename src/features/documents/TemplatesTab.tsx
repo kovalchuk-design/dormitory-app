@@ -31,6 +31,7 @@ export function TemplatesTab({ lib }: { lib: Library }) {
   const [selectedId, setSelectedId] = useState('') // «Використати»
   const [previewId, setPreviewId] = useState('') // «Перегляд шаблону»
   const [adding, setAdding] = useState(false)
+  const [query, setQuery] = useState('')
   const editable = canEditTemplates(profile?.role, educatorsCanEdit)
 
   const refresh = useCallback(async () => {
@@ -72,6 +73,10 @@ export function TemplatesTab({ lib }: { lib: Library }) {
 
   const selected = templates?.find((t) => t.id === selectedId) ?? null
   const previewing = templates?.find((t) => t.id === previewId) ?? null
+  const shownTemplates = useMemo(() => {
+    const q = query.trim().toLocaleLowerCase('uk')
+    return (templates ?? []).filter((t) => !q || t.title.toLocaleLowerCase('uk').includes(q))
+  }, [templates, query])
   const closeAdd = useCallback(() => setAdding(false), [])
   const closePreview = useCallback(() => setPreviewId(''), [])
 
@@ -90,26 +95,28 @@ export function TemplatesTab({ lib }: { lib: Library }) {
         <div className="tpl-layout">
           <aside className="panel tpl-left" aria-label="Шаблони">
             <h2>Шаблони</h2>
+            {templates.length > 5 && (
+              <input type="search" className="tpl-search" placeholder="Пошук шаблону…" aria-label="Пошук шаблону" value={query} onChange={(e) => setQuery(e.target.value)} />
+            )}
             {templates.length === 0 ? (
               <p className="muted">Шаблонів ще немає.{editable ? '' : ' Їх додає адміністратор.'}</p>
+            ) : shownTemplates.length === 0 ? (
+              <p className="muted">Нічого не знайдено.</p>
             ) : (
               <ul className="tpl-list">
-                {templates.map((t) => (
-                  <li key={t.id} className={`tpl-item${t.id === selectedId ? ' selected' : ''}${t.id === previewId ? ' previewing' : ''}`}>
-                    <h3>
+                {shownTemplates.map((t) => (
+                  <li key={t.id} className={`tpl-row${t.id === selectedId ? ' selected' : ''}`}>
+                    <button type="button" className="tpl-pick" aria-pressed={t.id === selectedId} title={t.title} onClick={() => use(t)}>
                       {t.title}
-                      {t.id === selectedId && <span className="tpl-state">Вибрано</span>}
-                    </h3>
-                    {editable && <p className="small muted" title={t.placeholders.join(', ')}>Полів для автозаповнення: {t.placeholders.length}</p>}
-                    <div className="card-actions">
-                      <button type="button" onClick={() => use(t)} aria-pressed={t.id === selectedId}>
-                        {t.id === selectedId ? 'Використовується' : 'Використати'}
+                    </button>
+                    <button type="button" className="tpl-icon" aria-label={`Перегляд шаблону «${t.title}»`} title="Перегляд шаблону" onClick={() => setPreviewId(t.id)}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
+                    </button>
+                    {editable && (
+                      <button type="button" className="tpl-icon danger" aria-label={`Видалити шаблон «${t.title}»`} title="Видалити шаблон" onClick={() => void remove(t)}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6" /></svg>
                       </button>
-                      <button type="button" className="secondary" onClick={() => setPreviewId(t.id)}>
-                        Перегляд шаблону
-                      </button>
-                      {editable && <button type="button" className="danger" onClick={() => void remove(t)}>Видалити</button>}
-                    </div>
+                    )}
                   </li>
                 ))}
               </ul>
