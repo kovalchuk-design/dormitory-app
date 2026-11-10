@@ -207,3 +207,13 @@ details > summary { cursor: pointer; padding: .5rem 0; min-height: 2.75rem; disp
 .seg-opt input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .seg-opt.on { background: var(--accent); color: #fff; }
 .seg-opt:focus-within { outline: 3px solid #f2a900; outline-offset: -3px; }
+
+/* ---- Екран перевірки анкети ---- */
+.review-sec { border: 1px solid var(--border); border-radius: 12px; padding: .75rem 1rem; margin: 0 0 .75rem; background: var(--surface, var(--card)); }
+.review-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.review-head h2 { font-size: 1.05rem; margin: 0; }
+.review-sec dl.kv > div { padding: .3rem 0; }
+.kv-key dd { font-weight: 700; }
+.review-actions { margin-top: .5rem; }
+.review-actions > * { flex: 1 1 10rem; }
+.review-actions button[type='button']:not(.secondary) { width: auto; }

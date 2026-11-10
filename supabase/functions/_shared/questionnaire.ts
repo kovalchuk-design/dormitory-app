@@ -53,12 +53,13 @@ export const MAX_LEN: Record<TextKey, number> = {
   social_children: 2, social_ato: 200, social_zsu: 200, allergies: 1000, chronic_conditions: 1000,
 }
 
-// Усі поля анкети обов'язкові, крім: номера кімнати (інформаційний, може бути не призначений) та опікуна (необов'язково).
+// Усі поля анкети обов'язкові, крім: номера кімнати (інформаційний, може бути не призначений), опікуна (необов'язково)
+// та медичних відповідей (алергії, хронічні хвороби): діти можуть їх не знати, вихователі уточнять пізніше.
 // Телефон мами/тата обов'язковий, якщо вказано їхнє ПІБ; якщо когось немає (сирота, один з батьків) — у ПІБ пишуть «немає».
 const REQUIRED: TextKey[] = [
   'full_name', 'birth_date', 'group_number', 'profession', 'class_teacher', 'master', 'address', 'student_phone',
   'mother_name', 'father_name',
-  'school_activities', 'college_plans', 'allergies', 'chronic_conditions',
+  'school_activities', 'college_plans',
 ]
 const MULTILINE = new Set<FieldKey>(['school_activities', 'college_plans', 'allergies', 'chronic_conditions', 'address'])
 /** Канонічне значення «такої людини немає» (зберігається у ПІБ). */

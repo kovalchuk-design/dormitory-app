@@ -47,7 +47,7 @@ describe('validateQuestionnaire', () => {
     const r = validateQuestionnaire({}, TODAY)
     expect(r.ok).toBe(false)
     if (!r.ok) {
-      for (const k of ['full_name', 'birth_date', 'group_number', 'profession', 'class_teacher', 'master', 'address', 'student_phone', 'mother_name', 'father_name', 'school_activities', 'college_plans', 'social_codes', 'allergies', 'chronic_conditions', 'consent'] as const)
+      for (const k of ['full_name', 'birth_date', 'group_number', 'profession', 'class_teacher', 'master', 'address', 'student_phone', 'mother_name', 'father_name', 'school_activities', 'college_plans', 'social_codes', 'consent'] as const)
         expect(r.errors[k], k).toBeTruthy()
     }
   })
@@ -139,6 +139,17 @@ describe('validateQuestionnaire', () => {
   it('довга професія з паперового бланка влізає', () => {
     const profession = 'Автослюсар з ремонту транспортних засобів, водій автотранспортних засобів категорії В'
     expect(validateQuestionnaire({ ...valid, profession }, TODAY).ok).toBe(true)
+  })
+
+  it('медичні відповіді необовʼязкові: порожні проходять, заповнені зберігаються', () => {
+    const blank = validateQuestionnaire({ ...valid, allergies: '', chronic_conditions: '' }, TODAY)
+    expect(blank.ok && blank.value.allergies === '' && blank.value.chronic_conditions === '').toBe(true)
+    const missing = { ...valid } as Record<string, unknown>
+    delete missing.allergies; delete missing.chronic_conditions
+    expect(validateQuestionnaire(missing, TODAY).ok).toBe(true)
+    const filled = validateQuestionnaire({ ...valid, allergies: ' пилок ', chronic_conditions: 'астма' }, TODAY)
+    expect(filled.ok && filled.value.allergies).toBe('пилок')
+    expect(validateQuestionnaire({ ...valid, allergies: 'a'.repeat(1001) }, TODAY).ok).toBe(false)
   })
 
   it('обмеження довжини та керівні символи', () => {
