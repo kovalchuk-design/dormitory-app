@@ -423,3 +423,16 @@ button.rm-pupil-name { font-size: 13.5px; }
   width: 6px; height: 12px; opacity: .6;
   background: radial-gradient(circle, var(--text2) 1.5px, transparent 1.9px) 0 0 / 6px 6px repeat-y;
 }
+
+/* оновлення даних: кнопки в одному рядку з ім'ям, невеликі; клас у заголовку не виводимо */
+.approval-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; margin-bottom: 8px; }
+.approval-title { min-width: 0; }
+.approval-title h2 { margin: 0 0 2px; }
+.approval-title p { margin: 0; }
+.approval-actions { display: flex; gap: 8px; flex: none; }
+.approval-actions button { min-height: 36px; padding: 0 16px; font-size: 14px; border-radius: 12px; }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .approval-head { position: sticky; top: 0; z-index: 5; margin: -4px -4px 8px; padding: 8px 4px; background: var(--surface); }
+  .approval-actions { width: 100%; }
+  .approval-actions button { flex: 1; }
+}

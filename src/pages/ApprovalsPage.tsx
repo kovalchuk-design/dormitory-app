@@ -110,11 +110,19 @@ export function ApprovalsPage() {
         const n = changedCount(item.profileDiff) + changedCount(item.medDiff)
         return (
           <article key={item.id} className="panel" aria-labelledby={`h-${item.id}`}>
-            <h2 id={`h-${item.id}`}><Link to={`/students/${item.student.id}`}>{fullName(item.student)}</Link>, {item.student.grade} клас</h2>
-            <p className="muted small">
-              Версія {item.version_no} · подано {formatDateTime(item.submitted_at)} · змінених полів: {n}
-              {!item.hasCurrent && ' · чинної версії ще немає (перша анкета)'}
-            </p>
+            <div className="approval-head">
+              <div className="approval-title">
+                <h2 id={`h-${item.id}`}><Link to={`/students/${item.student.id}`}>{fullName(item.student)}</Link></h2>
+                <p className="muted small">
+                  Версія {item.version_no} · подано {formatDateTime(item.submitted_at)} · змінених полів: {n}
+                  {!item.hasCurrent && ' · чинної версії ще немає (перша анкета)'}
+                </p>
+              </div>
+              <div className="approval-actions">
+                <button type="button" disabled={busyId === item.id} onClick={() => void act(item.id, 'approve')}>Підтвердити</button>
+                <button type="button" className="btn-danger" disabled={busyId === item.id} onClick={() => void act(item.id, 'reject')}>Відхилити</button>
+              </div>
+            </div>
             {item.prev && (() => {
               const pn = item.prev.version_no
               const rows = [...item.prev.diff, ...item.prev.medDiff]
@@ -140,10 +148,6 @@ export function ApprovalsPage() {
                 <DiffTable rows={item.medDiff} title="Порівняння медичних даних" onlyChanged={false} />
               </>
             )}
-            <div className="row actions sticky-actions">
-              <button type="button" disabled={busyId === item.id} onClick={() => void act(item.id, 'approve')}>Підтвердити</button>
-              <button type="button" className="btn-danger" disabled={busyId === item.id} onClick={() => void act(item.id, 'reject')}>Відхилити</button>
-            </div>
           </article>
         )
       })}
