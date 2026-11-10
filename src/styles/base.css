@@ -159,7 +159,7 @@ table.data thead th { font-size: 12px; font-weight: 600; color: var(--text2Hi); 
 table.data tbody tr:last-child td { border-bottom: 0; }
 table.data tbody tr { transition: background-color var(--t-fast) var(--ease); }
 table.data tbody tr:hover { background: color-mix(in oklch, var(--muted) 60%, transparent); }
-table.diff tr.changed td:last-child, table.diff tr.changed th { background: var(--muted); }
+table.diff tr.changed th { background: var(--muted); }
 a.phone { white-space: nowrap; font-weight: 600; color: var(--outInk); text-decoration: none; }
 a.phone:hover { text-decoration: underline; }
 .help-table td, .help-table th { border-color: var(--border); }
