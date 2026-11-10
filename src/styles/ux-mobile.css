@@ -141,3 +141,19 @@ html[data-theme='dark'] { color-scheme: dark; }
   .form-actions { padding: 10px; border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadowPop);
     background: color-mix(in oklch, var(--surface) 94%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 }
+
+/* Нижнє меню телефона: пункти рівномірно на всю ширину, нижче до краю (в межах безпечної зони), без градієнтного «підтирання» справа */
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  :root { --tab-bottom: max(calc(env(safe-area-inset-bottom) - 14px), 6px); }
+  .shell-panel { padding-bottom: calc(var(--tab-bottom) + 78px); }
+  .tabs-m { bottom: var(--tab-bottom); mask-image: none; -webkit-mask-image: none; justify-content: space-between; }
+  .tab-m { flex: 1 1 0; min-width: 64px; }
+  .row.sticky-actions { bottom: calc(var(--tab-bottom) + 78px); }
+}
+@media (max-width: 560px) { .form-actions { bottom: calc(var(--tab-bottom) + 78px); } }
+/* ховер лише для миші: на дотик не залипає */
+@media (hover: none) {
+  button:hover:not(:disabled), a.btn:hover { opacity: 1; }
+  .chip:hover:not(:disabled) { background: transparent; }
+  .chip.on:hover:not(:disabled) { background: var(--muted); }
+}

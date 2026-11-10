@@ -64,6 +64,11 @@ export async function installMock(context, { role = 'admin', data = makeData(), 
       const sid = url.searchParams.get('student_id')?.replace('eq.', '')
       return json(sid ? data.profiles.filter((x) => x.student_id === sid) : data.profiles)
     }
+    if (p === '/rest/v1/student_medical') {
+      const sid = url.searchParams.get('student_id')?.replace('eq.', '')
+      const idx = data.students.findIndex((x) => x.id === sid)
+      return single(idx >= 0 && idx % 2 === 1 ? [{ student_id: sid, allergies: 'Пилок (тест)', chronic_conditions: '', notes: null }] : [])
+    }
     if (p === '/rest/v1/rooms') return json(data.rooms)
     if (p === '/rest/v1/intake_links') {
       const soon = new Date(Date.now() + 5 * 864e5).toISOString()

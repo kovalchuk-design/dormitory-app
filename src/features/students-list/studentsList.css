@@ -3,13 +3,15 @@
 .sl-search { display: flex; gap: 8px; margin: 0; }
 .sl-search input[type='search'] { flex: 1 1 auto; min-width: 0; min-height: 44px; margin: 0; font-size: 16px; }
 .sl-filter-btn { flex: none; position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 14px; background: transparent; color: var(--text); border: 1px solid var(--fieldBorder); font-size: 14px; }
-.sl-filter-btn:hover:not(:disabled) { background: var(--muted); opacity: 1; }
+@media (hover: hover) { .sl-filter-btn:hover:not(:disabled) { background: var(--muted); opacity: 1; } }
+.sl-filter-btn:active:not(:disabled) { background: var(--muted); }
 .sl-badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--text); color: var(--surface); font-size: 12px; font-weight: 700; line-height: 20px; text-align: center; }
 .sl-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 2px; }
 .sl-chips::-webkit-scrollbar { display: none; }
 .sl-chip { flex: none; min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 999px; background: transparent; color: var(--text); border: 1px solid var(--fieldBorder); font-size: 14px; font-weight: 600; }
-.sl-chip:hover:not(:disabled) { background: var(--muted); opacity: 1; }
-.sl-chip.on { background: var(--text); color: var(--surface); border-color: var(--text); }
+/* ховер — лише для миші: на дотик він «залипав» і світлий фон при білому тексті робив вибраний чіп нечитабельним */
+@media (hover: hover) { .sl-chip:not(.on):hover:not(:disabled) { background: var(--muted); opacity: 1; } }
+.sl-chip.on, .sl-chip.on:hover:not(:disabled) { background: var(--text); color: var(--surface); border-color: var(--text); opacity: 1; }
 .sl-count { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; font-size: 13px; color: var(--text2Hi); }
 .sl-reset { min-height: 44px; margin: -8px -6px; padding: 0 10px; background: none; border: 0; color: var(--outInk); font-size: 14px; font-weight: 600; }
 
