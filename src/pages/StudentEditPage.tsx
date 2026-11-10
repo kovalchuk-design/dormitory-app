@@ -6,6 +6,8 @@ import { errorMessage, isStudentStatus, STATUS_LABELS, type StudentStatus } from
 import { supabase } from '../lib/supabase'
 import { useLoad } from '../lib/useLoad'
 import { Select } from '../components/ui/Select'
+import { StudentProfileFields } from '../components/StudentProfileFields'
+import { EMPTY_EXTRA, hasMedicalData, hasProfileData, toProfileRow, validateExtra, type ExtraErrors, type ProfileExtra } from '../lib/newStudentProfile'
 
 interface FormState {
   last_name: string
@@ -52,6 +54,9 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
   const [serverError, setServerError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [dateIncomplete, setDateIncomplete] = useState(false)
+  const [extra, setExtra] = useState<ProfileExtra>(EMPTY_EXTRA)
+  const [extraErrors, setExtraErrors] = useState<ExtraErrors>({})
+  const [createdId, setCreatedId] = useState<string | null>(null)
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => setF((p) => ({ ...p, [k]: v }))
 
   async function submit(e: FormEvent) {
@@ -62,7 +67,9 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
     if (dateIncomplete) errs.birth_date = 'Оберіть день, місяць і рік (або приберіть усі три)'
     else if (f.birth_date && !/^\d{4}-\d{2}-\d{2}$/.test(f.birth_date)) errs.birth_date = 'Некоректна дата'
     setErrors(errs)
-    if (Object.keys(errs).length) return
+    const xErrs = id ? {} : validateExtra(extra)
+    setExtraErrors(xErrs)
+    if (Object.keys(errs).length || Object.keys(xErrs).length) return
 
     const leaving = f.status !== 'active' && initial.status === 'active' && placed
     if (leaving && !window.confirm('Учень буде виселений з кімнати та повернутий у пул нерозподілених (історія збережеться). Продовжити?')) return
@@ -75,8 +82,25 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
     if (!id) {
       const year = await supabase.from('academic_years').select('id').eq('is_current', true).maybeSingle()
       const { data, error } = await supabase.from('students').insert({ ...base, academic_year_id: year.data?.id ?? null }).select('id').single()
+      if (error) { setSaving(false); return setServerError(errorMessage(error)) }
+      // Анкета й медичні дані, які вихователь вніс одразу: вихователь і є людиною, що підтверджує, тож версію затверджуємо.
+      let partial: string | null = null
+      if (hasProfileData(extra)) {
+        const ins = await supabase.from('student_profiles').insert(toProfileRow(data.id, extra)).select('id').single()
+        if (ins.error) partial = `анкету не збережено: ${errorMessage(ins.error)}`
+        else {
+          const ap = await supabase.rpc('approve_student_profile', { p_profile_id: ins.data.id })
+          if (ap.error) partial = `анкету збережено, але не затверджено: ${errorMessage(ap.error)}`
+        }
+      }
+      if (hasMedicalData(extra)) {
+        const med = await supabase.from('student_medical').insert({
+          student_id: data.id, allergies: extra.allergies.trim() || null, chronic_conditions: extra.chronic_conditions.trim() || null,
+        })
+        if (med.error) partial = `${partial ? `${partial}; ` : ''}медичні дані не збережено: ${errorMessage(med.error)}`
+      }
       setSaving(false)
-      if (error) return setServerError(errorMessage(error))
+      if (partial) { setCreatedId(data.id); return setServerError(`Учня створено, але ${partial}`) }
       navigate(`/students/${data.id}`)
       return
     }
@@ -97,7 +121,7 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
   return (
     <section>
       <h1>{id ? 'Редагування учня' : 'Новий учень'}</h1>
-      <form className="form" onSubmit={(e) => void submit(e)} noValidate>
+      <form className="form edit-form" onSubmit={(e) => void submit(e)} noValidate>
         {field('last_name', 'Прізвище *', <input value={f.last_name} onChange={(e) => set('last_name', e.target.value)} autoComplete="off" aria-invalid={!!errors.last_name} aria-describedby={errors.last_name ? 'e-last_name' : undefined} />)}
         {field('first_name', "Ім'я *", <input value={f.first_name} onChange={(e) => set('first_name', e.target.value)} autoComplete="off" aria-invalid={!!errors.first_name} aria-describedby={errors.first_name ? 'e-first_name' : undefined} />)}
         {field('patronymic', 'По батькові', <input value={f.patronymic} onChange={(e) => set('patronymic', e.target.value)} autoComplete="off" />)}
@@ -116,10 +140,11 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
             {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </Select>
         ))}
-        {!id && <p className="muted small">Новий учень спочатку нерозподілений (без кімнати); дані анкети він заповнить за персональним посиланням.</p>}
-        {serverError && <p className="error" role="alert">{serverError}</p>}
+        {!id && <p className="muted small">Новий учень спочатку нерозподілений (без кімнати). Нижче — поля анкети: внесіть те, що відомо; решту учень заповнить за посиланням.</p>}
+        {!id && <StudentProfileFields value={extra} errors={extraErrors} onChange={setExtra} />}
+        {serverError && <p className="error" role="alert">{serverError}{createdId && <> <Link to={`/students/${createdId}`}>Відкрити картку</Link></>}</p>}
         <div className="row">
-          <button type="submit" disabled={saving}>{saving ? 'Зберігаємо…' : 'Зберегти'}</button>
+          <button type="submit" disabled={saving || !!createdId}>{saving ? 'Зберігаємо…' : 'Зберегти'}</button>
           <Link className="btn secondary" to={id ? `/students/${id}` : '/students'}>Скасувати</Link>
         </div>
       </form>
