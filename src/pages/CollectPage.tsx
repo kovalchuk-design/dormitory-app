@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../auth/useAuth'
+import { ProfessionsPanel } from '../components/ProfessionsPanel'
 import {
   activeLinkForFloor, ANSWER_FIELDS, campaignSince, filledStudentIds, linkState, notFilledByFloor, shareMessage, suggestCandidates, unmatchedReason,
   type IntakeLink,
@@ -45,6 +47,7 @@ const VERSION_LABELS: Record<string, string> = {
 
 export function CollectPage() {
   const { data, error, loading, reload } = useLoad(loadCollect, 'collect')
+  const { profile } = useAuth()
   const [actionError, setActionError] = useState<string | null>(null)
 
   const done = () => {
@@ -67,6 +70,7 @@ export function CollectPage() {
           <FloorLinks data={data} onChanged={reload} onError={setActionError} />
           <Unmatched data={data} onDone={done} onError={setActionError} />
           <Progress data={data} />
+          {profile?.role === 'admin' && <ProfessionsPanel />}
           <Journal data={data} />
         </>
       )}

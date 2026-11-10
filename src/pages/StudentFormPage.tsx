@@ -10,6 +10,7 @@ import { getQuestionnaire, submitQuestionnaire } from '../lib/publicApi'
 import { InfoTip } from '../components/ui/InfoTip'
 import { Icon } from '../components/ui/icons'
 import { buildSummary } from '../lib/formSummary'
+import { OTHER, professionChoice } from '../lib/professions'
 import { FormProgress } from '../components/ui/FormProgress'
 
 type Phase =
@@ -32,6 +33,8 @@ export function StudentFormPage() {
   const [roomLocked, setRoomLocked] = useState(false)
   const [shared, setShared] = useState(false)
   const [mode, setMode] = useState<ContactMode>('parents')
+  const [professions, setProfessions] = useState<string[]>([])
+  const [profChoice, setProfChoice] = useState('')
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
@@ -79,6 +82,9 @@ export function StudentFormPage() {
         social_ato: typeof sd?.ato === 'string' ? sd.ato : '', social_zsu: typeof sd?.zsu === 'string' ? sd.zsu : '',
       })
       setMode(detectContactMode(p))
+      const list = r.data.professions ?? []
+      setProfessions(list)
+      setProfChoice(professionChoice(pick('profession'), list))
       setRoomLocked(!!r.data.room)
       setShared(r.data.mode === 'shared')
       setPhase({ name: 'form' })
@@ -90,6 +96,13 @@ export function StudentFormPage() {
     setFormError(null)
     setValues((prev) => ({ ...prev, [k]: v }))
     if (errors[k]) setErrors((e) => ({ ...e, [k]: undefined }))
+  }
+  /** Вибір професії радіокнопкою: назва зі списку або «Інша» (тоді текстове поле). */
+  const chooseProfession = (choice: string) => {
+    setProfChoice(choice)
+    setFormError(null)
+    setValues((prev) => ({ ...prev, profession: choice === OTHER ? (professions.includes(prev.profession) ? '' : prev.profession) : choice }))
+    setErrors((e) => ({ ...e, profession: undefined }))
   }
   const toggleSocial = (code: string, on: boolean) => {
     setValues((prev) => {
@@ -115,7 +128,9 @@ export function StudentFormPage() {
 
   function focusFirstError(errs: FieldErrors) {
     const first = (Object.keys(errs) as FieldKey[]).find((k) => errs[k])
-    if (first) formRef.current?.querySelector<HTMLElement>(`[name="${first}"]`)?.focus()
+    if (!first) return
+    const sel = first === 'profession' && profChoice !== OTHER && professions.length > 0 ? '[name="profession_choice"]' : `[name="${first}"]`
+    formRef.current?.querySelector<HTMLElement>(sel)?.focus()
   }
 
   /** Крок 1 → 2: перевірка полів (без згоди — вона на екрані перевірки) і перехід до підсумку. */
@@ -282,7 +297,23 @@ export function StudentFormPage() {
           </Field>
           {text('room', 'Номер кімнати', { readOnly: roomLocked, hint: roomLocked ? 'Це тільки для інформації — змінює вихователь' : 'Якщо знаєш — вкажи (необовʼязково)' })}
           {text('group_number', 'Номер групи', { required: true })}
-          {text('profession', 'Професія', { required: true })}
+          {professions.length === 0 ? text('profession', 'Професія', { required: true }) : (
+            <fieldset className="prof" aria-invalid={!!errors.profession}>
+              <legend>Професія *</legend>
+              {professions.map((name) => (
+                <label key={name} className="check">
+                  <input type="radio" name="profession_choice" value={name} checked={profChoice === name} onChange={() => chooseProfession(name)} />
+                  <span>{name}</span>
+                </label>
+              ))}
+              <label className="check">
+                <input type="radio" name="profession_choice" value={OTHER} checked={profChoice === OTHER} onChange={() => chooseProfession(OTHER)} />
+                <span>Інша</span>
+              </label>
+              {profChoice === OTHER && text('profession', 'Напиши свою професію', { required: true, hint: 'Повна назва, як у документах' })}
+              {errors.profession && profChoice !== OTHER && <p className="field-error" id="e-profession" role="alert">{errors.profession}</p>}
+            </fieldset>
+          )}
           {text('class_teacher', 'Класний керівник', { required: true })}
           {text('master', 'Майстер', { required: true })}
           {area('address', 'Адреса проживання *')}
