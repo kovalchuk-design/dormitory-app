@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import { PhoneLink } from '../components/PhoneLink'
 import { StatusBadge } from '../components/StatusBadge'
+import { StudentInlineEdit } from '../components/StudentInlineEdit'
 import { fullName, formatDate, isStudentStatus } from '../lib/format'
 import { supabase } from '../lib/supabase'
 import { useLoad } from '../lib/useLoad'
@@ -48,7 +49,8 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
   const { profile } = useAuth()
   const role = profile?.role
   const canEdit = role === 'admin' || role === 'educator'
-  const { data, error, loading } = useLoad(() => loadCard(id, canEdit), `${id}:${canEdit}`)
+  const [editing, setEditing] = useState(false)
+  const { data, error, loading, reload } = useLoad(() => loadCard(id, canEdit), `${id}:${canEdit}`)
   // У шухляді: коли великий заголовок прокрутили за верхній край, ім'я учня з'являється у шапці поруч із хрестиком.
   const slot = useContext(DrawerTitleSlot)
   const [h1, setH1] = useState<HTMLElement | null>(null)
@@ -99,8 +101,15 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
       {!embedded && <p><Link to="/students" className="back-link">← До списку</Link></p>}
       <div className="page-head">
         <h1 ref={embedded ? setH1 : undefined}>{name} <StatusBadge status={status} /></h1>
-        {canEdit && <Link className="btn secondary" to={`/students/${id}/edit`}>Редагувати</Link>}
+        {canEdit && !editing && <button type="button" className="secondary" onClick={() => setEditing(true)}>Редагувати</button>}
       </div>
+      {editing && (
+        <StudentInlineEdit
+          student={student} current={current} medical={medical} placed={open != null}
+          onCancel={() => setEditing(false)} onSaved={() => { setEditing(false); reload() }}
+        />
+      )}
+      {!editing && <>
       <p className="muted">
         {student.grade} клас · народився {formatDate(student.birth_date)} ·{' '}
         {room ? <>кімната <strong>{room.number}</strong>, {room.floor} поверх</> : <span className="tag tag-unplaced">нерозподілений</span>}
@@ -146,6 +155,7 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
           </dl>
         </section>
       )}
+      </>}
     </article>
   )
 }

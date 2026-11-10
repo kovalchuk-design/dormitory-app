@@ -111,3 +111,40 @@ export function applyContactMode(x: ProfileExtra, mode: 'parents' | 'guardian'):
   }
   return { ...x, guardian_name: '', guardian_relation: '', guardian_phone: '' }
 }
+
+type ProfileRowLike = Partial<Record<string, unknown>> & { social_status_data?: unknown }
+
+const s = (v: unknown) => (typeof v === 'string' ? v : '')
+
+/** Поточна затверджена анкета + медичні дані → значення полів форми редагування. */
+export function extraFromProfile(
+  p: ProfileRowLike | null, med: { allergies: string | null; chronic_conditions: string | null } | null,
+): ProfileExtra {
+  const d = p?.social_status_data && typeof p.social_status_data === 'object' ? (p.social_status_data as Record<string, unknown>) : null
+  return {
+    group_number: s(p?.group_number), profession: s(p?.profession), class_teacher: s(p?.class_teacher), master: s(p?.master),
+    address: s(p?.address), student_phone: s(p?.student_phone),
+    mother_name: s(p?.mother_name), mother_phone: s(p?.mother_phone), father_name: s(p?.father_name), father_phone: s(p?.father_phone),
+    guardian_name: s(p?.guardian_name), guardian_relation: s(p?.guardian_relation), guardian_phone: s(p?.guardian_phone),
+    school_activities: s(p?.school_activities), college_plans: s(p?.college_plans),
+    social_codes: Array.isArray(d?.codes) ? (d.codes as string[]) : [],
+    social_children: s(d?.children_count), social_ato: s(d?.ato), social_zsu: s(d?.zsu),
+    allergies: med?.allergies ?? '', chronic_conditions: med?.chronic_conditions ?? '',
+  }
+}
+
+const PROFILE_KEYS = [
+  'group_number', 'profession', 'class_teacher', 'master', 'address', 'student_phone', 'mother_name', 'mother_phone',
+  'father_name', 'father_phone', 'guardian_name', 'guardian_relation', 'guardian_phone', 'school_activities', 'college_plans',
+] as const
+
+/** Чи відрізняється анкета у формі від чинної (тоді створюємо нову версію). Порівнюємо після нормалізації. */
+export function profileChanged(current: ProfileRowLike | null, x: ProfileExtra, legacySocial: boolean): boolean {
+  if (!current) return hasProfileData(x)
+  const row = toProfileRow('', x) as Record<string, unknown>
+  for (const k of PROFILE_KEYS) {
+    if (((row[k] as string | null) ?? '') !== s(current[k]).trim()) return true
+  }
+  if (legacySocial) return false
+  return ((row.social_status as string | null) ?? '') !== s(current.social_status).trim()
+}
