@@ -12,6 +12,13 @@ import {
 } from '../lib/studentsList'
 import { useLoad } from '../lib/useLoad'
 
+/** Пункти списку «Соціальний статус»: категорії + дві додаткові умови (примітки, нерозподілені). */
+const SOCIAL_OPTIONS_UI = [
+  ...SOCIAL_FILTERS.map((o) => ({ value: o.code, label: o.label })),
+  { value: 'notes', label: 'З примітками', group: 'Додатково' },
+  { value: 'unplaced', label: 'Нерозподілені', group: 'Додатково' },
+]
+
 const COLUMNS: { key: SortKey; label: string }[] = [
   { key: 'name', label: 'ПІБ' },
   { key: 'floor', label: 'Поверх' },
@@ -70,21 +77,15 @@ export function StudentsPage() {
               )
             })}
           </div>
-          <MultiSelect label="Соціальний статус" options={SOCIAL_FILTERS.map((o) => ({ value: o.code, label: o.label }))}
-            value={filters.social} onChange={(v) => set('social', v)} />
-          <label className="check">
-            <input type="checkbox" checked={filters.notesOnly} onChange={(e) => set('notesOnly', e.target.checked)} />
-            З примітками
-          </label>
-          <label className="check">
-            <input type="checkbox" checked={filters.unplacedOnly} onChange={(e) => set('unplacedOnly', e.target.checked)} />
-            Нерозподілені
-          </label>
-          {dirty && (
-            <button type="button" className="iconbtn reset-btn" title="Скинути фільтри" aria-label="Скинути фільтри" onClick={() => setFilters(DEFAULT_FILTERS)}>
-              <Icon name="reset" size={18} />
-            </button>
-          )}
+          <MultiSelect label="Соціальний статус" options={SOCIAL_OPTIONS_UI}
+            value={[...filters.social, ...(filters.notesOnly ? ['notes'] : []), ...(filters.unplacedOnly ? ['unplaced'] : [])]}
+            onChange={(v) => setFilters((f) => ({
+              ...f, social: v.filter((x) => x !== 'notes' && x !== 'unplaced'), notesOnly: v.includes('notes'), unplacedOnly: v.includes('unplaced'),
+            }))} />
+          <button type="button" className="iconbtn reset-btn" title="Скинути фільтри" aria-label="Скинути фільтри" disabled={!dirty}
+            onClick={() => setFilters(DEFAULT_FILTERS)}>
+            <Icon name="reset" size={18} />
+          </button>
         </div>
       </form>
 

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { Icon } from './icons'
 import { useScrollThumb } from './useScrollThumb'
 
-export interface MultiOption { value: string; label: string }
+export interface MultiOption { value: string; label: string; /** Заголовок групи: показується перед першим пунктом групи. */ group?: string }
 
 /** Випадний список із прапорцями (можна обрати кілька). Вигляд — як у Select (docs/style.md §6). */
 export function MultiSelect({ label, options, value, onChange, 'aria-label': ariaLabel }: {
@@ -74,10 +74,13 @@ export function MultiSelect({ label, options, value, onChange, 'aria-label': ari
             {options.map((o, i) => {
               const on = value.includes(o.value)
               return (
-                <div key={o.value} role="option" aria-selected={on} className={`sel-opt multi${i === active ? ' active' : ''}`}
-                  onPointerMove={() => setActive(i)} onClick={() => toggle(o.value)}>
-                  <span className={`mchk${on ? ' on' : ''}`} aria-hidden="true">{on && <Icon name="check" size={14} />}</span>
-                  <span>{o.label}</span>
+                <div key={o.value}>
+                  {o.group && o.group !== options[i - 1]?.group && <div className="sel-group" role="presentation">{o.group}</div>}
+                  <div role="option" aria-selected={on} className={`sel-opt multi${i === active ? ' active' : ''}`}
+                    onPointerMove={() => setActive(i)} onClick={() => toggle(o.value)}>
+                    <span className={`mchk${on ? ' on' : ''}`} aria-hidden="true">{on && <Icon name="check" size={14} />}</span>
+                    <span>{o.label}</span>
+                  </div>
                 </div>
               )
             })}

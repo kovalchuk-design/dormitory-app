@@ -382,3 +382,6 @@ button.rm-pupil-name:hover:not(:disabled) { opacity: 1; text-decoration: underli
   .filters-extra .sel { width: 100%; flex: 1 1 100%; }
   .chip-group { flex: 1 1 100%; }
 }
+
+button.reset-btn:disabled { background: transparent; color: var(--text2); opacity: .4; border: 1.5px solid var(--fieldBorder); cursor: default; }
+@media (min-width: 761px) { .filters-extra .sel { flex: 0 1 17rem; } }
