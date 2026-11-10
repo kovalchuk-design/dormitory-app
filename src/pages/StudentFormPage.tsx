@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { usePageSurface } from '../lib/pageSurface'
 import { useParams } from 'react-router-dom'
 import {
   EMPTY_QUESTIONNAIRE, MAX_LEN, SOCIAL_OPTIONS, validateQuestionnaire,
@@ -395,6 +396,7 @@ export function StudentFormPage() {
 }
 
 function Shell({ children }: { children: ReactNode }) {
+  usePageSurface()
   return <div className="public-page"><main className="public-card">{children}</main></div>
 }
 

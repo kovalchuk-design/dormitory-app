@@ -104,3 +104,11 @@ html[data-theme='dark'] { color-scheme: dark; }
 @media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
   :root { background-color: var(--g1); background-image: linear-gradient(to bottom, var(--g1), var(--g2)); background-repeat: no-repeat; background-size: 100% 100%; }
 }
+
+/* Публічна анкета на телефоні: уся сторінка — одна біла поверхня до самих країв (без синіх смуг зверху/знизу) */
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  :root.is-surface { background: var(--surface); }
+  :root.is-surface body::before { display: none; }
+  .public-page { min-height: 100vh; min-height: 100dvh; background: var(--surface); padding: env(safe-area-inset-top) 0 calc(24px + env(safe-area-inset-bottom)); }
+  .public-card { border-radius: 0; box-shadow: none; background: transparent; }
+}

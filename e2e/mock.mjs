@@ -27,13 +27,13 @@ export function makeData(n = 250) {
 }
 
 /** Підміняє всі запити до MOCK_URL. `overrides(url, method)` може повернути {status, body} для особливих випадків. */
-export async function installMock(context, { role = 'admin', data = makeData(), overrides } = {}) {
+export async function installMock(context, { role = 'admin', data = makeData(), overrides, signedIn = true } = {}) {
   const uid = '11111111-1111-4111-8111-111111111111'
   const session = {
     access_token: 'x.y.z', refresh_token: 'r', token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600,
     user: { id: uid, aud: 'authenticated', role: 'authenticated', email: 'test@example.invalid', app_metadata: {}, user_metadata: {}, created_at: '2026-01-01T00:00:00Z' },
   }
-  await context.addInitScript((s) => { try { localStorage.setItem('sb-mock-auth-token', JSON.stringify(s)) } catch { /* */ } }, session)
+  if (signedIn) await context.addInitScript((s) => { try { localStorage.setItem('sb-mock-auth-token', JSON.stringify(s)) } catch { /* */ } }, session)
   await context.route(`${MOCK_URL}/**`, async (route) => {
     const req = route.request()
     const url = new URL(req.url())
@@ -43,6 +43,7 @@ export async function installMock(context, { role = 'admin', data = makeData(), 
     if (custom) return json(custom.body, custom.status ?? 200)
     const p = url.pathname
     const single = (rows) => (req.headers()['accept'] ?? '').includes('vnd.pgrst.object') ? json(rows[0] ?? null, rows[0] ? 200 : 406) : json(rows)
+    if (p === '/functions/v1/get-questionnaire') return json({ ok: true, mode: 'shared', professions: [], full_name: '', birth_date: null, room: null, profile: null })
     if (p.startsWith('/auth/v1')) return json({})
     if (p === '/rest/v1/profiles') return single([{ id: uid, full_name: 'ТЕСТ Користувач', role, floor: null, must_change_password: false }])
     if (p === '/rest/v1/rpc/my_session_is_pin') return json(false)
