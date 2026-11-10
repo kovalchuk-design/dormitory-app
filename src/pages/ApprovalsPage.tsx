@@ -133,8 +133,8 @@ function ApprovalCard({ item, onlyChanged, busy, onApprove, onReject }: {
           </p>
         </div>
         <div className="approval-actions">
+          <button type="button" className="btn-outline-danger" disabled={busy} onClick={onReject}>Відхилити</button>
           <button type="button" disabled={busy} onClick={approve}>Підтвердити</button>
-          <button type="button" className="btn-danger" disabled={busy} onClick={onReject}>Відхилити</button>
         </div>
       </div>
       {item.hasCurrent && n > 0 && (
