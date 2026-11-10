@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { csvCell, toCsv } from './csv'
 import { changedCount, diffRecords, PROFILE_FIELDS, withStudentIdentity } from './diff'
 import { errorMessage, telHref } from './format'
@@ -117,6 +117,14 @@ describe('format / links', () => {
     expect(telHref('0 44 123 45 67 89')).toBe('tel:0441234567' + '89')
     expect(telHref('нема')).toBeNull()
     expect(telHref(null)).toBeNull()
+  })
+  it('errorMessage не показує сирі англійські помилки', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    expect(errorMessage({ message: "Could not embed because more than one relationship was found for 'a' and 'b'" })).toMatch(/Не вдалося виконати дію/)
+    expect(errorMessage(new TypeError('Failed to fetch'))).toMatch(/Немає зв’язку/)
+    expect(errorMessage({ message: 'Кімнату не знайдено.' })).toBe('Кімнату не знайдено.')
+    expect(spy).toHaveBeenCalledTimes(1)
+    spy.mockRestore()
   })
   it('errorMessage розпізнає коди БД', () => {
     expect(errorMessage({ message: 'NOT_PENDING: version is already approved' })).toBe('Цю версію вже оброблено.')

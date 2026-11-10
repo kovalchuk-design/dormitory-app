@@ -9,14 +9,17 @@ export interface NavItem {
   badge?: 'pending' | 'unmatched'
 }
 
+/**
+ * На цьому етапі вихователі (educator, зокрема адмін у PIN-сесії) бачать лише «Гуртожиток» і «Документи».
+ * Решту розділів відкрито адміністратору (і поки що staff_readonly — «Івенти», «Календар»).
+ */
 export const NAV_ITEMS: NavItem[] = [
-  { to: '/', label: 'Головна' },
   { to: '/hostel', label: 'Гуртожиток' },
-  { to: '/updates', label: 'Оновлення даних', roles: ['admin', 'educator'], badge: 'pending' },
-  { to: '/collect', label: 'Збір анкет', roles: ['admin', 'educator'], badge: 'unmatched' },
+  { to: '/updates', label: 'Оновлення даних', roles: ['admin'], badge: 'pending' },
+  { to: '/collect', label: 'Збір анкет', roles: ['admin'], badge: 'unmatched' },
   { to: '/documents', label: 'Документи' },
-  { to: '/events', label: 'Івенти' },
-  { to: '/calendar', label: 'Календар' },
+  { to: '/events', label: 'Івенти', roles: ['admin', 'staff_readonly'] },
+  { to: '/calendar', label: 'Календар', roles: ['admin', 'staff_readonly'] },
   { to: '/admin', label: 'Адміністрування', roles: ['admin'] },
 ]
 

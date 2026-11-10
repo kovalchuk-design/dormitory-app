@@ -17,6 +17,9 @@ function read(): ThemePref {
 export function applyTheme(pref: ThemePref): void {
   const dark = pref === 'dark' || (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
   document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+  // колір системної смуги (годинник/мережа) на телефоні = верх фону сторінки, щоб не було «зеленої смужки»
+  const meta = document.querySelector<HTMLMetaElement>('meta[name=theme-color]')
+  if (meta) meta.content = dark ? '#101C26' : '#D8ECF8'
 }
 
 /** Циклічний перемикач: система → світла → темна. */

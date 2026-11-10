@@ -89,6 +89,7 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
     { label: 'Тато', name: current?.father_name ?? null, phone: current?.father_phone ?? null },
     { label: current?.guardian_relation ? `Опікун (${current.guardian_relation})` : 'Опікун', name: current?.guardian_name ?? null, phone: current?.guardian_phone ?? null },
   ]
+  const shownContacts = contacts.filter((c) => c.phone || (c.label !== 'Учень' && c.name))
   const answers: [string, string | null | undefined][] = current
     ? [
         ['Номер групи', current.group_number], ['Професія', current.profession],
@@ -106,7 +107,7 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
         </span>,
         slot,
       )}
-      {!embedded && <p><Link to="/students">← До списку</Link></p>}
+      {!embedded && <p><Link to="/students" className="back-link">← До списку</Link></p>}
       <div className="page-head">
         <h1 ref={embedded ? setH1 : undefined}>{name} <StatusBadge status={status} /></h1>
         {canEdit && <Link className="btn secondary" to={`/students/${id}/edit`}>Редагувати</Link>}
@@ -123,15 +124,18 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
       <section className="panel" aria-labelledby="contacts-h">
         <h2 id="contacts-h">Контакти</h2>
         {!current && <p className="muted">Затвердженої анкети ще немає — контактів немає.</p>}
-        <ul className="contacts">
-          {contacts.map((c) => (
-            <li key={c.label}>
-              <span className="muted">{c.label}</span>
-              <span>{c.label === 'Учень' ? '' : c.name ?? ''}</span>
-              <PhoneLink phone={c.phone} label={`${c.label} ${c.name ?? ''}`} />
-            </li>
-          ))}
-        </ul>
+        {current && shownContacts.length === 0 && <p className="muted">Контактів в анкеті немає.</p>}
+        {current && shownContacts.length > 0 && <table className="contacts-table">
+          <thead className="sr-only"><tr><th scope="col">Хто</th><th scope="col">Телефон</th></tr></thead>
+          <tbody>
+            {shownContacts.map((c) => (
+              <tr key={c.label}>
+                <th scope="row">{c.label}{c.label !== 'Учень' && c.name && <span className="ct-name">{c.name}</span>}</th>
+                <td className="ct-phone"><PhoneLink phone={c.phone} label={`${c.label} ${c.name ?? ''}`} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>}
       </section>
 
       <section className="panel" aria-labelledby="profile-h">

@@ -42,38 +42,9 @@
 .public-card { max-width: 40rem; width: 100%; height: fit-content; }
 .public-card button[type='submit'] { width: 100%; min-height: 56px; font-size: 16px; }
 
-/* ---- Головна ---- */
-.home { display: grid; gap: 24px; align-content: start; }
-.grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-.kpi {
-  display: grid; gap: 8px; align-content: start; padding: 22px 24px; background: var(--surface); border: 1px solid var(--border);
-  border-radius: 28px; box-shadow: var(--shadow); color: var(--text); text-decoration: none; min-width: 0;
-  transition: box-shadow var(--t-mid) var(--ease), border-color var(--t-mid) var(--ease);
-}
-a.kpi:hover { box-shadow: var(--shadowHover); }
-.kpi-label { font-size: 14px; font-weight: 600; }
-.kpi-value { font-size: 32px; font-weight: 600; line-height: 1.1; }
-.kpi-hint { font-size: 13px; color: var(--text2Hi); }
-.kpi-accent { border-color: var(--out); }
-.kpi-warn { border-color: var(--warn); }
-.home-search {
-  display: flex; align-items: center; gap: 16px; padding: 16px 24px; min-height: 72px; border-radius: 28px; text-decoration: none;
-  background: var(--text); color: var(--surface); box-shadow: var(--shadow); transition: opacity var(--t-fast) var(--ease);
-}
-.home-search:hover { opacity: .9; }
-.home-search span { display: grid; gap: 2px; }
-.home-search strong { font-size: 17px; font-weight: 600; }
-.home-search small { font-size: 13px; opacity: .8; }
-.floor-tile { display: grid; gap: 12px; padding: 16px; border-radius: 20px; background: var(--muted); color: var(--text); text-decoration: none; --text2: var(--text2Hi); }
-.floor-tile:hover { box-shadow: 0 0 0 1.5px var(--fieldBorder); }
-.floor-tile-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .meter { height: 8px; border-radius: 4px; background: var(--muted); overflow: hidden; }
-.floor-tile .meter { background: var(--surface); }
 .meter > span { display: block; height: 100%; border-radius: 4px; background: var(--out); transition: width .5s var(--ease); }
-.card h2 + .grid4 { margin-top: 4px; }
-.home .card { max-width: none; }
 
-@media (max-width: 1100px) { .grid4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 980px) { .content { padding: 32px 28px 64px; } }
 
 /* телефон: рейки немає, знизу липка смуга вкладок */
@@ -84,9 +55,6 @@ a.kpi:hover { box-shadow: var(--shadowHover); }
   .content { padding: 20px 16px 24px; gap: 16px; }
   h1 { font-size: 32px; }
   .card, .panel { border-radius: 24px; padding: 20px; }
-  .grid4 { grid-template-columns: 1fr 1fr; gap: 12px; }
-  .kpi { padding: 16px; border-radius: 24px; }
-  .kpi-value { font-size: 28px; }
   .tabs-m {
     display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; gap: 2px; padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
     background: color-mix(in oklch, var(--surface) 90%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid var(--border);
@@ -106,4 +74,3 @@ a.kpi:hover { box-shadow: var(--shadowHover); }
   .public-page { padding: 0 0 32px; }
   .public-card { border-radius: 0 0 24px 24px; border-left: 0; border-right: 0; border-top: 0; }
 }
-@media (max-width: 460px) { .grid4 { gap: 10px; } }

@@ -10,7 +10,6 @@ import { StudentCardPage } from '../pages/StudentCardPage'
 import { StudentEditPage } from '../pages/StudentEditPage'
 import { StudentFormPage } from '../pages/StudentFormPage'
 import { HostelPage } from '../pages/HostelPage'
-import { HomePage } from '../pages/HomePage'
 import { AdminDocumentSettings, DocumentsPage } from '../features/documents'
 import { AdminUsersPage, ChangePasswordPage } from '../features/admin-users'
 import {
@@ -26,7 +25,7 @@ export function AppRoutes() {
       <Route path="/form/:token" element={<StudentFormPage />} />
       <Route element={<RequireAuth />}>
         <Route element={<Layout />}>
-          <Route index element={<HomePage />} />
+          <Route index element={<Navigate to="/hostel/rooms" replace />} />
           <Route path="hostel" element={<Navigate to="/hostel/rooms" replace />} />
           <Route path="hostel/:view" element={<HostelPage />} />
           <Route path="students" element={<Navigate to="/hostel/students" replace />} />
@@ -36,7 +35,7 @@ export function AppRoutes() {
           <Route
             path="updates"
             element={
-              <RequireRole roles={['admin', 'educator']}>
+              <RequireRole roles={['admin']}>
                 <ApprovalsPage />
               </RequireRole>
             }
@@ -44,7 +43,7 @@ export function AppRoutes() {
           <Route
             path="collect"
             element={
-              <RequireRole roles={['admin', 'educator']}>
+              <RequireRole roles={['admin']}>
                 <CollectPage />
               </RequireRole>
             }
@@ -52,8 +51,8 @@ export function AppRoutes() {
           <Route path="rooms" element={<Navigate to="/hostel/rooms" replace />} />
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="password" element={<ChangePasswordPage />} />
-          <Route path="events" element={<EventsPage />} />
-          <Route path="calendar" element={<CalendarPage />} />
+          <Route path="events" element={<RequireRole roles={['admin', 'staff_readonly']}><EventsPage /></RequireRole>} />
+          <Route path="calendar" element={<RequireRole roles={['admin', 'staff_readonly']}><CalendarPage /></RequireRole>} />
           <Route
             path="admin"
             element={
