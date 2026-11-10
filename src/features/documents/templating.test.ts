@@ -118,3 +118,14 @@ describe('форма «Список учнів по поверху»', () => {
     expect(rows[2].parents).toBe('Мати, тел. 1\nБатько')
   })
 })
+
+describe('loadChunk (ліниве завантаження)', () => {
+  it('розпізнає помилку застарілого файлу й не чіпає інші', async () => {
+    const { isChunkLoadError, loadChunk } = await import('./lazy')
+    expect(isChunkLoadError(new Error('Importing a module script failed.'))).toBe(true)
+    expect(isChunkLoadError(new Error('Failed to fetch dynamically imported module: x.js'))).toBe(true)
+    expect(isChunkLoadError(new Error('інша помилка'))).toBe(false)
+    await expect(loadChunk(async () => 5)).resolves.toBe(5)
+    await expect(loadChunk(async () => { throw new Error('інша помилка') })).rejects.toThrow('інша помилка')
+  })
+})

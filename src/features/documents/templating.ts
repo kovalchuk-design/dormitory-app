@@ -3,6 +3,8 @@
  * Цикли (рядки таблиці зі списком учнів): {{#students}} … {{full_name}} … {{/students}}.
  */
 
+import { loadChunk } from './lazy'
+
 export interface PlaceholderDoc {
   key: string
   description: string
@@ -199,7 +201,7 @@ function describeError(e: unknown): string {
 }
 
 async function loadZip(buf: ArrayBuffer | Uint8Array) {
-  const { default: PizZip } = await import('pizzip')
+  const { default: PizZip } = await loadChunk(() => import('pizzip'))
   return new PizZip(buf)
 }
 
@@ -233,7 +235,7 @@ function dotParser(tag: string) {
 }
 
 async function makeDocxtemplater(buf: ArrayBuffer | Uint8Array) {
-  const [{ default: Docxtemplater }, zip] = await Promise.all([import('docxtemplater'), loadZip(buf)])
+  const [{ default: Docxtemplater }, zip] = await Promise.all([loadChunk(() => import('docxtemplater')), loadZip(buf)])
   const doc = new Docxtemplater(zip, {
     delimiters: { start: '{{', end: '}}' },
     paragraphLoop: true,

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { loadChunk } from './lazy'
 
 /** Рендерить .docx у браузері (docx-preview завантажується ліниво). */
 export function DocxViewer({ source, onError }: { source: Blob | ArrayBuffer; onError?: (message: string) => void }) {
@@ -10,7 +11,7 @@ export function DocxViewer({ source, onError }: { source: Blob | ArrayBuffer; on
     let cancelled = false
     ;(async () => {
       try {
-        const { renderAsync } = await import('docx-preview')
+        const { renderAsync } = await loadChunk(() => import('docx-preview'))
         if (cancelled || !bodyRef.current || !styleRef.current) return
         await renderAsync(source, bodyRef.current, styleRef.current, {
           className: 'docx',
