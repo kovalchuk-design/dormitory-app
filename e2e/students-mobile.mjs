@@ -27,11 +27,11 @@ await sc.evaluate((e) => e.scrollTo(0, 400))
 assert.ok((await sc.evaluate((e) => e.scrollTop)) > 300, 'scrollTop змінюється')
 await sc.evaluate((e) => e.scrollTo(0, 0))
 assert.notEqual(await sc.evaluate((e) => getComputedStyle(e).backgroundColor), 'rgba(0, 0, 0, 0)', 'біла плашка')
-// шапка: один рядок, без великого заголовка
+// шапка: перемикач на всю ширину, без заголовка і без кнопки «+»
 const sw = await page.locator('.view-switch').boundingBox()
-const plus = await page.getByRole('button', { name: /^Додати/ }).or(page.getByRole('link', { name: /^Додати/ })).first().boundingBox()
-assert.ok(Math.abs((sw.y + sw.height / 2) - (plus.y + plus.height / 2)) < 6, 'перемикач і «+» в одному рядку')
 assert.ok(sw.y < 40, 'без заголовка зверху')
+assert.ok(sw.width > 340, 'перемикач на всю ширину')
+assert.equal(await page.getByRole('button', { name: /^Додати/ }).or(page.getByRole('link', { name: /^Додати/ })).count(), 0, 'на телефоні немає кнопки «+»')
 await page.screenshot({ path: 'ux-audit/shots/students-mobile-v2.png' })
 
 // пошук + лічильник + скидання

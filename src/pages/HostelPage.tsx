@@ -35,9 +35,10 @@ export function HostelPage() {
           <NavLink to="/hostel/rooms" replace>Кімнати</NavLink>
           <NavLink to="/hostel/students" replace>Студенти</NavLink>
         </nav>
-        <div className="hostel-actions">
-          <ActionMenu label="+ Додати" items={addItems} compact={isMobile} />
-        </div>
+        {/* На телефоні кнопку «+ Додати» прибрано (рішення власника): додавання учнів/кімнат — з десктопної версії */}
+        {!isMobile && <div className="hostel-actions">
+          <ActionMenu label="+ Додати" items={addItems} />
+        </div>}
       </div>
         <HostelNewRoom.Provider value={{ creating, setCreating }}>
           <HostelStudentCard.Provider value={{ openId, open: setOpenId }}>
