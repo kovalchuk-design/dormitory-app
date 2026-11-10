@@ -11,6 +11,7 @@ import {
   type Filters, type SortDir, type SortKey,
 } from '../lib/studentsList'
 import { useLoad } from '../lib/useLoad'
+import { Select } from '../components/ui/Select'
 
 const COLUMNS: { key: SortKey; label: string }[] = [
   { key: 'name', label: 'ПІБ' },
@@ -60,28 +61,28 @@ export function StudentsPage() {
         </button>
         <div id="filters-extra" className={`filters-extra${showFilters ? ' open' : ''}`}>
         <label>Клас
-          <select value={filters.grade} onChange={(e) => set('grade', e.target.value)}>
+          <Select value={filters.grade} onChange={(e) => set('grade', e.target.value)}>
             <option value="">Усі</option>
             {[9, 10, 11].map((g) => <option key={g} value={g}>{g}</option>)}
-          </select>
+          </Select>
         </label>
         <label>Поверх
-          <select value={filters.floor} onChange={(e) => set('floor', e.target.value)}>
+          <Select value={filters.floor} onChange={(e) => set('floor', e.target.value)}>
             <option value="">Усі</option>
             {[2, 3, 4, 5].map((f) => <option key={f} value={f}>{f}</option>)}
-          </select>
+          </Select>
         </label>
         <label>Кімната
-          <select value={filters.room} onChange={(e) => set('room', e.target.value)}>
+          <Select value={filters.room} onChange={(e) => set('room', e.target.value)}>
             <option value="">Усі</option>
             {rooms.map((r) => <option key={r} value={r}>{r}</option>)}
-          </select>
+          </Select>
         </label>
         <label>Статус
-          <select value={filters.status} onChange={(e) => set('status', e.target.value)}>
+          <Select value={filters.status} onChange={(e) => set('status', e.target.value)}>
             <option value="">Усі</option>
             {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-          </select>
+          </Select>
         </label>
         <label className="check">
           <input type="checkbox" checked={filters.unplacedOnly} onChange={(e) => set('unplacedOnly', e.target.checked)} />

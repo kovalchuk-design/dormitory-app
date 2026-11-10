@@ -1,5 +1,6 @@
 import { useMemo, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { useAuth } from '../../auth/useAuth'
+import { ScrollArea } from '../../components/ui/ScrollArea'
 import { assignStudent, createRoom, fetchCurrentRoomId, moveStudent, unassignStudent, updateRoom } from './api'
 import { ConfirmMoveDialog, EditRoomDialog, HistoryDialog, NewRoomDialog, PickRoomDialog } from './Dialogs'
 import { PupilChip } from './PupilChip'
@@ -31,6 +32,8 @@ function Pool({ pupils, lastRoom, canEdit, hint, isOver, draggingId, onDragStart
   onMove: (p: Pupil, roomId: string | null) => void
   onHistory: (p: Pupil) => void
 }) {
+  // Немає нерозподілених — розділ зникає; під час перетягування з кімнати лишається вузькою ціллю «зняти з кімнати».
+  if (pupils.length === 0 && draggingId === null) return null
   return (
     <section
       data-drop="pool"
@@ -41,12 +44,14 @@ function Pool({ pupils, lastRoom, canEdit, hint, isOver, draggingId, onDragStart
       <header>
         <strong>Нерозподілені</strong> <span className="rm-badge">{pupils.length}</span>
       </header>
-      <ul>
-        {pupils.map((p) => (
-          <PupilChip key={p.id} pupil={p} roomId={null} canEdit={canEdit} dragging={draggingId === p.id} onDragStart={onDragStart} note={lastRoom[p.id] ? `було: ${lastRoom[p.id]}` : undefined} onMove={onMove} onHistory={onHistory} />
-        ))}
-        {pupils.length === 0 && <li className="muted small">Усіх учнів розподілено.</li>}
-      </ul>
+      <ScrollArea className="rm-pool-scroll" body="rm-pool-list">
+        <ul>
+          {pupils.map((p) => (
+            <PupilChip key={p.id} pupil={p} roomId={null} canEdit={canEdit} dragging={draggingId === p.id} onDragStart={onDragStart} note={lastRoom[p.id] ? `було: ${lastRoom[p.id]}` : undefined} onMove={onMove} onHistory={onHistory} />
+          ))}
+          {pupils.length === 0 && <li className="muted small">Перетягніть сюди, щоб зняти з кімнати.</li>}
+        </ul>
+      </ScrollArea>
     </section>
   )
 }
@@ -218,7 +223,7 @@ export function RoomsPage() {
           {FLOORS.map((f) => (
             <div key={f} className={`rm-floor${floorTab === f ? ' current' : ''}`} data-testid={`floor-${f}`}>
               <h2>{f} поверх</h2>
-              <div className="rm-rooms">
+              <ScrollArea className="rm-floor-scroll" body="rm-rooms">
                 {(byFloor.get(f) ?? []).map((r) => (
                   <RoomCard
                     key={r.id}
@@ -238,7 +243,7 @@ export function RoomsPage() {
                   />
                 ))}
                 {(byFloor.get(f) ?? []).length === 0 && <p className="muted small">Кімнат немає.</p>}
-              </div>
+              </ScrollArea>
             </div>
           ))}
         </div>

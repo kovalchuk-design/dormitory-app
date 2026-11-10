@@ -2,6 +2,7 @@ import type { PointerEvent as ReactPointerEvent } from 'react'
 import { Icon } from '../../components/ui/icons'
 import { PupilChip } from './PupilChip'
 import { capacityOptions, roomState, type Pupil, type RoomInfo } from './logic'
+import { Select } from '../../components/ui/Select'
 
 export type DropHint = 'ok' | 'blocked' | null
 
@@ -52,7 +53,7 @@ export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggin
       {canEdit && state !== 'inactive' && (
         <label className="rm-cap">
           Місць:
-          <select
+          <Select className="sm"
             value={room.capacity}
             aria-label={`Максимум місць у кімнаті ${room.number}`}
             onChange={(e) => onCapacity(room, Number(e.target.value))}
@@ -60,7 +61,7 @@ export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggin
             {capacityOptions(room.capacity, room.occupied).map((o) => (
               <option key={o.value} value={o.value} disabled={o.disabled}>{o.value}</option>
             ))}
-          </select>
+          </Select>
         </label>
       )}
       <ul>

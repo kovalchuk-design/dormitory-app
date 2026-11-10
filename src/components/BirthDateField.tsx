@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { isPartialDate, joinDateParts, MONTHS, splitIsoDate, yearOptions, type DateParts } from '../lib/dateParts'
+import { Select } from './ui/Select'
 
 interface Props {
   /** id першого поля (до нього прив'язується <label>) */
@@ -30,18 +31,18 @@ export function BirthDateField({ id, name, value, onChange, minYear, maxYear, in
   const common = { 'aria-invalid': invalid || undefined, 'aria-describedby': describedBy } as const
   return (
     <div className="date-parts" role="group" aria-label="Дата народження">
-      <select id={id} name={name} aria-label="День" value={parts.d} onChange={(e) => set('d', e.target.value)} {...common}>
+      <Select id={id} name={name} aria-label="День" value={parts.d} onChange={(e) => set('d', e.target.value)} {...common}>
         <option value="">День</option>
         {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => <option key={d} value={d}>{d}</option>)}
-      </select>
-      <select name={`${name}_month`} aria-label="Місяць" value={parts.m} onChange={(e) => set('m', e.target.value)} {...common}>
+      </Select>
+      <Select name={`${name}_month`} aria-label="Місяць" value={parts.m} onChange={(e) => set('m', e.target.value)} {...common}>
         <option value="">Місяць</option>
         {MONTHS.map((label, i) => <option key={label} value={i + 1}>{label}</option>)}
-      </select>
-      <select name={`${name}_year`} aria-label="Рік" value={parts.y} onChange={(e) => set('y', e.target.value)} {...common}>
+      </Select>
+      <Select name={`${name}_year`} aria-label="Рік" value={parts.y} onChange={(e) => set('y', e.target.value)} {...common}>
         <option value="">Рік</option>
         {yearOptions(minYear, maxYear, parts.y).map((y) => <option key={y} value={y}>{y}</option>)}
-      </select>
+      </Select>
     </div>
   )
 }

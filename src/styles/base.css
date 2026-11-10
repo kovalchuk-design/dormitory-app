@@ -65,20 +65,14 @@ button.link:hover:not(:disabled) { text-decoration: underline; opacity: 1; }
 
 /* ---- Поля ---- */
 label { display: block; margin-bottom: 16px; font-size: 13px; color: var(--text2); font-weight: 500; }
-input, select, textarea {
+input, textarea {
   box-sizing: border-box; width: 100%; min-height: 48px; margin-top: 6px; padding: 0 16px; font-size: 15px; font-weight: 500;
   color: var(--text); background: var(--field); border: 1.5px solid var(--fieldBorder); border-radius: 16px;
   transition: border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
 }
 textarea { padding: 12px 16px; min-height: 96px; line-height: 1.5; }
 input::placeholder, textarea::placeholder { color: var(--text2); opacity: .8; font-weight: 400; }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--out); box-shadow: var(--ring); }
-select {
-  appearance: none; -webkit-appearance: none; padding-right: 44px; cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 16px center;
-}
-[data-theme='dark'] select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23AEB9C3' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
+input:focus, textarea:focus { outline: none; border-color: var(--out); box-shadow: var(--ring); }
 [aria-invalid='true'] { border-color: var(--danger); }
 [aria-invalid='true']:focus { box-shadow: 0 0 0 4px color-mix(in oklch, var(--danger) 22%, transparent); }
 input[type='checkbox'], input[type='radio'] {
@@ -92,13 +86,13 @@ input[type='radio']:checked::after { content: ''; width: 8px; height: 8px; borde
 input[type='file'] { padding: 10px 12px; height: auto; }
 input[type='search'] { appearance: none; }
 label.check, label.inline, .rm-check, .switch-row, .pupil-list label { display: flex; align-items: center; gap: 12px; margin: 0; min-height: 44px; color: var(--text); font-size: 15px; font-weight: 500; }
-label.inline select { width: auto; margin: 0; }
+label.inline .sel { width: auto; margin: 0; }
 .field { display: flex; flex-direction: column; margin-bottom: 16px; }
 .field > label { margin: 0 0 6px; font-size: 13px; color: var(--text2Hi); font-weight: 600; }
-.field input, .field select, .field textarea { margin-top: 0; }
+.field input, .field .sel, .field textarea { margin-top: 0; }
 .hint { font-size: 13px; color: var(--text2); margin-top: 6px; }
 .field-error { color: var(--danger); font-size: 13px; font-weight: 500; margin-top: 6px; }
-@media (max-width: 560px) { input, select, textarea { font-size: 16px; } }
+@media (max-width: 560px) { input, textarea, .sel-trigger { font-size: 16px; } }
 
 /* ---- Картки, панелі ---- */
 .card, .panel, .public-card, .doc-card, .floor-card, .subcard {
@@ -181,13 +175,12 @@ a.phone:hover { text-decoration: underline; }
 .documents .tab:hover:not(:disabled) { opacity: 1; color: var(--text); }
 .documents .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
 .documents .tabs { flex-wrap: wrap; }
-.documents select, .documents input[type='search'], .documents input[type='file'] { background-color: var(--field); border: 1.5px solid var(--fieldBorder); border-radius: 16px; min-height: 48px; width: auto; }
+.documents .sel-trigger, .documents input[type='search'], .documents input[type='file'] { background-color: var(--field); border: 1.5px solid var(--fieldBorder); border-radius: 16px; min-height: 48px; width: auto; }
 .documents label input, .documents label select { width: 100%; }
 
 /* ---- Діалоги ---- */
 .rm-backdrop, .modal-backdrop { background: var(--scrim); backdrop-filter: blur(2px); }
 .rm-dialog, .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 28px; box-shadow: var(--shadowPop); padding: 24px; animation: pop-in .16s var(--ease); }
-.rm-dialog select { width: 100%; }
 .modal { padding: 0; }
 .modal-head { padding: 16px 24px; border-color: var(--border); }
 .modal-body { padding: 0 24px 24px; }
@@ -221,3 +214,42 @@ button.infotip-btn:hover:not(:disabled), .infotip.open .infotip-btn { background
 .info-pop strong { font-weight: 700; }
 
 .form fieldset, .panel, .card { position: relative; }
+
+/* ---- Випадний список (замість <select>, docs/style.md §6) ---- */
+.sel { position: relative; display: block; width: 100%; margin-top: 6px; min-width: 0; }
+button.sel-trigger {
+  width: 100%; min-height: 48px; padding: 0 14px 0 16px; justify-content: space-between; gap: 8px; text-align: left; border-radius: 16px;
+  background: var(--field); color: var(--text); border: 1.5px solid var(--fieldBorder); font-size: 15px; font-weight: 500;
+}
+button.sel-trigger:hover:not(:disabled) { opacity: 1; border-color: color-mix(in oklch, var(--text) 30%, transparent); }
+button.sel-trigger:focus-visible, button.sel-trigger[aria-expanded='true'] { border-color: var(--out); box-shadow: var(--ring); outline: none; }
+button.sel-trigger:disabled { background: var(--muted); color: var(--text2); opacity: .7; }
+button.sel-trigger[aria-invalid='true'] { border-color: var(--danger); }
+.sel-trigger > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.sel-trigger > svg { flex: none; color: var(--text2); transition: transform var(--t-fast) var(--ease); }
+.sel-trigger[aria-expanded='true'] > svg { transform: rotate(180deg); }
+.sel-ph { color: var(--text2); font-weight: 400; }
+.sel.sm button.sel-trigger { min-height: 40px; border-radius: 12px; font-size: 14px; padding: 0 10px 0 12px; }
+.sel.auto { width: auto; }
+.sel.nomargin { margin-top: 0; }
+.sel-pop {
+  position: fixed; z-index: 200; box-sizing: border-box; padding: 6px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 18px; box-shadow: var(--shadowPop); animation: pop-in .16s var(--ease); display: flex; flex-direction: column; color: var(--text);
+}
+[data-theme='dark'] .sel-pop { border-color: var(--fieldBorder); }
+.sel-list { padding-right: 18px; min-height: 0; flex: 1; }
+.sel-opt { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 40px; padding: 10px 12px; border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; transition: background-color var(--t-fast) var(--ease); }
+.sel-opt.active { background: var(--muted); }
+.sel-opt[aria-selected='true'] { font-weight: 600; }
+.sel-opt[aria-selected='true'] svg { color: var(--in); flex: none; }
+.sel-opt.disabled { opacity: .45; cursor: not-allowed; }
+.sel-group { padding: 10px 12px 4px; font-size: 12px; font-weight: 600; color: var(--text2Hi); }
+
+/* ---- Прокрутка всередині блоку: власний повзунок (docs/style.md §7) ---- */
+.scrollrows { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.scrollrows::-webkit-scrollbar { display: none; }
+:where(.sr-area) { position: relative; min-width: 0; }
+.sr-thumb { position: absolute; width: 6px; border-radius: 3px; background: var(--text2); opacity: 0; transition: opacity .15s; cursor: grab; touch-action: none; }
+.sr-area:hover .sr-thumb, .sr-area:focus-within .sr-thumb, .sel-pop:hover .sr-thumb { opacity: .5; }
+.sr-thumb:hover, .sr-area.dragging .sr-thumb, .sel-pop.dragging .sr-thumb { opacity: .85; cursor: grabbing; }
+@media (hover: none) { .sr-thumb { opacity: .4; } }

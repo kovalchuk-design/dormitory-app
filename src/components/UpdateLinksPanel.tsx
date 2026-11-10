@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { errorMessage, formatDateTime } from '../lib/format'
 import { buildFormLink, isLinkActive } from '../lib/links'
 import { useLoad } from '../lib/useLoad'
+import { Select } from './ui/Select'
 
 const TTL_OPTIONS = [3, 7, 14, 30]
 
@@ -71,9 +72,9 @@ export function UpdateLinksPanel({ studentId, canCreate }: { studentId: string; 
         <div className="row">
           <label className="inline">
             Дійсне
-            <select value={ttl} onChange={(e) => setTtl(Number(e.target.value))}>
+            <Select value={ttl} onChange={(e) => setTtl(Number(e.target.value))}>
               {TTL_OPTIONS.map((d) => <option key={d} value={d}>{d} дн.</option>)}
-            </select>
+            </Select>
           </label>
           <button type="button" onClick={() => void create()} disabled={busy}>
             {busy ? 'Створюємо…' : 'Оновити дані'}

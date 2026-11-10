@@ -11,6 +11,7 @@ import { fetchStudentRows } from '../lib/studentsApi'
 import type { StudentRow } from '../lib/studentsList'
 import { supabase } from '../lib/supabase'
 import { useLoad } from '../lib/useLoad'
+import { Select } from '../components/ui/Select'
 
 const FLOORS = [2, 3, 4, 5]
 const TTL_OPTIONS = [3, 7, 14, 30]
@@ -154,9 +155,9 @@ function FloorLinks({ data, onChanged, onError }: { data: Data; onChanged: () =>
               <div className="row">
                 <label className="inline">
                   Діє
-                  <select value={ttl[floor] ?? 7} onChange={(e) => setTtl((t) => ({ ...t, [floor]: Number(e.target.value) }))}>
+                  <Select value={ttl[floor] ?? 7} onChange={(e) => setTtl((t) => ({ ...t, [floor]: Number(e.target.value) }))}>
                     {TTL_OPTIONS.map((d) => <option key={d} value={d}>{d} дн.</option>)}
-                  </select>
+                  </Select>
                 </label>
               </div>
               <div className="row actions">
@@ -254,9 +255,9 @@ function UnmatchedCard({ sub, students, onDone, onError }: {
       <p className="muted small hint-line">Якщо це не той, хто в базі: створіть нового учня з цих даних. Якщо подання помилкове або це сміття — відхиліть (відповіді буде видалено).</p>
       <div className="row actions">
         <label className="inline">Клас нового
-          <select value={grade} onChange={(e) => setGrade(e.target.value)}>
+          <Select value={grade} onChange={(e) => setGrade(e.target.value)}>
             {[9, 10, 11].map((g) => <option key={g} value={g}>{g}</option>)}
-          </select>
+          </Select>
         </label>
         <button type="button" className="secondary" disabled={busy}
           onClick={() => { if (window.confirm('Створити нового учня з цими даними?')) void run(() => supabase.rpc('create_student_from_intake', { p_submission_id: sub.id, p_grade: Number(grade) })) }}>

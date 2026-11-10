@@ -9,6 +9,7 @@ import { canUpload } from './permissions'
 import { PreviewPane } from './PreviewPane'
 import type { DocumentRow } from './types'
 import type { Library } from './api'
+import { Select } from '../../components/ui/Select'
 
 interface Props {
   lib: Library
@@ -105,14 +106,14 @@ export function BasedOnTab({ lib, reload, state, dispatch }: Props) {
     <div>
       <p>Оберіть категорію або тему — і побачите попередні документи за минулі роки та від інших авторів. Відкрийте перегляд, щоб оцінити якість, і лише потім створюйте копію.</p>
       <div className="filters">
-        <select aria-label="Категорія" value={state.category} onChange={(e) => dispatch({ type: 'setTopic', category: e.target.value, topic: '' })}>
+        <Select aria-label="Категорія" value={state.category} onChange={(e) => dispatch({ type: 'setTopic', category: e.target.value, topic: '' })}>
           <option value="">Категорія…</option>
           {options.categories.map((c) => <option key={c}>{c}</option>)}
-        </select>
-        <select aria-label="Тема" value={state.topic} onChange={(e) => dispatch({ type: 'setTopic', category: state.category, topic: e.target.value })}>
+        </Select>
+        <Select aria-label="Тема" value={state.topic} onChange={(e) => dispatch({ type: 'setTopic', category: state.category, topic: e.target.value })}>
           <option value="">Тема…</option>
           {options.topics.map((c) => <option key={c}>{c}</option>)}
-        </select>
+        </Select>
       </div>
       {!state.category && !state.topic ? (
         <p className="muted">Оберіть категорію чи тему.</p>
