@@ -3,7 +3,7 @@ import { listLoginUsers, signInWithSecret, type LoginUser } from './api'
 import { Select } from '../../components/ui/Select'
 
 /** Вхід: вибір вихователя + PIN (4 цифри) або повний пароль (для адміністратора). */
-export function PinLogin({ onUseEmail }: { onUseEmail: () => void }) {
+export function PinLogin() {
   const [users, setUsers] = useState<LoginUser[] | null>(null)
   const [loadError, setLoadError] = useState(false)
   const [userId, setUserId] = useState('')
@@ -62,7 +62,6 @@ export function PinLogin({ onUseEmail }: { onUseEmail: () => void }) {
         </div>
         {error && <p role="alert" className="error">{error}</p>}
         <button type="submit" disabled={busy || !userId || !secret}>{busy ? 'Вхід…' : 'Увійти'}</button>
-        <button type="button" className="link" onClick={onUseEmail}>Вхід за email і паролем</button>
       </form>
     </div>
   )
