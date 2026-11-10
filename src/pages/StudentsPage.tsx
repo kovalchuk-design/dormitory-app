@@ -2,8 +2,6 @@ import { useContext, useEffect, useMemo, useState } from 'react'
 import { HostelExportRegistry, HostelStudentCard } from './hostelContext'
 import { Link } from 'react-router-dom'
 import { ScrollArea } from '../components/ui/ScrollArea'
-import { PhoneLink } from '../components/PhoneLink'
-import { StatusBadge } from '../components/StatusBadge'
 import { fullName, STATUS_LABELS } from '../lib/format'
 import { fetchStudentRows } from '../lib/studentsApi'
 import {
@@ -15,10 +13,9 @@ import { Select } from '../components/ui/Select'
 
 const COLUMNS: { key: SortKey; label: string }[] = [
   { key: 'name', label: 'ПІБ' },
-  { key: 'grade', label: 'Клас' },
   { key: 'floor', label: 'Поверх' },
   { key: 'room', label: 'Кімната' },
-  { key: 'status', label: 'Статус' },
+  { key: 'group', label: 'Група' },
 ]
 
 /** Індикатор сортування фіксованої ширини: завжди видно, що за колонкою можна сортувати; активний напрям підсвічено, сусідні колонки не зсуваються. */
@@ -63,12 +60,6 @@ export function StudentsPage() {
           {showFilters ? 'Сховати фільтри' : 'Фільтри'}
         </button>
         <div id="filters-extra" className={`filters-extra${showFilters ? ' open' : ''}`}>
-        <label>Клас
-          <Select value={filters.grade} onChange={(e) => set('grade', e.target.value)}>
-            <option value="">Усі</option>
-            {[9, 10, 11].map((g) => <option key={g} value={g}>{g}</option>)}
-          </Select>
-        </label>
         <label>Поверх
           <Select value={filters.floor} onChange={(e) => set('floor', e.target.value)}>
             <option value="">Усі</option>
@@ -86,6 +77,10 @@ export function StudentsPage() {
             <option value="">Усі</option>
             {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </Select>
+        </label>
+        <label className="check">
+          <input type="checkbox" checked={filters.notesOnly} onChange={(e) => set('notesOnly', e.target.checked)} />
+          З примітками
         </label>
         <label className="check">
           <input type="checkbox" checked={filters.unplacedOnly} onChange={(e) => set('unplacedOnly', e.target.checked)} />
@@ -113,10 +108,8 @@ export function StudentsPage() {
                         </button>
                       </th>
                     ))}
-                    <th scope="col">Учень</th>
-                    <th scope="col">Мама</th>
-                    <th scope="col">Тато</th>
-                    <th scope="col">Опікун</th>
+                    <th scope="col">Соціальний статус</th>
+                    <th scope="col">Примітки</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -128,14 +121,11 @@ export function StudentsPage() {
                           if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) { e.preventDefault(); setOpenId(r.id) }
                         }}>{fullName(r)}</Link>
                       </td>
-                      <td data-label="Клас">{r.grade}</td>
                       <td data-label="Поверх">{r.floor ?? '—'}</td>
                       <td data-label="Кімната">{r.room ?? <span className="tag tag-unplaced">нерозподілений</span>}</td>
-                      <td data-label="Статус"><StatusBadge status={r.status} /></td>
-                      <td data-label="Учень"><PhoneLink phone={r.student_phone} label={fullName(r)} /></td>
-                      <td data-label="Мама"><PhoneLink phone={r.mother_phone} label={`мама ${fullName(r)}`} /></td>
-                      <td data-label="Тато"><PhoneLink phone={r.father_phone} label={`тато ${fullName(r)}`} /></td>
-                      <td data-label="Опікун"><PhoneLink phone={r.guardian_phone} label={`опікун ${fullName(r)}`} /></td>
+                      <td data-label="Група">{r.group_number ?? '—'}</td>
+                      <td data-label="Соц. статус" className="cell-text">{r.social_status ?? <span className="muted">—</span>}</td>
+                      <td data-label="Примітки" className="cell-text cell-notes">{r.notes?.trim() ? r.notes : <span className="muted">—</span>}</td>
                     </tr>
                   ))}
                 </tbody>

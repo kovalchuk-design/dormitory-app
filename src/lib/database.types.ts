@@ -898,6 +898,7 @@ export type Database = {
           grade: number
           id: string
           last_name: string
+          notes: string | null
           patronymic: string | null
           status: string
           updated_at: string
@@ -910,6 +911,7 @@ export type Database = {
           grade: number
           id?: string
           last_name: string
+          notes?: string | null
           patronymic?: string | null
           status?: string
           updated_at?: string
@@ -922,6 +924,7 @@ export type Database = {
           grade?: number
           id?: string
           last_name?: string
+          notes?: string | null
           patronymic?: string | null
           status?: string
           updated_at?: string

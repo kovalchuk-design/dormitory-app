@@ -351,3 +351,19 @@ tr.is-open { background: color-mix(in oklch, var(--out) 8%, transparent); }
 button.rm-pupil-name { display: inline; min-height: 0; padding: 0; background: none; border: 0; border-radius: 4px; color: var(--text); font: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; flex: none; overflow-wrap: anywhere; }
 button.rm-pupil-name:hover:not(:disabled) { opacity: 1; text-decoration: underline; }
 .rm-pupil.draggable button.rm-pupil-name { cursor: pointer; }
+
+/* ---- Студенти: колонки ПІБ, поверх, кімната, група, соціальний статус, примітки ---- */
+.st-body table.data td.cell-text { vertical-align: top; font-size: 14px; line-height: 1.4; min-width: 12rem; max-width: 20rem; }
+.st-body table.data td.cell-notes { min-width: 16rem; max-width: 30rem; }
+.st-body table.data td { vertical-align: top; padding-top: 14px; padding-bottom: 14px; }
+.st-body table.data td:first-child { min-width: 14rem; }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  table.cards-on-mobile td[data-label='Соц. статус'], table.cards-on-mobile td[data-label='Примітки'] {
+    flex: 1 1 100%; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; max-width: none; padding: 0;
+  }
+  table.cards-on-mobile td[data-label='Примітки'] { padding: 8px 10px; border-radius: 12px; background: var(--warn-bg); }
+  table.cards-on-mobile td[data-label='Примітки']:has(.muted) { display: none; }
+  table.cards-on-mobile td[data-label='Соц. статус']:has(.muted) { display: none; }
+}
+
+.card-note { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
