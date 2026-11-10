@@ -138,12 +138,6 @@ function ApprovalCard({ item, onlyChanged, busy, onApprove, onReject }: {
           <button type="button" disabled={busy} onClick={approve}>Підтвердити</button>
         </div>
       </div>
-      {item.hasCurrent && n > 0 && (
-        <p className="muted small merge-help">
-          Познач галочками, що залишити: стару відповідь, нову або <strong>обидві</strong> (запишеться «стара, нова»). Приглушений текст у чинну анкету не потрапить.
-          {' '}Підсумок: з нової — {plan.newCount}, зі старої — {plan.oldCount}, обох разом — {plan.bothCount}.
-        </p>
-      )}
       {item.prev && (() => {
         const pn = item.prev.version_no
         const prevRows = [...item.prev.diff, ...item.prev.medDiff]
@@ -215,6 +209,12 @@ export function ApprovalsPage({ onlyChanged }: { onlyChanged: boolean }) {
         {error && <p className="error" role="alert">{error}</p>}
         {actionError && <p className="error" role="alert">{actionError}</p>}
         {data && data.length === 0 && <p className="muted">Немає версій, що чекають підтвердження.</p>}
+        {data?.some((i) => i.hasCurrent) && (
+          <p className="muted small merge-help">
+            Познач галочками, що залишити: стару відповідь, нову або <strong>обидві</strong> (запишеться «стара, нова»). Приглушений текст у чинну анкету не потрапить.
+            Підсумок можна виправити вручну.
+          </p>
+        )}
         {data?.map((item) => (
           <ApprovalCard key={item.id} item={item} onlyChanged={onlyChanged} busy={busyId === item.id}
             onApprove={(how) => void approve(item.id, how)} onReject={() => void reject(item.id)} />
