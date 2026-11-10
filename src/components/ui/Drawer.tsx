@@ -4,7 +4,7 @@ import { Icon } from './icons'
 import { ScrollArea } from './ScrollArea'
 
 /** Шухляда збоку із затемненням (docs/style.md §6): Esc і клік по тлу закривають, фокус повертається на елемент, що її відкрив. */
-export function Drawer({ label, onClose, actions, children }: { label: string; onClose: () => void; actions?: ReactNode; children: ReactNode }) {
+export function Drawer({ label, onClose, children }: { label: string; onClose: () => void; children: ReactNode }) {
   const panel = useRef<HTMLDivElement>(null)
   const onCloseRef = useRef(onClose)
   useEffect(() => { onCloseRef.current = onClose })
@@ -19,7 +19,6 @@ export function Drawer({ label, onClose, actions, children }: { label: string; o
     <div className="drawer-scrim" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <aside ref={panel} className="drawer" role="dialog" aria-modal="true" aria-label={label} tabIndex={-1}>
         <div className="drawer-bar">
-          <span className="drawer-actions">{actions}</span>
           <button type="button" className="iconbtn" onClick={onClose} title="Закрити" aria-label="Закрити">
             <Icon name="close" />
           </button>

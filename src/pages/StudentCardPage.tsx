@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import { PhoneLink } from '../components/PhoneLink'
@@ -45,6 +46,12 @@ async function loadCard(id: string, withMedical: boolean) {
 }
 
 /** Картка учня: окрема сторінка (/students/:id) або вміст бічної шухляди (`studentId` + `embedded`). */
+/** Додатковий розділ: на окремій сторінці — звичайна панель, у шухляді — згорнута (щоб не перевантажувати картку). */
+function Extra({ id, title, embedded, children }: { id: string; title: string; embedded: boolean; children: ReactNode }) {
+  if (!embedded) return <section className="panel" aria-labelledby={id}><h2 id={id}>{title}</h2>{children}</section>
+  return <details className="panel fold"><summary id={id}>{title}</summary>{children}</details>
+}
+
 export function StudentCardPage({ studentId, embedded = false }: { studentId?: string; embedded?: boolean } = {}) {
   const params = useParams<{ id: string }>()
   const id = studentId ?? params.id ?? ''
@@ -114,8 +121,7 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
       </section>
 
       {canEdit && (
-        <section className="panel" aria-labelledby="med-h">
-          <h2 id="med-h">Медична інформація</h2>
+        <Extra id="med-h" title="Медична інформація" embedded={embedded}>
           {medical ? (
             <>
               <dl className="kv">
@@ -129,13 +135,14 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
             </>
           ) : <p className="muted">Медичних даних немає.</p>}
           <p className="muted small">Видно лише адміністраторам і вихователям.</p>
-        </section>
+        </Extra>
       )}
 
-      {canEdit && status === 'active' && <UpdateLinksPanel studentId={id} canCreate />}
+      {canEdit && status === 'active' && (embedded
+        ? <details className="panel fold"><summary>Оновлення даних учнем</summary><UpdateLinksPanel studentId={id} canCreate /></details>
+        : <UpdateLinksPanel studentId={id} canCreate />)}
 
-      <section className="panel" aria-labelledby="rooms-h">
-        <h2 id="rooms-h">Історія кімнат</h2>
+      <Extra id="rooms-h" title="Історія кімнат" embedded={embedded}>
         {assignments.length === 0 ? <p className="muted">Ще не заселявся.</p> : (
           <div className="table-wrap" tabIndex={0} role="region" aria-label="Історія кімнат">
             <table className="data">
@@ -159,10 +166,9 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
             </table>
           </div>
         )}
-      </section>
+      </Extra>
 
-      <section className="panel" aria-labelledby="hist-h">
-        <h2 id="hist-h">Версії анкети</h2>
+      <Extra id="hist-h" title="Версії анкети" embedded={embedded}>
         {versions.length === 0 ? <p className="muted">Версій немає.</p> : (
           <ul className="plain versions">
             {versions.map((v) => {
@@ -182,7 +188,7 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
           </ul>
         )}
         {canEdit && versions.some((v) => v.status === 'pending') && <p><Link to="/updates">Є версії, що чекають підтвердження →</Link></p>}
-      </section>
+      </Extra>
     </article>
   )
 }
