@@ -9,6 +9,7 @@ import { applyContactMode, detectContactMode, remapContactErrors, type ContactMo
 import { getQuestionnaire, submitQuestionnaire } from '../lib/publicApi'
 import { InfoTip } from '../components/ui/InfoTip'
 import { Icon } from '../components/ui/icons'
+import { Select } from '../components/ui/Select'
 import { buildSummary } from '../lib/formSummary'
 import { OTHER, professionChoice } from '../lib/professions'
 import { FormProgress } from '../components/ui/FormProgress'
@@ -129,7 +130,7 @@ export function StudentFormPage() {
   function focusFirstError(errs: FieldErrors) {
     const first = (Object.keys(errs) as FieldKey[]).find((k) => errs[k])
     if (!first) return
-    const sel = first === 'profession' && profChoice !== OTHER && professions.length > 0 ? '[name="profession_choice"]' : `[name="${first}"]`
+    const sel = first === 'profession' && profChoice !== OTHER && professions.length > 0 ? '#f-profession_choice' : `[name="${first}"]`
     formRef.current?.querySelector<HTMLElement>(sel)?.focus()
   }
 
@@ -298,21 +299,19 @@ export function StudentFormPage() {
           {text('room', 'Номер кімнати', { readOnly: roomLocked, hint: roomLocked ? 'Це тільки для інформації — змінює вихователь' : 'Якщо знаєш — вкажи (необовʼязково)' })}
           {text('group_number', 'Номер групи', { required: true })}
           {professions.length === 0 ? text('profession', 'Професія', { required: true }) : (
-            <fieldset className="prof" aria-invalid={!!errors.profession}>
-              <legend>Професія *</legend>
-              {professions.map((name) => (
-                <label key={name} className="check">
-                  <input type="radio" name="profession_choice" value={name} checked={profChoice === name} onChange={() => chooseProfession(name)} />
-                  <span>{name}</span>
-                </label>
-              ))}
-              <label className="check">
-                <input type="radio" name="profession_choice" value={OTHER} checked={profChoice === OTHER} onChange={() => chooseProfession(OTHER)} />
-                <span>Інша</span>
-              </label>
+            <>
+              <Field name="profession_choice" label="Професія" required error={profChoice !== OTHER ? errors.profession : undefined}>
+                <Select id="f-profession_choice" name="profession_choice" aria-label="Професія" value={profChoice}
+                  onChange={(e) => chooseProfession(e.target.value)} aria-invalid={!!errors.profession && profChoice !== OTHER}
+                  aria-describedby={errors.profession && profChoice !== OTHER ? 'e-profession_choice' : undefined}>
+                  <option value="">Оберіть зі списку</option>
+                  {professions.map((name) => <option key={name} value={name}>{name}</option>)}
+                  <option value={OTHER}>Інша (написати свою)</option>
+                </Select>
+              </Field>
+              {profChoice && profChoice !== OTHER && <p className="prof-picked small" aria-live="polite">{profChoice}</p>}
               {profChoice === OTHER && text('profession', 'Напиши свою професію', { required: true, hint: 'Повна назва, як у документах' })}
-              {errors.profession && profChoice !== OTHER && <p className="field-error" id="e-profession" role="alert">{errors.profession}</p>}
-            </fieldset>
+            </>
           )}
           {text('class_teacher', 'Класний керівник', { required: true })}
           {text('master', 'Майстер', { required: true })}
