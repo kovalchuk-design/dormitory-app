@@ -87,8 +87,9 @@ export function UserFormDialog({ user, selfId, onClose, onDone }: {
     >
       <form id="au-user-form" onSubmit={submit} noValidate>
         <div className="field">
-          <label htmlFor="au-name">ПІБ</label>
+          <label htmlFor="au-name">Назва (ПІБ)</label>
           <input id="au-name" value={fullName} onChange={(e) => setFullName(e.target.value)} autoComplete="off" maxLength={120} />
+          <span className="muted small">Саме ця назва показується у списку «Вибір вихователя» на сторінці входу; зміна діє одразу.</span>
           {fieldErrors.full_name && <span className="field-error">{fieldErrors.full_name}</span>}
         </div>
         <div className="field">
