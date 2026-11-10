@@ -76,11 +76,24 @@ describe('students list', () => {
   })
   it('фільтри: клас, поверх, кімната, статус, нерозподілені', () => {
     expect(f({ grade: '10' })).toEqual(['3', '4'])
-    expect(f({ floor: '2' })).toEqual(['2'])
+    expect(f({ floors: [2] })).toEqual(['2'])
+    expect(f({ floors: [2, 3] })).toEqual(['1', '2', '4'])
     expect(f({ room: '305' })).toEqual(['1', '4'])
     expect(f({ status: 'left' })).toEqual(['4'])
     expect(f({ unplacedOnly: true })).toEqual(['3'])
     expect(filterStudents(rows, DEFAULT_FILTERS).map((r) => r.id)).toEqual(['1', '2', '3'])
+  })
+  it('фільтр соціального статусу: кілька категорій, синоніми, «Напівсирота» не є «Сирота»', () => {
+    const soc = [
+      row({ id: 'a', social_status: 'Сирота' }), row({ id: 'b', social_status: 'Напівсирота; Багатодітна сім\'я' }),
+      row({ id: 'c', social_status: 'Служба в ЗСУ (тато)' }), row({ id: 'd', social_status: 'Багатодітна сім’я; ВПО (?)' }),
+      row({ id: 'e', social_status: null }),
+    ]
+    const g = (codes: string[]) => filterStudents(soc, { ...DEFAULT_FILTERS, social: codes }).map((r) => r.id)
+    expect(g(['orphan'])).toEqual(['a'])
+    expect(g(['half_orphan'])).toEqual(['b'])
+    expect(g(['large_family'])).toEqual(['b', 'd'])
+    expect(g(['zsu', 'vpo'])).toEqual(['c', 'd'])
   })
   it('сортування: за ПІБ, клас; нерозподілені в кінці за кімнатою в обох напрямках', () => {
     expect(sortStudents(rows, 'name', 'asc').map((r) => r.id)).toEqual(['2', '1', '3', '4'])

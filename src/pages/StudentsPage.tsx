@@ -1,15 +1,16 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { HostelExportRegistry, HostelStudentCard } from './hostelContext'
 import { Link } from 'react-router-dom'
+import { Icon } from '../components/ui/icons'
+import { MultiSelect } from '../components/ui/MultiSelect'
 import { ScrollArea } from '../components/ui/ScrollArea'
-import { fullName, STATUS_LABELS } from '../lib/format'
+import { fullName } from '../lib/format'
 import { fetchStudentRows } from '../lib/studentsApi'
 import {
-  DEFAULT_FILTERS, filterStudents, sortStudents,
+  DEFAULT_FILTERS, filterStudents, SOCIAL_FILTERS, sortStudents,
   type Filters, type SortDir, type SortKey,
 } from '../lib/studentsList'
 import { useLoad } from '../lib/useLoad'
-import { Select } from '../components/ui/Select'
 
 const COLUMNS: { key: SortKey; label: string }[] = [
   { key: 'name', label: 'ПІБ' },
@@ -36,15 +37,12 @@ export function StudentsPage() {
   const registerExport = useContext(HostelExportRegistry)
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'name', dir: 'asc' })
 
-  const rooms = useMemo(
-    () => [...new Set((data ?? []).map((r) => r.room).filter((r): r is string => r != null))].sort((a, b) => a.localeCompare(b, 'uk', { numeric: true })),
-    [data],
-  )
   const rows = useMemo(() => sortStudents(filterStudents(data ?? [], filters), sort.key, sort.dir), [data, filters, sort])
   useEffect(() => {
     registerExport?.(() => rows)
     return () => registerExport?.(null)
   }, [registerExport, rows])
+  const dirty = JSON.stringify(filters) !== JSON.stringify(DEFAULT_FILTERS)
   const set = <K extends keyof Filters>(k: K, v: Filters[K]) => setFilters((f) => ({ ...f, [k]: v }))
   const toggleSort = (key: SortKey) =>
     setSort((s) => (s.key === key ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' }))
@@ -60,33 +58,33 @@ export function StudentsPage() {
           {showFilters ? 'Сховати фільтри' : 'Фільтри'}
         </button>
         <div id="filters-extra" className={`filters-extra${showFilters ? ' open' : ''}`}>
-        <label>Поверх
-          <Select value={filters.floor} onChange={(e) => set('floor', e.target.value)}>
-            <option value="">Усі</option>
-            {[2, 3, 4, 5].map((f) => <option key={f} value={f}>{f}</option>)}
-          </Select>
-        </label>
-        <label>Кімната
-          <Select value={filters.room} onChange={(e) => set('room', e.target.value)}>
-            <option value="">Усі</option>
-            {rooms.map((r) => <option key={r} value={r}>{r}</option>)}
-          </Select>
-        </label>
-        <label>Статус
-          <Select value={filters.status} onChange={(e) => set('status', e.target.value)}>
-            <option value="">Усі</option>
-            {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-          </Select>
-        </label>
-        <label className="check">
-          <input type="checkbox" checked={filters.notesOnly} onChange={(e) => set('notesOnly', e.target.checked)} />
-          З примітками
-        </label>
-        <label className="check">
-          <input type="checkbox" checked={filters.unplacedOnly} onChange={(e) => set('unplacedOnly', e.target.checked)} />
-          Нерозподілені
-        </label>
-        <button type="button" className="secondary" onClick={() => setFilters(DEFAULT_FILTERS)}>Скинути</button>
+          <div className="chip-group" role="group" aria-label="Поверх">
+            <span className="chip-group-label" aria-hidden="true">Поверх</span>
+            {[2, 3, 4, 5].map((f) => {
+              const on = filters.floors.includes(f)
+              return (
+                <button key={f} type="button" className={`chip${on ? ' on' : ''}`} aria-pressed={on}
+                  onClick={() => set('floors', on ? filters.floors.filter((x) => x !== f) : [...filters.floors, f])}>
+                  {f}
+                </button>
+              )
+            })}
+          </div>
+          <MultiSelect label="Соціальний статус" options={SOCIAL_FILTERS.map((o) => ({ value: o.code, label: o.label }))}
+            value={filters.social} onChange={(v) => set('social', v)} />
+          <label className="check">
+            <input type="checkbox" checked={filters.notesOnly} onChange={(e) => set('notesOnly', e.target.checked)} />
+            З примітками
+          </label>
+          <label className="check">
+            <input type="checkbox" checked={filters.unplacedOnly} onChange={(e) => set('unplacedOnly', e.target.checked)} />
+            Нерозподілені
+          </label>
+          {dirty && (
+            <button type="button" className="iconbtn reset-btn" title="Скинути фільтри" aria-label="Скинути фільтри" onClick={() => setFilters(DEFAULT_FILTERS)}>
+              <Icon name="reset" size={18} />
+            </button>
+          )}
         </div>
       </form>
 
