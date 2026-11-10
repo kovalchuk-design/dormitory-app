@@ -113,7 +113,13 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 .has-file .file-drop-icon { background: var(--in); color: #fff; }
 .file-drop-text { flex: 1; min-width: 0; overflow-wrap: anywhere; display: grid; gap: .1rem; }
 .file-drop-change { flex: none; font-size: .85rem; color: var(--outInk); font-weight: 600; }
-.help-compact { margin-top: .4rem; font-size: .85rem; color: var(--text2); }
-.help-compact summary { cursor: pointer; font-weight: 500; padding: .3rem 0; }
+.help-compact { margin-top: .6rem; padding: 0 1rem; background: var(--muted); border-radius: 16px; font-size: .85rem; color: var(--text2Hi); }
+.help-compact summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: .6rem; min-height: 48px; cursor: pointer; font-weight: 600; color: var(--text); }
+.help-compact summary::-webkit-details-marker { display: none; }
+.help-compact summary::after { content: ''; flex: none; width: 8px; height: 8px; border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-2px, -2px); transition: transform var(--t-fast) var(--ease); }
+.help-compact[open] summary::after { transform: rotate(-135deg) translate(-2px, -2px); }
+.help-compact[open] { padding-bottom: .6rem; }
+.help-compact summary:hover { color: var(--outInk); }
 .help-compact .help-steps, .help-compact .help-table { font-size: .82rem; }
+.help-compact code { background: var(--surface); }
 .help-compact h3, .help-compact h4 { font-size: .9rem; }
