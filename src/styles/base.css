@@ -207,3 +207,17 @@ a.phone:hover { text-decoration: underline; }
 /* Ширина чекбоксів/радіо: перекриває старі `label.check input { width:auto }` з index.css */
 label input[type='checkbox'], label input[type='radio'], .switch-row input, .rm-check input, .pupil-list input { width: 22px; height: 22px; }
 .seg-opt input[type='radio'] { width: 1px; height: 1px; }
+
+/* ---- InfoTip ---- */
+.infotip { position: static; display: inline-flex; vertical-align: middle; margin-left: 4px; }
+button.infotip-btn { width: 40px; height: 40px; min-height: 40px; padding: 0; margin: -8px 0; border-radius: 50%; background: transparent; color: var(--text2); opacity: .8; border: 0; }
+button.infotip-btn:hover:not(:disabled), .infotip.open .infotip-btn { background: var(--muted); opacity: 1; color: var(--text); }
+.info-pop {
+  display: none; position: absolute; z-index: 30; left: 16px; right: 16px; top: auto; margin-top: 30px; width: auto; max-width: 460px;
+  padding: 12px 16px; border-radius: 16px; background: var(--tip); color: var(--tipText); font-size: 13px; font-weight: 500;
+  line-height: 1.45; letter-spacing: 0; box-shadow: var(--shadowTip); animation: pop-in .16s var(--ease);
+}
+.infotip.open .info-pop, .infotip:hover .info-pop { display: block; }
+.info-pop strong { font-weight: 700; }
+
+.form fieldset, .panel, .card { position: relative; }

@@ -7,6 +7,7 @@ import {
 import { BirthDateField } from '../components/BirthDateField'
 import { applyContactMode, detectContactMode, remapContactErrors, type ContactMode } from '../lib/contactMode'
 import { getQuestionnaire, submitQuestionnaire } from '../lib/publicApi'
+import { InfoTip } from '../components/ui/InfoTip'
 import { FormProgress } from '../components/ui/FormProgress'
 
 type Phase =
@@ -201,11 +202,13 @@ export function StudentFormPage() {
           {phone('student_phone', 'Твій мобільний телефон', true)}
         </fieldset>
         <fieldset>
-          <legend>Кого вказати для зв'язку?</legend>
-          <p className="muted small" id="contact-help">
-            Обери <strong>одне</strong>: або мама й тато, або опікун — людина, яка тебе виховує замість батьків (бабуся, дідусь, тітка, дядько, опікун…).
-            Другий варіант заповнювати не треба.
-          </p>
+          <legend>
+            Кого вказати для зв'язку?
+            <InfoTip id="contact-help" label="Як обрати, кого вказати">
+              Обери <strong>одне</strong>: або мама й тато, або опікун — людина, яка тебе виховує замість батьків (бабуся, дідусь, тітка, дядько, опікун…).
+              Другий варіант заповнювати не треба.
+            </InfoTip>
+          </legend>
           <div className="seg" role="radiogroup" aria-label="Кого вказати для зв'язку" aria-describedby="contact-help">
             <label className={`seg-opt${mode === 'parents' ? ' on' : ''}`}>
               <input type="radio" name="contact_mode" value="parents" checked={mode === 'parents'} onChange={() => switchMode('parents')} />
@@ -218,10 +221,7 @@ export function StudentFormPage() {
           </div>
           {mode === 'parents' ? (
             <>
-              <p className="muted small">
-                Вкажи ПІБ і телефон мами та тата. Якщо когось одного немає — напиши «немає» в його ПІБ, а телефон залиш порожнім.
-                Якщо немає обох — переключи вище на «Опікун».
-              </p>
+              <p className="muted small">Якщо когось одного немає — напиши «немає» в його ПІБ, а телефон залиш порожнім. Немає обох — обери «Опікун».</p>
               {text('mother_name', 'Мама — ПІБ', { required: true, hint: 'Або «немає»' })}
               {phone('mother_phone', 'Мама — телефон')}
               {text('father_name', 'Тато — ПІБ', { required: true, hint: 'Або «немає»' })}
@@ -229,7 +229,7 @@ export function StudentFormPage() {
             </>
           ) : (
             <>
-              <p className="muted small">Вкажи людину, яка тебе виховує. Дані мами й тата тоді не потрібні — ми запишемо їх як «немає».</p>
+              <p className="muted small">Дані мами й тата тоді не потрібні.</p>
               {text('guardian_name', 'Опікун — ПІБ', { required: true })}
               {text('guardian_relation', 'Ким доводиться', { required: true, hint: 'Наприклад: бабуся, дядько, опікун' })}
               {phone('guardian_phone', 'Опікун — телефон', true)}
@@ -241,8 +241,10 @@ export function StudentFormPage() {
           {area('college_plans', 'Чим хочеш займатися у коледжі *')}
         </fieldset>
         <fieldset aria-describedby="social-hint" aria-invalid={!!errors.social_codes}>
-          <legend>Соціальний статус *</legend>
-          <p className="muted small" id="social-hint">Познач усе, що підходить. Якщо нічого — обери «Жодного з переліку».</p>
+          <legend>
+            Соціальний статус *
+            <InfoTip id="social-hint" label="Як заповнити соціальний статус">Познач усе, що підходить. Якщо нічого — обери «Жодного з переліку».</InfoTip>
+          </legend>
           {SOCIAL_OPTIONS.map((o) => {
             const checked = values.social_codes.includes(o.code)
             return (
