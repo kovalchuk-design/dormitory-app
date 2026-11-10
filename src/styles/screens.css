@@ -340,3 +340,8 @@ tr.is-open { background: color-mix(in oklch, var(--out) 8%, transparent); }
 .rm-pupil.draggable { padding-left: 28px; }
 .rm-pupil-name { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; line-height: 1.25; }
 .rm-pupil .iconbtn { flex: none; margin-left: auto; }
+
+/* іконка «перемістити» видна лише при наведенні/фокусі; на дотикових пристроях (без наведення) — завжди */
+.rm-pupil .iconbtn { opacity: 0; transition: opacity var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease); }
+.rm-pupil:hover .iconbtn, .rm-pupil:focus-within .iconbtn, .rm-pupil.dragging .iconbtn { opacity: 1; }
+@media (hover: none) { .rm-pupil .iconbtn { opacity: 1; } }
