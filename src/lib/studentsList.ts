@@ -15,6 +15,10 @@ export interface StudentRow {
   mother_phone: string | null
   father_phone: string | null
   guardian_phone: string | null
+  /** Номер групи й соціальний статус — з чинної анкети; примітка — students.notes (позначки при наповненні бази). */
+  group_number: string | null
+  social_status: string | null
+  notes: string | null
 }
 
 export interface Filters {
@@ -24,9 +28,11 @@ export interface Filters {
   room: string // '' | номер кімнати
   status: string // '' | active | graduated | left
   unplacedOnly: boolean
+  /** Лише записи з примітками (потребують перевірки/уточнення). */
+  notesOnly: boolean
 }
 
-export const DEFAULT_FILTERS: Filters = { query: '', grade: '', floor: '', room: '', status: 'active', unplacedOnly: false }
+export const DEFAULT_FILTERS: Filters = { query: '', grade: '', floor: '', room: '', status: 'active', unplacedOnly: false, notesOnly: false }
 
 const digits = (s: string) => s.replace(/\D/g, '')
 const fold = (s: string) => s.toLowerCase().replace(/[’ʼ`']/g, "'")
@@ -54,11 +60,12 @@ export function filterStudents(rows: StudentRow[], f: Filters): StudentRow[] {
       (!f.floor || r.floor === Number(f.floor)) &&
       (!f.room || r.room === f.room) &&
       (!f.status || r.status === f.status) &&
-      (!f.unplacedOnly || r.room == null),
+      (!f.unplacedOnly || r.room == null) &&
+      (!f.notesOnly || (r.notes ?? '').trim() !== ''),
   )
 }
 
-export type SortKey = 'name' | 'grade' | 'room' | 'floor' | 'status'
+export type SortKey = 'name' | 'grade' | 'room' | 'floor' | 'status' | 'group'
 export type SortDir = 'asc' | 'desc'
 
 const collator = new Intl.Collator('uk', { numeric: true, sensitivity: 'base' })
@@ -76,6 +83,14 @@ export function sortStudents(rows: StudentRow[], key: SortKey, dir: SortDir): St
         break
       case 'status':
         c = collator.compare(a.status, b.status)
+        break
+      case 'group':
+        // записи без групи — в кінці
+        if (!a.group_number || !b.group_number) {
+          if (!a.group_number && !b.group_number) return byName(a, b)
+          return a.group_number ? -1 : 1
+        }
+        c = collator.compare(a.group_number, b.group_number)
         break
       case 'room':
       case 'floor': {

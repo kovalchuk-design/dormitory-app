@@ -116,6 +116,10 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
         {room ? <>кімната <strong>{room.number}</strong>, {room.floor} поверх</> : <span className="tag tag-unplaced">нерозподілений</span>}
       </p>
 
+      {student.notes?.trim() && (
+        <p className="banner warn card-note"><strong>Примітка:</strong> {student.notes}</p>
+      )}
+
       <section className="panel" aria-labelledby="contacts-h">
         <h2 id="contacts-h">Контакти</h2>
         {!current && <p className="muted">Затвердженої анкети ще немає — контактів немає.</p>}

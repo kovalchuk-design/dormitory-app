@@ -11,7 +11,8 @@ const link = (o: Partial<IntakeLink>): IntakeLink => ({
 })
 const st = (o: Partial<StudentRow>): StudentRow => ({
   id: 'x', last_name: 'Іваненко', first_name: 'Іван', patronymic: 'Іванович', birth_date: '2009-01-01', grade: 10, status: 'active',
-  room: null, floor: null, student_phone: null, mother_phone: null, father_phone: null, guardian_phone: null, ...o,
+  room: null, floor: null, student_phone: null, mother_phone: null, father_phone: null, guardian_phone: null,
+  group_number: null, social_status: null, notes: null, ...o,
 })
 
 describe('intake links', () => {
