@@ -57,7 +57,6 @@
   /* «Гуртожиток»: один рядок — перемикач ліворуч, «+» праворуч; без великого заголовка і експорту */
   .hostel-head { flex-wrap: nowrap; gap: 8px; }
   .hostel-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .hostel-export { display: none; }
   .view-switch { flex: 1 1 auto; min-width: 0; }
   .hostel-actions { width: auto; margin-left: 0; flex: none; flex-wrap: nowrap; }
   .hostel-actions > * { flex: none; }

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
-import { HostelExportRegistry, HostelStudentCard } from './hostelContext'
+import { HostelStudentCard } from './hostelContext'
 import { Link } from 'react-router-dom'
 import { Icon } from '../components/ui/icons'
 import { MultiSelect } from '../components/ui/MultiSelect'
@@ -44,15 +44,10 @@ export function StudentsPage() {
   const [filters, setFilters] = useState<Filters>(loadFilters)
   const [showFilters, setShowFilters] = useState(false)
   const { openId, open: setOpenId } = useContext(HostelStudentCard)
-  const registerExport = useContext(HostelExportRegistry)
   const isMobile = useIsMobile()
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'name', dir: 'asc' })
 
   const rows = useMemo(() => sortStudents(filterStudents(data ?? [], filters), sort.key, sort.dir), [data, filters, sort])
-  useEffect(() => {
-    registerExport?.(() => rows)
-    return () => registerExport?.(null)
-  }, [registerExport, rows])
   useEffect(() => saveFilters(filters), [filters])
   const dirty = JSON.stringify(filters) !== JSON.stringify(DEFAULT_FILTERS)
   const set = <K extends keyof Filters>(k: K, v: Filters[K]) => setFilters((f) => ({ ...f, [k]: v }))
