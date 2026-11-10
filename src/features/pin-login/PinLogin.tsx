@@ -43,7 +43,7 @@ export function PinLogin() {
         <h1>Вхід</h1>
         <div className="field">
           <label htmlFor="pl-user">Вибір вихователя</label>
-          <Select id="pl-user" value={userId} onChange={(e) => { setUserId(e.target.value); setError(null) }} disabled={!users}>
+          <Select id="pl-user" value={userId} onChange={(e) => { setUserId(e.target.value); setSecret(''); setError(null) }} disabled={!users}>
             <option value="">{users ? '— оберіть —' : loadError ? 'Не вдалося завантажити' : 'Завантаження…'}</option>
             {users?.map((u) => <option key={u.id} value={u.id}>{u.name || '(без імені)'}</option>)}
           </Select>
@@ -56,7 +56,7 @@ export function PinLogin() {
         <div className="field">
           <label htmlFor="pl-secret">Пароль</label>
           <input
-            id="pl-secret" type="password" autoComplete="off" value={secret} maxLength={72}
+            id="pl-secret" type="password" autoComplete="off" value={secret} maxLength={72} disabled={!userId}
             onChange={(e) => { setSecret(e.target.value); setError(null) }}
           />
         </div>
