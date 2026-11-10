@@ -1,24 +1,19 @@
-import { useCallback, useEffect, useReducer, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { loadLibrary, type Library } from './api'
 import { ArchiveTab } from './ArchiveTab'
-import { basedOnReducer, INITIAL_BASED_ON } from './basedOn'
-import { BasedOnTab } from './BasedOnTab'
 import { TemplatesTab } from './TemplatesTab'
-import type { DocumentRow } from './types'
 import './documents.css'
 
-type Tab = 'archive' | 'based' | 'templates'
+type Tab = 'templates' | 'archive'
 const TABS: { id: Tab; label: string }[] = [
-  { id: 'archive', label: 'Архів' },
-  { id: 'based', label: 'Створити на основі…' },
   { id: 'templates', label: 'Шаблони й автозаповнення' },
+  { id: 'archive', label: 'Архів' },
 ]
 
 export function DocumentsPage() {
-  const [tab, setTab] = useState<Tab>('archive')
+  const [tab, setTab] = useState<Tab>('templates')
   const [lib, setLib] = useState<Library | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [basedOn, dispatch] = useReducer(basedOnReducer, INITIAL_BASED_ON)
 
   const reload = useCallback(async () => {
     try {
@@ -39,12 +34,6 @@ export function DocumentsPage() {
     }
   }, [])
 
-  function startFrom(doc: DocumentRow) {
-    dispatch({ type: 'setTopic', category: doc.category ?? '', topic: doc.topic ?? '' })
-    dispatch({ type: 'openPreview', sourceId: doc.id })
-    setTab('based')
-  }
-
   return (
     <section className="documents">
       <h1>Документи</h1>
@@ -64,8 +53,7 @@ export function DocumentsPage() {
       </div>
       {error && <p className="error">{error}</p>}
       {!lib && !error && <p className="muted">Завантаження…</p>}
-      {lib && tab === 'archive' && <ArchiveTab lib={lib} reload={reload} onBasedOn={startFrom} />}
-      {lib && tab === 'based' && <BasedOnTab lib={lib} reload={reload} state={basedOn} dispatch={dispatch} />}
+      {lib && tab === 'archive' && <ArchiveTab lib={lib} reload={reload} />}
       {lib && tab === 'templates' && <TemplatesTab lib={lib} />}
     </section>
   )

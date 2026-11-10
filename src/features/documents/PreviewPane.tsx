@@ -7,10 +7,12 @@ interface Props {
   storagePath: string
   title: string
   fileType: FileType
+  /** Кнопка «Завантажити» над переглядом (у перегляді шаблону не потрібна). */
+  downloadable?: boolean
 }
 
 /** Перегляд без завантаження: .docx — docx-preview, PDF — власний переглядач браузера (iframe). */
-export function PreviewPane({ storagePath, title, fileType }: Props) {
+export function PreviewPane({ storagePath, title, fileType, downloadable = true }: Props) {
   const [blob, setBlob] = useState<Blob | null>(null)
   const [pdfUrl, setPdfUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -51,11 +53,13 @@ export function PreviewPane({ storagePath, title, fileType }: Props) {
 
   return (
     <div className="preview-pane">
-      <div className="preview-actions">
-        <button type="button" className="secondary" onClick={() => void download()}>
-          Завантажити
-        </button>
-      </div>
+      {downloadable && (
+        <div className="preview-actions">
+          <button type="button" className="secondary" onClick={() => void download()}>
+            Завантажити
+          </button>
+        </div>
+      )}
       {downloadError && <p className="error">{downloadError}</p>}
       {error ? (
         <div className="preview-fallback" role="alert">

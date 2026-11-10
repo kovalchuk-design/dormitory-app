@@ -1,6 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import { deleteDocument, downloadFile, uploadDocument } from './api'
+import { CreateFromModal } from './CreateFromModal'
 import { DocBadges } from './DocBadges'
 import { makeLookups } from './lookups'
 import { Modal } from './PreviewModal'
@@ -26,15 +27,15 @@ import { Select } from '../../components/ui/Select'
 interface Props {
   lib: Library
   reload: () => Promise<void>
-  onBasedOn: (doc: DocumentRow) => void
 }
 
-export function ArchiveTab({ lib, reload, onBasedOn }: Props) {
+export function ArchiveTab({ lib, reload }: Props) {
   const { profile } = useAuth()
   const [filters, setFilters] = useState<DocumentFilters>(EMPTY_FILTERS)
   const [sort, setSort] = useState<SortKey>('created_desc')
   const [previewId, setPreviewId] = useState<string | null>(null)
   const [showUpload, setShowUpload] = useState(false)
+  const [creatingFrom, setCreatingFrom] = useState<DocumentRow | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -180,7 +181,7 @@ export function ArchiveTab({ lib, reload, onBasedOn }: Props) {
                   <button type="button" onClick={() => setPreviewId(doc.id)} disabled={fileTypeOf(doc) === 'other'}>Перегляд</button>
                   <button type="button" className="secondary" onClick={() => void download(doc)}>Завантажити</button>
                   {uploader && (
-                    <button type="button" className="secondary" onClick={() => onBasedOn(doc)}>Створити на основі цього</button>
+                    <button type="button" className="secondary" onClick={() => setCreatingFrom(doc)}>Створити на основі цього</button>
                   )}
                   {canDeleteDocument(profile, doc) && (
                     <button type="button" className="danger" onClick={() => void remove(doc)}>Видалити</button>
@@ -202,7 +203,7 @@ export function ArchiveTab({ lib, reload, onBasedOn }: Props) {
                 type="button"
                 onClick={() => {
                   setPreviewId(null)
-                  onBasedOn(previewDoc)
+                  setCreatingFrom(previewDoc)
                 }}
               >
                 Створити на основі цього
@@ -213,6 +214,7 @@ export function ArchiveTab({ lib, reload, onBasedOn }: Props) {
           <PreviewPane key={previewDoc.id} storagePath={previewDoc.storage_path} title={previewDoc.title} fileType={fileTypeOf(previewDoc)} />
         </Modal>
       )}
+      {creatingFrom && <CreateFromModal source={creatingFrom} lib={lib} reload={reload} onClose={() => setCreatingFrom(null)} />}
     </div>
   )
 }

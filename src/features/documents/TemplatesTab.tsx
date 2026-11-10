@@ -148,14 +148,9 @@ export function TemplatesTab({ lib }: { lib: Library }) {
           title={`Перегляд: «${previewing.title}»`}
           onClose={closePreview}
           wide
-          footer={
-            <>
-              {previewing.id !== selectedId && <button type="button" onClick={() => use(previewing)}>Використати</button>}
-              <button type="button" className="secondary" onClick={closePreview}>Закрити</button>
-            </>
-          }
+          footer={previewing.id !== selectedId ? <button type="button" onClick={() => use(previewing)}>Використати</button> : undefined}
         >
-          <PreviewPane key={previewing.id} storagePath={previewing.storage_path} title={previewing.title} fileType="docx" />
+          <PreviewPane key={previewing.id} storagePath={previewing.storage_path} title={previewing.title} fileType="docx" downloadable={false} />
         </Modal>
       )}
       {adding && (
