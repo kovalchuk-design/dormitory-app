@@ -1,0 +1,12 @@
+/* UX-аудит (мобільна версія): зони дотику ≥44px та дрібні виправлення. Окремий файл, щоб не конфліктувати з візуальним редизайном. */
+@media (pointer: coarse) {
+  .rm-pupil .iconbtn { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
+  .rm-tabs button, .documents .tab { min-height: 44px; }
+  .rm-pupil .rm-pupil-name { align-self: stretch; min-height: 44px; text-align: left; }
+  a.back-link { display: inline-flex; align-items: center; min-height: 44px; }
+}
+/* вкладки поверхів не мають обрізатися на вузьких екранах (було: «5» ховалося за краєм) */
+@media (max-width: 900px) {
+  .rm-tabs { gap: 4px; }
+  .rm-tabs button { flex: 1 1 auto; padding: 0 8px; white-space: nowrap; }
+}

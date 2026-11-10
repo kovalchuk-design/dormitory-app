@@ -50,6 +50,11 @@ export async function installMock(context, { role = 'admin', data = makeData(), 
       const id = url.searchParams.get('id')?.replace('eq.', '')
       return id ? single(data.students.filter((s) => s.id === id)) : json(data.students)
     }
+    if (p === '/rest/v1/v_room_occupancy') return json(data.rooms.map((r) => ({ room_id: r.id, floor: r.floor, room: r.number, capacity: r.capacity, is_active: true, occupied: data.assignments.filter((a) => a.rooms.number === r.number).length })))
+    if (p === '/rest/v1/v_unplaced_students') return json(data.students.filter((s) => !data.assignments.some((a) => a.student_id === s.id)))
+    if (p === '/rest/v1/room_assignments' && (url.searchParams.get('select') ?? '').includes('students!inner')) {
+      return json(data.assignments.map((a) => ({ room_id: data.rooms.find((r) => r.number === a.rooms.number).id, students: data.students.find((s) => s.id === a.student_id) })))
+    }
     if (p === '/rest/v1/room_assignments') return json(data.assignments)
     if (p === '/rest/v1/student_profiles') return json(data.profiles)
     if (p === '/rest/v1/rooms') return json(data.rooms)
