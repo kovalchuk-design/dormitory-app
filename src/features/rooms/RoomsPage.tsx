@@ -1,4 +1,6 @@
-import { useMemo, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useContext, useMemo, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { createPortal } from 'react-dom'
+import { HostelActionsSlot } from '../../pages/hostelContext'
 import { useAuth } from '../../auth/useAuth'
 import { ScrollArea } from '../../components/ui/ScrollArea'
 import { assignStudent, createRoom, fetchCurrentRoomId, moveStudent, unassignStudent, updateRoom } from './api'
@@ -61,6 +63,7 @@ export function RoomsPage() {
   const role = profile?.role
   const canEdit = role === 'admin' || role === 'educator'
   const isAdmin = role === 'admin'
+  const slot = useContext(HostelActionsSlot)
 
   const { data, error, loading, refresh } = useRoomsBoard()
   const [floorTab, setFloorTab] = useState<number>(profile?.floor ?? FLOORS[0])
@@ -175,12 +178,10 @@ export function RoomsPage() {
 
   return (
     <section className="rm-page fill-page">
-      <div className="rm-title">
-        <h1>Кімнати</h1>
-        {isAdmin && (
-          <button type="button" onClick={() => { setDialogError(null); setCreating(true) }}>+ Кімната</button>
-        )}
-      </div>
+      {slot && isAdmin && createPortal(
+        <button type="button" className="secondary" onClick={() => { setDialogError(null); setCreating(true) }}>+ Кімната</button>,
+        slot,
+      )}
       {!canEdit && <p className="muted small">Режим перегляду: переміщення недоступні.</p>}
       {error && <p className="error" role="alert">{error}</p>}
       {notice && (

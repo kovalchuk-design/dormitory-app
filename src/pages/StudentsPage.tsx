@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { HostelActionsSlot } from './hostelContext'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../auth/useAuth'
 import { Drawer } from '../components/ui/Drawer'
 import { StudentCardPage } from './StudentCardPage'
 import { ScrollArea } from '../components/ui/ScrollArea'
@@ -35,12 +36,11 @@ function SortMark({ dir }: { dir: SortDir | null }) {
 }
 
 export function StudentsPage() {
-  const { profile } = useAuth()
-  const canEdit = profile?.role === 'admin' || profile?.role === 'educator'
   const { data, error, loading } = useLoad(fetchStudentRows, 'students')
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
   const [showFilters, setShowFilters] = useState(false)
   const [openId, setOpenId] = useState<string | null>(null)
+  const slot = useContext(HostelActionsSlot)
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'name', dir: 'asc' })
 
   const rooms = useMemo(
@@ -54,16 +54,13 @@ export function StudentsPage() {
 
   return (
     <section className="fill-page st-page">
-      <div className="page-head">
-        <h1>Студенти</h1>
-        <div className="row">
-          <button type="button" className="secondary" disabled={rows.length === 0}
-            onClick={() => downloadCsv(`students-${new Date().toISOString().slice(0, 10)}.csv`, studentsToCsv(rows))}>
-            Експорт CSV
-          </button>
-          {canEdit && <Link className="btn" to="/students/new">+ Додати учня</Link>}
-        </div>
-      </div>
+      {slot && createPortal(
+        <button type="button" className="secondary" disabled={rows.length === 0}
+          onClick={() => downloadCsv(`students-${new Date().toISOString().slice(0, 10)}.csv`, studentsToCsv(rows))}>
+          Експорт CSV
+        </button>,
+        slot,
+      )}
 
       <form className="filters" role="search" onSubmit={(e) => e.preventDefault()} aria-label="Пошук і фільтри">
         <label className="grow">Пошук (ПІБ, телефон, кімната)

@@ -11,10 +11,9 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Головна' },
-  { to: '/students', label: 'Студенти' },
+  { to: '/hostel', label: 'Гуртожиток' },
   { to: '/updates', label: 'Оновлення даних', roles: ['admin', 'educator'], badge: 'pending' },
   { to: '/collect', label: 'Збір анкет', roles: ['admin', 'educator'], badge: 'unmatched' },
-  { to: '/rooms', label: 'Кімнати' },
   { to: '/documents', label: 'Документи' },
   { to: '/events', label: 'Івенти' },
   { to: '/calendar', label: 'Календар' },
