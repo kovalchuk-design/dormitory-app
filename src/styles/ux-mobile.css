@@ -112,3 +112,32 @@ html[data-theme='dark'] { color-scheme: dark; }
   .public-page { min-height: 100vh; min-height: 100dvh; background: var(--surface); padding: env(safe-area-inset-top) 0 calc(24px + env(safe-area-inset-bottom)); }
   .public-card { border-radius: 0; box-shadow: none; background: transparent; }
 }
+
+/* Картки (поверхи в «Зборі анкет», подання, документи): вертикальний ритм через gap — раніше блоки .row «злипалися» без відступів */
+.floor-card { display: flex; flex-direction: column; gap: 12px; }
+.floor-card > * { margin: 0; }
+.floor-card > .row.actions:last-child { margin-top: auto; }
+.floor-card h3 { margin-bottom: 0; }
+.floor-card .notice { margin: 0; display: grid; gap: 10px; }
+.floor-card .notice > * { margin: 0; }
+.floor-card .row.actions > * { flex: 1 1 100%; }
+.subcard { display: grid; gap: 10px; align-content: start; }
+.subcard > * { margin: 0; }
+@media (pointer: coarse) { .rm-room header .iconbtn { width: 44px; height: 44px; min-width: 44px; min-height: 44px; } }
+
+/* Зміна пароля: вертикальний ритм (заголовок і підписи полів раніше злипалися) */
+.cp-card { display: grid; gap: 12px; align-content: start; }
+.cp-card > * { margin: 0; }
+.cp-card label { display: grid; gap: 6px; }
+
+/* Картка учня: анкета — сітка в кілька колонок замість довгого стовпця переважно з «—» */
+@media (min-width: 761px) {
+  .card-page dl.kv { grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 10px 24px; }
+  .card-page dl.kv > div { border-bottom: 0; padding: 0; }
+}
+
+/* Липка панель «Зберегти / Скасувати» на телефоні: суцільна плашка, щоб не накладатися на поля під нею */
+@media (max-width: 760px) {
+  .form-actions { padding: 10px; border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadowPop);
+    background: color-mix(in oklch, var(--surface) 94%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+}
