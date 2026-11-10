@@ -60,3 +60,7 @@ body.rm-dragging, body.rm-dragging * { cursor: grabbing !important; user-select:
 
 .rm-cap { display: flex; align-items: center; gap: .4rem; font-size: .8rem; margin: 0 0 .4rem; color: var(--muted); }
 .rm-cap select { font: inherit; padding: .15rem .3rem; border: 1px solid var(--border); border-radius: 6px; }
+
+.rm-floor h2.rm-floor-head { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; }
+.rm-floor-count { font-size: .85rem; font-weight: 500; color: var(--text2Hi, inherit); white-space: nowrap; }
+@media (max-width: 720px) { .rm-floor h2.rm-floor-head { display: none; } }

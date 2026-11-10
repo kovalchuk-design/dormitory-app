@@ -185,6 +185,8 @@ export function RoomsPage() {
 
   if (loading) return <p className="muted">Завантаження…</p>
 
+  const floorCount = (f: number) => (byFloor.get(f) ?? []).reduce((n, r) => n + (pupilsByRoom.get(r.id)?.length ?? 0), 0)
+
   return (
     <section className="rm-page fill-page">
       {!canEdit && <p className="muted small">Режим перегляду: переміщення недоступні.</p>}
@@ -210,7 +212,7 @@ export function RoomsPage() {
         <div className="rm-tabs" role="tablist" aria-label="Поверхи">
           {FLOORS.map((f) => (
             <button key={f} type="button" role="tab" aria-selected={floorTab === f} className={floorTab === f ? 'active' : ''} onClick={() => setFloorTab(f)}>
-              {f} поверх
+              {f} поверх · {floorCount(f)}
             </button>
           ))}
         </div>
@@ -218,7 +220,10 @@ export function RoomsPage() {
         <div className="rm-floors">
           {FLOORS.map((f) => (
             <div key={f} className={`rm-floor${floorTab === f ? ' current' : ''}`} data-testid={`floor-${f}`}>
-              <h2>{f} поверх</h2>
+              <h2 className="rm-floor-head">
+                <span>{f} поверх</span>
+                <span className="rm-floor-count" title="Кількість учнів, які проживають на поверсі">{floorCount(f)} {pupilsWord(floorCount(f))}</span>
+              </h2>
               <ScrollArea className="rm-floor-scroll" body="rm-rooms">
                 {(byFloor.get(f) ?? []).map((r) => (
                   <RoomCard
@@ -287,4 +292,11 @@ export function RoomsPage() {
       {creating && <NewRoomDialog rooms={rooms} busy={busy} error={dialogError} onCreate={(v) => void addRoom(v)} onCancel={() => setCreating(false)} />}
     </section>
   )
+}
+
+function pupilsWord(n: number): string {
+  const m10 = n % 10, m100 = n % 100
+  if (m10 === 1 && m100 !== 11) return 'учень'
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'учні'
+  return 'учнів'
 }

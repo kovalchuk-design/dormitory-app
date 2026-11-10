@@ -173,9 +173,9 @@ input[type='checkbox'] { width: 1.4rem; height: 1.4rem; min-height: 0; flex: non
   table.diff thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   table.diff, table.diff tbody, table.diff tr, table.diff th, table.diff td { display: block; width: 100%; }
   table.diff tr { border: 1px solid var(--border); border-radius: 8px; margin-bottom: .5rem; padding: .4rem .6rem; }
-  table.diff th[scope='row'] { border: 0; padding: .1rem 0; color: var(--muted); font-size: .8rem; font-weight: 500; }
+  table.diff th[scope='row'] { border: 0; padding: .1rem 0; color: var(--text2Hi); font-size: .8rem; font-weight: 500; }
   table.diff td { border: 0; padding: .1rem 0; }
-  table.diff td::before { content: attr(data-label) ': '; color: var(--muted); font-size: .8rem; }
+  table.diff td::before { content: attr(data-label) ': '; color: var(--text2Hi); font-size: .8rem; }
   .row.sticky-actions { position: sticky; bottom: 0; background: var(--card); padding: .5rem 0; z-index: 5; } /* лише «Підтвердити / Відхилити» */
   .public-card { padding: 1rem; border-radius: 0; border-left: 0; border-right: 0; }
   .public-page { padding: 0; }
@@ -224,3 +224,25 @@ details > summary { cursor: pointer; padding: .5rem 0; min-height: 2.75rem; disp
 .prof-row { display: flex; align-items: center; gap: .25rem; border-bottom: 1px solid var(--border); padding: .15rem 0; }
 .prof-row.off { opacity: .75; }
 .prof-row .grow, .row .grow { flex: 1 1 14rem; min-width: 0; }
+
+/* ---- Підтвердження: вибір «стара / нова / обидві» галочками ---- */
+.pick { display: flex; align-items: flex-start; gap: 10px; margin: 0; min-height: 40px; cursor: pointer; }
+.pick input { margin-top: 2px; flex: none; }
+.pick span { overflow-wrap: anywhere; }
+.pick.on span { color: var(--text, inherit); font-weight: 600; }
+.pick.off span { color: var(--text2, var(--muted)); font-weight: 400; }
+.merge-result { font-weight: 700; overflow-wrap: anywhere; }
+.merge-help { margin: .25rem 0 .75rem; }
+
+/* Єдина сітка таблиць порівняння: однакова ширина колонок у всіх учнів, як у Excel */
+table.diff { table-layout: fixed; }
+table.diff th, table.diff td { overflow-wrap: anywhere; }
+table.diff tbody th[scope='row'] { font-size: .8rem; font-weight: 600; color: var(--text2Hi); }
+table.diff thead th { font-size: .75rem; text-transform: uppercase; letter-spacing: .03em; color: var(--text2Hi); }
+table.diff .c-field { width: 16%; }
+table.diff .c-two { width: 42%; }
+table.merge .c-old, table.merge .c-new { width: 27%; }
+table.merge .c-res { width: 30%; }
+.merge-result textarea { width: 100%; box-sizing: border-box; font: inherit; font-weight: 600; padding: .3rem .4rem; resize: vertical; min-height: 2.4rem; border: 1px solid var(--border); border-radius: 6px; background: var(--card); }
+.merge-result.edited textarea { border-color: #b7791f; background: #fff8d6; }
+@media (max-width: 720px) { .merge-result textarea { min-height: 3rem; } table.diff tbody th[scope='row'] { font-size: .8rem; } }
