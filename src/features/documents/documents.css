@@ -51,3 +51,34 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 .help-table td, .help-table th { border-bottom: 1px solid var(--border); padding: .3rem .4rem; text-align: left; vertical-align: middle; overflow-wrap: anywhere; }
 .help code { background: #eef1f6; padding: .05rem .3rem; border-radius: 4px; }
 .copy-btn { padding: .2rem .6rem; font-size: .78rem; white-space: nowrap; }
+
+/* ---- Шаблони: дві колонки ---- */
+.tpl-layout { display: grid; grid-template-columns: minmax(0, 24rem) minmax(0, 1fr); gap: 1rem; align-items: start; }
+@media (max-width: 52rem) { .tpl-layout { grid-template-columns: minmax(0, 1fr); } }
+.tpl-left, .tpl-right .panel { margin: 0; }
+.tpl-right { display: grid; gap: 1rem; min-width: 0; }
+.tpl-left { display: flex; flex-direction: column; gap: .8rem; }
+.tpl-left h2, .tpl-right h2 { margin: 0; }
+.tpl-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.tpl-item { border: 1.5px solid var(--border); border-radius: 14px; padding: .8rem 1rem; display: flex; flex-direction: column; gap: .4rem; background: var(--surface); }
+.tpl-item h3 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; display: flex; gap: .5rem; align-items: baseline; justify-content: space-between; }
+.tpl-item.selected { border-color: var(--out); background: var(--out-bg); }
+.tpl-item.previewing:not(.selected) { border-color: var(--text2); }
+.tpl-state { font-size: .72rem; font-weight: 700; color: var(--outInk); white-space: nowrap; }
+.tpl-add { align-self: stretch; }
+.tpl-right-head { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: space-between; align-items: center; margin-bottom: .6rem; }
+.tpl-idle { opacity: .6; }
+.tpl-idle h2 { color: var(--text2); }
+.tpl-chosen-template { margin: .2rem 0 .8rem; }
+.floor-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .6rem; }
+.chip.part { border-color: var(--out); }
+.tpl-upload { display: grid; gap: .8rem; margin-bottom: 1rem; }
+.tpl-count { margin: .6rem 0; }
+.tpl-result { margin-top: 1rem; }
+.pupil-list { max-height: 24rem; }
+.pupil-list li { border-radius: 10px; padding: 0 .4rem; }
+.pupil-list li.on { background: var(--out-bg); }
+.documents .pupil-list label { width: 100%; cursor: pointer; }
+.documents .pupil-list label input[type='checkbox'] { display: inline-grid; width: 22px; height: 22px; margin: 0; }
+.pupil-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.pupil-meta { white-space: nowrap; }

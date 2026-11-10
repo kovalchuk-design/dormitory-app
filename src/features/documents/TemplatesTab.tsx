@@ -28,8 +28,9 @@ export function TemplatesTab({ lib }: { lib: Library }) {
   const [educatorsCanEdit, setEducatorsCanEdit] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
-  const [selectedId, setSelectedId] = useState('')
-  const [previewing, setPreviewing] = useState<TemplateRow | null>(null)
+  const [selectedId, setSelectedId] = useState('') // «Використати»
+  const [previewId, setPreviewId] = useState('') // «Перегляд шаблону»
+  const [adding, setAdding] = useState(false)
   const editable = canEditTemplates(profile?.role, educatorsCanEdit)
 
   const refresh = useCallback(async () => {
@@ -62,6 +63,7 @@ export function TemplatesTab({ lib }: { lib: Library }) {
       const warn = await deleteTemplate(t)
       setNotice(warn)
       if (selectedId === t.id) setSelectedId('')
+      if (previewId === t.id) setPreviewId('')
       await refresh()
     } catch (e) {
       setError(errText(e))
@@ -69,6 +71,13 @@ export function TemplatesTab({ lib }: { lib: Library }) {
   }
 
   const selected = templates?.find((t) => t.id === selectedId) ?? null
+  const previewing = templates?.find((t) => t.id === previewId) ?? null
+  const closeAdd = useCallback(() => setAdding(false), [])
+
+  function use(t: TemplateRow) {
+    setSelectedId(t.id)
+    setPreviewId('')
+  }
 
   return (
     <div>
@@ -77,39 +86,73 @@ export function TemplatesTab({ lib }: { lib: Library }) {
       {templates === null ? (
         <p className="muted">Завантаження…</p>
       ) : (
-        <>
-          <h2>1. Оберіть шаблон</h2>
-          {templates.length === 0 ? (
-            <p className="muted">Шаблонів ще немає.{editable ? '' : ' Їх додає адміністратор.'}</p>
-          ) : (
-            <ul className="doc-list">
-              {templates.map((t) => (
-                <li key={t.id} className={`doc-card${t.id === selectedId ? ' selected' : ''}`}>
-                  <h3>{t.title}</h3>
-                  {editable && <p className="small muted">Поля: {t.placeholders.length ? t.placeholders.join(', ') : '—'}</p>}
+        <div className="tpl-layout">
+          <aside className="panel tpl-left" aria-label="Шаблони">
+            <h2>Шаблони</h2>
+            {templates.length === 0 ? (
+              <p className="muted">Шаблонів ще немає.{editable ? '' : ' Їх додає адміністратор.'}</p>
+            ) : (
+              <ul className="tpl-list">
+                {templates.map((t) => (
+                  <li key={t.id} className={`tpl-item${t.id === selectedId ? ' selected' : ''}${t.id === previewId ? ' previewing' : ''}`}>
+                    <h3>
+                      {t.title}
+                      {t.id === selectedId && <span className="tpl-state">Вибрано</span>}
+                    </h3>
+                    {editable && <p className="small muted" title={t.placeholders.join(', ')}>Полів для автозаповнення: {t.placeholders.length}</p>}
+                    <div className="card-actions">
+                      <button type="button" onClick={() => use(t)} aria-pressed={t.id === selectedId}>
+                        {t.id === selectedId ? 'Використовується' : 'Використати'}
+                      </button>
+                      <button type="button" className="secondary" onClick={() => setPreviewId(t.id === previewId ? '' : t.id)} aria-pressed={t.id === previewId}>
+                        {t.id === previewId ? 'Сховати перегляд' : 'Перегляд шаблону'}
+                      </button>
+                      {editable && <button type="button" className="danger" onClick={() => void remove(t)}>Видалити</button>}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {editable ? (
+              <button type="button" className="tpl-add" onClick={() => setAdding(true)}>+ Додати шаблон</button>
+            ) : (
+              <p className="muted small">Шаблони додає й змінює адміністратор.</p>
+            )}
+          </aside>
+
+          <div className="tpl-right">
+            {previewing && (
+              <section className="panel" aria-label="Перегляд шаблону">
+                <div className="tpl-right-head">
+                  <h2>Перегляд: «{previewing.title}»</h2>
                   <div className="card-actions">
-                    <button type="button" onClick={() => setSelectedId(t.id)}>Використати</button>
-                    <button type="button" className="secondary" onClick={() => setPreviewing(t)}>Перегляд шаблону</button>
-                    {editable && <button type="button" className="danger" onClick={() => void remove(t)}>Видалити</button>}
+                    {previewing.id !== selectedId && <button type="button" onClick={() => use(previewing)}>Використати</button>}
+                    <button type="button" className="secondary" onClick={() => setPreviewId('')}>
+                      {selected ? 'Назад до вибору учнів' : 'Закрити перегляд'}
+                    </button>
                   </div>
-                </li>
-              ))}
-            </ul>
-          )}
-          {editable ? (
-            <>
-              <TemplateHelp />
-              <TemplateUpload onDone={async () => { setNotice('Шаблон додано.'); await refresh() }} />
-            </>
-          ) : (
-            <p className="muted small">Шаблони додає й змінює адміністратор.</p>
-          )}
-          {selected && <Autofill key={selected.id} template={selected} lib={lib} />}
-        </>
+                </div>
+                <PreviewPane key={previewing.id} storagePath={previewing.storage_path} title={previewing.title} fileType="docx" />
+              </section>
+            )}
+            <div hidden={!!previewing}>
+              {selected ? (
+                <Autofill key={selected.id} template={selected} lib={lib} />
+              ) : (
+                <section className="panel tpl-idle" aria-disabled="true">
+                  <h2>Оберіть учнів</h2>
+                  <p className="muted">Спершу виберіть шаблон ліворуч і натисніть «Використати» — тут з’явиться вибір учнів.</p>
+                  <button type="button" disabled>Сформувати документ</button>
+                </section>
+              )}
+            </div>
+          </div>
+        </div>
       )}
-      {previewing && (
-        <Modal title={previewing.title} onClose={() => setPreviewing(null)}>
-          <PreviewPane storagePath={previewing.storage_path} title={previewing.title} fileType="docx" />
+      {adding && (
+        <Modal title="Додати шаблон" onClose={closeAdd}>
+          <TemplateUpload onDone={async () => { setAdding(false); setNotice('Шаблон додано.'); await refresh() }} />
+          <TemplateHelp />
         </Modal>
       )}
     </div>
@@ -144,12 +187,11 @@ function TemplateUpload({ onDone }: { onDone: () => Promise<void> }) {
   }
 
   return (
-    <form className="panel" onSubmit={(e) => void submit(e)}>
-      <h3>Додати шаблон</h3>
+    <form className="tpl-upload" onSubmit={(e) => void submit(e)}>
       <label>Файл .docx з полями {'{{…}}'}
         <input type="file" accept=".docx" onChange={(e) => { setFile(e.target.files?.[0] ?? null); setError(null) }} />
       </label>
-      <label>Назва
+      <label>Назва шаблону
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Наприклад: Заява на поселення" />
       </label>
       {error && <p className="error">{error}</p>}
@@ -163,6 +205,7 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
   const [pupils, setPupils] = useState<PupilOption[] | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [onlyChosen, setOnlyChosen] = useState(false)
   const [chosen, setChosen] = useState<Set<string>>(new Set())
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -180,20 +223,50 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
   }, [])
 
   const rooms = useMemo(() => [...new Set((pupils ?? []).map((p) => p.room).filter((r): r is string => !!r))].sort((a, b) => a.localeCompare(b, 'uk', { numeric: true })), [pupils])
-  const floors = useMemo(() => [...new Set((pupils ?? []).map((p) => p.floor).filter((f): f is number => f != null))].sort(), [pupils])
+  const floors = useMemo(
+    () =>
+      [...new Set((pupils ?? []).map((p) => p.floor).filter((f): f is number => f != null))]
+        .sort((a, b) => a - b)
+        .map((f) => {
+          const ids = (pupils ?? []).filter((p) => p.floor === f).map((p) => p.id)
+          return { floor: f, ids, picked: ids.filter((id) => chosen.has(id)).length }
+        }),
+    [pupils, chosen],
+  )
+  const ordered = useMemo(
+    () =>
+      [...(pupils ?? [])].sort(
+        (a, b) =>
+          (a.room ?? '\uffff').localeCompare(b.room ?? '\uffff', 'uk', { numeric: true }) || fullName(a).localeCompare(fullName(b), 'uk'),
+      ),
+    [pupils],
+  )
   const shown = useMemo(() => {
     const q = search.trim().toLocaleLowerCase('uk')
-    return (pupils ?? []).filter((p) => !q || fullName(p).toLocaleLowerCase('uk').includes(q))
-  }, [pupils, search])
+    return ordered.filter((p) => (!onlyChosen || chosen.has(p.id)) && (!q || fullName(p).toLocaleLowerCase('uk').includes(q)))
+  }, [ordered, search, onlyChosen, chosen])
 
+  const change = (fn: (s: Set<string>) => Set<string>) => {
+    setChosen(fn)
+    setResult(null)
+  }
   const toggle = (id: string) =>
-    setChosen((s) => {
+    change((s) => {
       const n = new Set(s)
       if (!n.delete(id)) n.add(id)
       return n
     })
-  const addWhere = (pred: (p: PupilOption) => boolean) =>
-    setChosen((s) => new Set([...s, ...(pupils ?? []).filter(pred).map((p) => p.id)]))
+  const toggleMany = (ids: string[]) =>
+    change((s) => {
+      const n = new Set(s)
+      const all = ids.length > 0 && ids.every((id) => n.has(id))
+      for (const id of ids) {
+        if (all) n.delete(id)
+        else n.add(id)
+      }
+      return n
+    })
+  const addRoom = (room: string) => change((s) => new Set([...s, ...(pupils ?? []).filter((p) => p.room === room).map((p) => p.id)]))
 
   async function generate() {
     if (!profile || !pupils) return
@@ -209,7 +282,9 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
         yearName: lib.years.find((y) => y.is_current)?.name ?? null,
       })
       const blob = await renderDocxTemplate(buf, data)
-      const suffix = selected.length === 1 ? fullName(selected[0]) : `${selected.length} учнів`
+      const chosenFloors = [...new Set(selected.map((p) => p.floor))]
+      const suffix =
+        selected.length === 1 ? fullName(selected[0]) : chosenFloors.length === 1 && chosenFloors[0] != null ? `${chosenFloors[0]} поверх, ${selected.length} учнів` : `${selected.length} учнів`
       setResult({ blob, name: downloadName(`${template.title} — ${suffix}`, 'x.docx') })
     } catch (e) {
       setError(errText(e))
@@ -231,44 +306,61 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
   }
 
   return (
-    <section className="panel">
-      <h2>2. Оберіть учнів — «{template.title}»</h2>
+    <section className="panel tpl-active">
+      <h2>Оберіть учнів</h2>
+      <p className="tpl-chosen-template">Шаблон: <strong>«{template.title}»</strong></p>
       {loadError && <p className="error">{loadError}</p>}
       {pupils === null && !loadError && <p className="muted">Завантаження учнів…</p>}
       {pupils && (
         <>
+          <div className="floor-chips" role="group" aria-label="Вибрати весь поверх">
+            {floors.map(({ floor, ids, picked }) => {
+              const all = ids.length > 0 && picked === ids.length
+              return (
+                <button
+                  key={floor}
+                  type="button"
+                  className={`chip${all ? ' on' : picked > 0 ? ' part' : ''}`}
+                  aria-pressed={all}
+                  title={all ? 'Зняти вибір поверху' : 'Вибрати весь поверх'}
+                  onClick={() => toggleMany(ids)}
+                >
+                  {floor} поверх · {picked}/{ids.length}
+                </button>
+              )
+            })}
+          </div>
           <div className="filters">
             <input type="search" placeholder="Пошук учня…" aria-label="Пошук учня" value={search} onChange={(e) => setSearch(e.target.value)} />
-            <Select aria-label="Додати кімнату" value="" onChange={(e) => e.target.value && addWhere((p) => p.room === e.target.value)}>
+            <Select aria-label="Додати кімнату" value="" onChange={(e) => e.target.value && addRoom(e.target.value)}>
               <option value="">Додати всю кімнату…</option>
               {rooms.map((r) => <option key={r} value={r}>Кімната {r}</option>)}
             </Select>
-            <Select aria-label="Додати поверх" value="" onChange={(e) => e.target.value && addWhere((p) => String(p.floor) === e.target.value)}>
-              <option value="">Додати весь поверх…</option>
-              {floors.map((f) => <option key={f} value={f}>{f} поверх</option>)}
-            </Select>
-            <button type="button" className="secondary" onClick={() => setChosen(new Set())} disabled={chosen.size === 0}>Очистити вибір</button>
+            <button type="button" className={`chip${onlyChosen ? ' on' : ''}`} aria-pressed={onlyChosen} onClick={() => setOnlyChosen((v) => !v)}>Лише вибрані</button>
+            <button type="button" className="secondary" onClick={() => change(() => new Set())} disabled={chosen.size === 0}>Очистити вибір</button>
           </div>
           {pupils.length === 0 && <p className="muted">Немає учнів, дані яких вам доступні.</p>}
+          {pupils.length > 0 && shown.length === 0 && <p className="muted">Нікого не знайдено.</p>}
           <ul className="pupil-list">
             {shown.map((p) => (
-              <li key={p.id}>
+              <li key={p.id} className={chosen.has(p.id) ? 'on' : undefined}>
                 <label>
                   <input type="checkbox" checked={chosen.has(p.id)} onChange={() => toggle(p.id)} />
-                  {fullName(p)} <span className="muted small">· {p.grade} кл.{p.room ? ` · кімн. ${p.room}` : ''}</span>
+                  <span className="pupil-name">{fullName(p)}</span>
+                  <span className="muted small pupil-meta">{p.room ? `кімн. ${p.room}` : 'без кімнати'}</span>
                 </label>
               </li>
             ))}
           </ul>
-          <p className="small">Вибрано: {chosen.size}</p>
+          <p className="tpl-count" aria-live="polite">Вибрано: <strong>{chosen.size}</strong> із {pupils.length}</p>
           {error && <p className="error">{error}</p>}
           <button type="button" disabled={busy || chosen.size === 0} onClick={() => void generate()}>
-            {busy ? 'Формування…' : '3. Сформувати документ'}
+            {busy ? 'Формування…' : 'Сформувати документ'}
           </button>
         </>
       )}
       {result && (
-        <div>
+        <div className="tpl-result">
           <div className="card-actions"><button type="button" onClick={save}>Завантажити {result.name}</button></div>
           <DocxViewer source={result.blob} />
         </div>
