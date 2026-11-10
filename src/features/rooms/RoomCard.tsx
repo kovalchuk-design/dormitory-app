@@ -15,11 +15,10 @@ interface Props {
   draggingId: string | null
   onDragStart: (e: ReactPointerEvent, pupil: Pupil, roomId: string | null) => void
   onMove: (p: Pupil, roomId: string | null) => void
-  onRoomHistory: (r: RoomInfo) => void
   onEdit: (r: RoomInfo) => void
 }
 
-export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggingId, onDragStart, onMove, onRoomHistory, onEdit }: Props) {
+export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggingId, onDragStart, onMove, onEdit }: Props) {
   const state = roomState(room)
   const cls = ['rm-room', `is-${state}`, hint === 'ok' && 'hint-ok', hint === 'blocked' && 'hint-blocked', isOver && 'over']
     .filter(Boolean)
@@ -32,9 +31,6 @@ export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggin
           {state === 'inactive' ? 'неактивна' : `${room.occupied}/${room.capacity}`}
         </span>
         <span className="rm-actions">
-          <button type="button" className="iconbtn quiet" title="Історія кімнати" aria-label={`Історія кімнати ${room.number}`} onClick={() => onRoomHistory(room)}>
-            <Icon name="history" size={16} />
-          </button>
           {isAdmin && (
             <button type="button" className="iconbtn quiet" title="Налаштування кімнати" aria-label={`Налаштування кімнати ${room.number}`} onClick={() => onEdit(room)}>
               <Icon name="gear" size={16} />

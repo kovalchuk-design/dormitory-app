@@ -3,7 +3,7 @@ import { HostelNewRoom } from '../../pages/hostelContext'
 import { useAuth } from '../../auth/useAuth'
 import { ScrollArea } from '../../components/ui/ScrollArea'
 import { assignStudent, createRoom, fetchCurrentRoomId, moveStudent, unassignStudent, updateRoom } from './api'
-import { ConfirmMoveDialog, EditRoomDialog, HistoryDialog, NewRoomDialog, PickRoomDialog } from './Dialogs'
+import { ConfirmMoveDialog, EditRoomDialog, NewRoomDialog, PickRoomDialog } from './Dialogs'
 import { PupilChip } from './PupilChip'
 import { RoomCard, type DropHint } from './RoomCard'
 import {
@@ -19,8 +19,6 @@ interface Pending {
   fromRoomId: string | null
   target: DropTarget
 }
-
-type HistoryTarget = { title: string; filter: { studentId: string } | { roomId: string }; showStudent: boolean }
 
 function Pool({ pupils, lastRoom, canEdit, hint, isOver, draggingId, onDragStart, onMove }: {
   pupils: Pupil[]
@@ -69,7 +67,6 @@ export function RoomsPage() {
   const [editing, setEditing] = useState<RoomInfo | null>(null)
   // «Нова кімната» відкривається кнопкою в шапці «Гуртожитку» (з обох видів), тому прапорець живе там.
   const { creating, setCreating } = useContext(HostelNewRoom)
-  const [history, setHistory] = useState<HistoryTarget | null>(null)
   const [busy, setBusy] = useState(false)
   const [dialogError, setDialogError] = useState<string | null>(null)
   const [notice, setNotice] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null)
@@ -220,7 +217,6 @@ export function RoomsPage() {
                     onDragStart={onDragStart}
                     hint={hintFor({ kind: 'room', roomId: r.id })}
                     onMove={startPick}
-                              onRoomHistory={(room) => setHistory({ title: `Історія кімнати ${room.number}`, filter: { roomId: room.id }, showStudent: true })}
                     onEdit={(room) => { setDialogError(null); setEditing(room) }}
                   />
                 ))}
@@ -274,7 +270,6 @@ export function RoomsPage() {
         />
       )}
       {creating && <NewRoomDialog rooms={rooms} busy={busy} error={dialogError} onCreate={(v) => void addRoom(v)} onCancel={() => setCreating(false)} />}
-      {history && <HistoryDialog {...history} onClose={() => setHistory(null)} />}
     </section>
   )
 }
