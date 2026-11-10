@@ -8,6 +8,8 @@ import { BirthDateField } from '../components/BirthDateField'
 import { applyContactMode, detectContactMode, remapContactErrors, type ContactMode } from '../lib/contactMode'
 import { getQuestionnaire, submitQuestionnaire } from '../lib/publicApi'
 import { InfoTip } from '../components/ui/InfoTip'
+import { Icon } from '../components/ui/icons'
+import { buildSummary } from '../lib/formSummary'
 import { FormProgress } from '../components/ui/FormProgress'
 
 type Phase =
@@ -33,7 +35,24 @@ export function StudentFormPage() {
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const [step, setStep] = useState<'form' | 'review'>('form')
+  const [validated, setValidated] = useState<QuestionnaireData | null>(null)
   const formRef = useRef<HTMLFormElement>(null)
+  const scrollTarget = useRef<string | null>(null)
+
+  // Кнопка «Назад» у браузері на екрані перевірки повертає до форми (а не виходить зі сторінки)
+  useEffect(() => {
+    const onPop = () => setStep((cur) => (cur === 'review' ? 'form' : cur))
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+  // після зміни кроку: або до потрібного розділу форми, або нагору
+  useEffect(() => {
+    const id = step === 'form' ? scrollTarget.current : null
+    scrollTarget.current = null
+    if (id) document.getElementById(id)?.scrollIntoView({ block: 'start' })
+    else window.scrollTo({ top: 0 })
+  }, [step])
 
   useEffect(() => {
     let alive = true
@@ -99,23 +118,49 @@ export function StudentFormPage() {
     if (first) formRef.current?.querySelector<HTMLElement>(`[name="${first}"]`)?.focus()
   }
 
-  async function onSubmit(e: FormEvent) {
+  /** Крок 1 → 2: перевірка полів (без згоди — вона на екрані перевірки) і перехід до підсумку. */
+  function onNext(e: FormEvent) {
     e.preventDefault()
     setFormError(null)
-    const r = validateQuestionnaire(applyContactMode(values, mode))
+    const r = validateQuestionnaire({ ...applyContactMode(values, mode), consent: true })
     if (!r.ok) {
       const errs = remapContactErrors(r.errors, mode)
       setErrors(errs)
       setFormError('Перевір, будь ласка, виділені поля.')
       return focusFirstError(errs)
     }
+    setValidated({ ...r.value, consent: false })
+    setStep('review')
+    window.history.pushState({ review: true }, '')
+  }
+
+  /** Повернення до форми: кнопка «Назад» (нагору) або «Змінити» біля розділу (до нього). */
+  function backToForm(sectionId?: string) {
+    scrollTarget.current = sectionId ?? null
+    setFormError(null)
+    if (window.history.state?.review) window.history.back()
+    else setStep('form')
+  }
+
+  async function onSend() {
+    if (!validated) return
+    setFormError(null)
+    if (!values.consent) {
+      setErrors((e) => ({ ...e, consent: 'Потрібна згода на обробку персональних даних' }))
+      return document.getElementById('f-consent')?.focus()
+    }
     setSubmitting(true)
-    const res = await submitQuestionnaire(token, r.value)
+    const res = await submitQuestionnaire(token, { ...validated, consent: true })
     setSubmitting(false)
     switch (res.kind) {
       case 'ok': return setPhase({ name: 'done' })
       case 'invalid': return setPhase({ name: 'invalid' })
-      case 'validation': setErrors(res.fields); setFormError('Перевір, будь ласка, виділені поля.'); return focusFirstError(res.fields)
+      case 'validation': {
+        // сервер не прийняв поле, яке клієнт пропустив: повертаємо до форми з помилками
+        setErrors(res.fields); setFormError('Перевір, будь ласка, виділені поля.')
+        scrollTarget.current = null
+        return backToForm()
+      }
       case 'rate_limited': return setFormError('Забагато спроб. Зачекай кілька хвилин і спробуй ще раз.')
       default: return setFormError('Не вдалося надіслати. Перевір інтернет і спробуй ще раз — твої відповіді збережені на цій сторінці.')
     }
@@ -172,20 +217,62 @@ export function StudentFormPage() {
   const v = values as unknown as Record<string, unknown>
   const required = [
     'full_name', 'birth_date', 'group_number', 'profession', 'class_teacher', 'master', 'address', 'student_phone',
-    'school_activities', 'college_plans', 'allergies', 'chronic_conditions',
+    'school_activities', 'college_plans',
     ...(mode === 'parents' ? ['mother_name', 'father_name'] : ['guardian_name', 'guardian_relation', 'guardian_phone']),
   ]
   const done = required.filter((k) => String(v[k] ?? '').trim() !== '').length
-    + (values.social_codes.length > 0 ? 1 : 0) + (values.consent ? 1 : 0)
-  const total = required.length + 2
+    + (values.social_codes.length > 0 ? 1 : 0)
+  const total = required.length + 1
+
+  if (step === 'review' && validated) {
+    const sections = buildSummary(validated, mode)
+    return (
+      <Shell>
+        <h1>Перевір свою анкету</h1>
+        <p className="muted">Подивись, чи все правильно. Якщо помітив помилку, натисни олівець біля розділу й виправ. Далі натисни «Надіслати».</p>
+        {sections.map((sec) => (
+          <section key={sec.id} className="review-sec" aria-labelledby={`rv-${sec.id}`}>
+            <div className="review-head">
+              <h2 id={`rv-${sec.id}`}>{sec.title}</h2>
+              <button type="button" className="iconbtn" aria-label={`Змінити розділ «${sec.title}»`} title="Змінити" onClick={() => backToForm(sec.id)}>
+                <Icon name="edit" />
+              </button>
+            </div>
+            {sec.note && <p className="muted small">{sec.note}</p>}
+            <dl className="kv">
+              {sec.items.map((it) => (
+                <div key={it.key} className={it.emphasis ? 'kv-key' : undefined}>
+                  <dt>{it.label}</dt>
+                  <dd className={it.empty ? 'muted' : undefined}>{it.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ))}
+        <div className="consent">
+          <label className="check">
+            <input id="f-consent" type="checkbox" name="consent" checked={values.consent} aria-invalid={!!errors.consent}
+              aria-describedby="consent-text" onChange={(e) => set('consent', e.target.checked)} />
+            <span id="consent-text">{CONSENT_TEXT} *</span>
+          </label>
+          {errors.consent && <p className="field-error" role="alert">{errors.consent}</p>}
+        </div>
+        {formError && <p className="error" role="alert">{formError}</p>}
+        <div className="row actions review-actions">
+          <button type="button" className="secondary" onClick={() => backToForm()} disabled={submitting}>Назад до анкети</button>
+          <button type="button" onClick={() => void onSend()} disabled={submitting}>{submitting ? 'Надсилаємо…' : 'Надіслати анкету'}</button>
+        </div>
+      </Shell>
+    )
+  }
 
   return (
     <Shell>
       <h1>Анкета мешканця гуртожитку</h1>
       <p className="muted">Привіт! Заповни, будь ласка, анкету — це займе кілька хвилин. Поля з * обовʼязкові. Вхід не потрібен.</p>
       <FormProgress done={done} total={total} />
-      <form ref={formRef} onSubmit={(e) => void onSubmit(e)} noValidate className="form">
-        <fieldset><legend>Про тебе</legend>
+      <form ref={formRef} onSubmit={onNext} noValidate className="form">
+        <fieldset id="sec-about"><legend>Про тебе</legend>
           {text('full_name', 'ПІБ', { required: true, auto: 'name', hint: shared ? 'Пиши так, як у документах: прізвище, імʼя, по батькові — за цим ми знайдемо тебе у списку' : 'Прізвище, імʼя, по батькові' })}
           <Field name="birth_date" label="Дата народження" required error={errors.birth_date}
             hint={shared ? 'Потрібна, щоб правильно знайти тебе у списку' : undefined}>
@@ -201,7 +288,7 @@ export function StudentFormPage() {
           {area('address', 'Адреса проживання *')}
           {phone('student_phone', 'Твій мобільний телефон', true)}
         </fieldset>
-        <fieldset>
+        <fieldset id="sec-contacts">
           <legend>
             Кого вказати для зв'язку?
             <InfoTip id="contact-help" label="Як обрати, кого вказати">
@@ -236,11 +323,11 @@ export function StudentFormPage() {
             </>
           )}
         </fieldset>
-        <fieldset><legend>Інтереси</legend>
+        <fieldset id="sec-interests"><legend>Інтереси</legend>
           {area('school_activities', 'Чим займався(лась) у школі *')}
           {area('college_plans', 'Чим хочеш займатися у коледжі *')}
         </fieldset>
-        <fieldset aria-describedby="social-hint" aria-invalid={!!errors.social_codes}>
+        <fieldset id="sec-social" aria-describedby="social-hint" aria-invalid={!!errors.social_codes}>
           <legend>
             Соціальний статус *
             <InfoTip id="social-hint" label="Як заповнити соціальний статус">Познач усе, що підходить. Якщо нічого — обери «Жодного з переліку».</InfoTip>
@@ -265,21 +352,13 @@ export function StudentFormPage() {
           })}
           {errors.social_codes && <p className="field-error" id="e-social_codes" role="alert">{errors.social_codes}</p>}
         </fieldset>
-        <fieldset><legend>Здоровʼя</legend>
-          <p className="muted small">Ці дані бачать лише вихователі й адміністратор.</p>
-          {area('allergies', 'Алергії *', 'Якщо немає — напиши «немає»')}
-          {area('chronic_conditions', 'Хронічні хвороби *', 'Якщо немає — напиши «немає»')}
+        <fieldset id="sec-health"><legend>Здоровʼя (необовʼязково)</legend>
+          <p className="muted small">Якщо не знаєш — залиш порожнім, вихователь уточнить пізніше. Ці дані бачать лише вихователі й адміністратор.</p>
+          {area('allergies', 'Алергії', 'Наприклад: пилок, горіхи, ліки')}
+          {area('chronic_conditions', 'Хронічні хвороби', 'Наприклад: астма, діабет')}
         </fieldset>
-        <div className="consent">
-          <label className="check">
-            <input type="checkbox" name="consent" checked={values.consent} aria-invalid={!!errors.consent}
-              aria-describedby="consent-text" onChange={(e) => set('consent', e.target.checked)} />
-            <span id="consent-text">{CONSENT_TEXT} *</span>
-          </label>
-          {errors.consent && <p className="field-error" role="alert">{errors.consent}</p>}
-        </div>
         {formError && <p className="error" role="alert">{formError}</p>}
-        <button type="submit" disabled={submitting}>{submitting ? 'Надсилаємо…' : 'Надіслати анкету'}</button>
+        <button type="submit">Далі: перевірити</button>
       </form>
     </Shell>
   )
