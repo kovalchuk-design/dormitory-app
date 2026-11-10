@@ -1,11 +1,12 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from './useAuth'
 import { AccountNotice } from '../components/AccountNotice'
+import { ChangePasswordPage } from '../features/admin-users'
 import { FullScreenMessage } from '../components/FullScreenMessage'
 
 /** Пускає далі лише користувача з активним профілем. */
 export function RequireAuth() {
-  const { status } = useAuth()
+  const { status, profile } = useAuth()
   const location = useLocation()
 
   switch (status) {
@@ -17,6 +18,8 @@ export function RequireAuth() {
     case 'profile_error':
       return <AccountNotice kind={status} />
     default:
+      // тимчасовий пароль → обов'язкова зміна до доступу до застосунку
+      if (profile?.mustChangePassword) return <ChangePasswordPage forced />
       return <Outlet />
   }
 }

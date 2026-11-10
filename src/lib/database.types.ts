@@ -508,6 +508,7 @@ export type Database = {
           full_name: string
           id: string
           is_active: boolean
+          must_change_password: boolean
           role: string
           updated_at: string
         }
@@ -517,6 +518,7 @@ export type Database = {
           full_name?: string
           id: string
           is_active?: boolean
+          must_change_password?: boolean
           role?: string
           updated_at?: string
         }
@@ -526,6 +528,7 @@ export type Database = {
           full_name?: string
           id?: string
           is_active?: boolean
+          must_change_password?: boolean
           role?: string
           updated_at?: string
         }
@@ -1072,6 +1075,7 @@ export type Database = {
         Args: { p_reason?: string; p_room_id: string; p_student_id: string }
         Returns: string
       }
+      complete_password_change: { Args: never; Returns: undefined }
       create_intake_link: {
         Args: { p_floor: number; p_ttl_days?: number }
         Returns: string
@@ -1122,6 +1126,39 @@ export type Database = {
       submit_questionnaire: {
         Args: { p_payload: Json; p_token_hash: string }
         Returns: boolean
+      }
+      svc_admin_audit: {
+        Args: { p_actor: string; p_details?: Json; p_event: string; p_target: string }
+        Returns: undefined
+      }
+      svc_admin_revoke_sessions: { Args: { p_user: string }; Returns: number }
+      svc_admin_update_profile: {
+        Args: {
+          p_actor: string
+          p_floor?: number
+          p_full_name?: string
+          p_is_active?: boolean
+          p_must_change_password?: boolean
+          p_role?: string
+          p_set_floor?: boolean
+          p_target: string
+        }
+        Returns: {
+          created_at: string
+          floor: number | null
+          full_name: string
+          id: string
+          is_active: boolean
+          must_change_password: boolean
+          role: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       unassign_student: {
         Args: { p_reason?: string; p_student_id: string }

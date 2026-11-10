@@ -5,6 +5,8 @@ export interface Profile {
   full_name: string
   role: Role
   floor: number | null
+  /** true → користувач має спершу змінити тимчасовий пароль */
+  mustChangePassword: boolean
 }
 
 export const ROLE_LABELS: Record<Role, string> = {
