@@ -1,0 +1,26 @@
+.au-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.au-head h2 { margin: 0; }
+.au-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.au-filters input[type='search'] { flex: 1 1 14rem; min-width: 0; }
+.au-filters select { flex: 0 1 11rem; width: auto; }
+.au-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr)); }
+.au-card { border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.au-card.off { opacity: .75; }
+.au-email { overflow-wrap: anywhere; margin-bottom: 6px; }
+.au-main .badges { margin-bottom: 6px; }
+.au-notice { background: var(--muted); border-radius: 12px; padding: 8px 12px; margin: 0 0 12px; }
+.au-secret { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.au-secret code { font-size: 20px; letter-spacing: .04em; padding: 10px 12px; border: 1px dashed var(--border); border-radius: 12px; overflow-wrap: anywhere; user-select: all; }
+.au-modes { border: 1px solid var(--border); border-radius: 12px; margin: 0 0 12px; padding: 8px 12px; }
+.au-modes label { display: flex; gap: 8px; align-items: flex-start; margin: 6px 0; }
+.au-modes input { width: auto; margin-top: 3px; }
+.au-foot { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.au-backdrop { z-index: 60; }
+.au-modal { width: min(32rem, 100%); }
+.cp-card { max-width: 26rem; margin: 0 auto; }
+@media (max-width: 600px) {
+  .au-card .card-actions button { flex: 1 1 45%; min-height: 44px; }
+  .au-foot button { flex: 1 1 100%; min-height: 44px; }
+}
+.pl-brand { margin: 0 0 4px; text-transform: uppercase; letter-spacing: .08em; font-size: 13px; }
+.au-head-actions { display: flex; gap: 8px; flex-wrap: wrap; }

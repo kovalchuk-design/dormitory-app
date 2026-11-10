@@ -12,6 +12,7 @@ import { StudentFormPage } from '../pages/StudentFormPage'
 import { HostelPage } from '../pages/HostelPage'
 import { HomePage } from '../pages/HomePage'
 import { AdminDocumentSettings, DocumentsPage } from '../features/documents'
+import { AdminUsersPage, ChangePasswordPage } from '../features/admin-users'
 import {
   AdminPage,
   CalendarPage,
@@ -50,6 +51,7 @@ export function AppRoutes() {
           />
           <Route path="rooms" element={<Navigate to="/hostel/rooms" replace />} />
           <Route path="documents" element={<DocumentsPage />} />
+          <Route path="password" element={<ChangePasswordPage />} />
           <Route path="events" element={<EventsPage />} />
           <Route path="calendar" element={<CalendarPage />} />
           <Route
@@ -57,6 +59,7 @@ export function AppRoutes() {
             element={
               <RequireRole roles={['admin']}>
                 <AdminPage />
+                <AdminUsersPage />
                 <AdminDocumentSettings />
               </RequireRole>
             }

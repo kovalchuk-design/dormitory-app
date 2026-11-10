@@ -13,14 +13,21 @@ interface ProfileState {
 async function fetchProfile(userId: string): Promise<ProfileState> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, full_name, role, floor')
+    .select('id, full_name, role, floor, must_change_password')
     .eq('id', userId)
     .maybeSingle()
   if (error) return { userId, profile: null, error: true }
   if (!data || !isRole(data.role)) return { userId, profile: null, error: false }
+  // вхід за PIN = права вихователя (сервер так само не вважає таку сесію адмінською)
+  const { data: pin } = await supabase.rpc('my_session_is_pin')
+  const pinSession = pin === true
   return {
     userId,
-    profile: { id: data.id, full_name: data.full_name, role: data.role, floor: data.floor ?? null },
+    profile: {
+      id: data.id, full_name: data.full_name, floor: data.floor ?? null, mustChangePassword: data.must_change_password === true,
+      role: data.role === 'admin' && pinSession ? 'educator' : data.role,
+      pinSession, adminAccount: data.role === 'admin',
+    },
     error: false,
   }
 }
@@ -69,6 +76,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfileState(null)
   }, [])
 
+  const reloadProfile = useCallback(async () => {
+    if (userId) setProfileState(await fetchProfile(userId))
+  }, [userId])
+
   const value = useMemo<AuthContextValue>(() => {
     const current = profileState && profileState.userId === userId ? profileState : null
     let status: AuthStatus
@@ -78,8 +89,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     else if (current.error) status = 'profile_error'
     else if (!current.profile) status = 'no_profile'
     else status = 'ready'
-    return { status, session, profile: current?.profile ?? null, signIn, signOut }
-  }, [session, sessionLoaded, userId, profileState, signIn, signOut])
+    return { status, session, profile: current?.profile ?? null, signIn, signOut, reloadProfile }
+  }, [session, sessionLoaded, userId, profileState, signIn, signOut, reloadProfile])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

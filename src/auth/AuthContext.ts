@@ -15,6 +15,8 @@ export interface AuthContextValue {
   profile: Profile | null
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
+  /** Повторно завантажує профіль (наприклад, після зміни пароля). */
+  reloadProfile: () => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)

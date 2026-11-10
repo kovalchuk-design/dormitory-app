@@ -28,6 +28,13 @@ export function adminClient() {
   })
 }
 
+/** anon-key client, used only to exchange a verified login for a session (never persisted). */
+export function anonClient() {
+  return createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+}
+
 export function clientIp(req: Request): string {
   return (
     req.headers.get('cf-connecting-ip') ??
