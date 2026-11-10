@@ -38,11 +38,6 @@ export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggin
           )}
         </span>
       </header>
-      {state !== 'inactive' && (
-        <div className="meter rm-meter" aria-hidden="true">
-          <span style={{ width: `${room.capacity ? Math.min(100, (room.occupied / room.capacity) * 100) : 0}%` }} />
-        </div>
-      )}
       <ul>
         {pupils.map((p) => (
           <PupilChip key={p.id} pupil={p} roomId={room.id} canEdit={canEdit} dragging={draggingId === p.id} onDragStart={onDragStart} onMove={onMove} />

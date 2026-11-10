@@ -385,3 +385,24 @@ button.rm-pupil-name:hover:not(:disabled) { opacity: 1; text-decoration: underli
 
 button.reset-btn:disabled { background: transparent; color: var(--text2); opacity: .4; border: 1.5px solid var(--fieldBorder); cursor: default; }
 @media (min-width: 761px) { .filters-extra .sel { flex: 0 1 17rem; } }
+
+/* ---- Компактні картки кімнат і учнів: більше дітей на екрані ---- */
+.rm-room { padding: 8px 10px 6px; border-radius: 20px; }
+.rm-room header { margin-bottom: 4px; gap: 8px; min-height: 32px; }
+.rm-room header strong { font-size: 18px; }
+.rm-rooms { gap: 8px; }
+.rm-actions .iconbtn { width: 32px; height: 32px; min-height: 32px; }
+.rm-pupil { min-height: 30px; padding: 0 2px 0 22px; margin-bottom: 3px; border-radius: 10px; gap: 4px; }
+.rm-pupil.draggable { padding-left: 22px; }
+.rm-pupil.draggable::before { left: 8px; height: 12px; }
+.rm-pupil-main { padding: 3px 0; }
+button.rm-pupil-name { font-size: 13.5px; }
+.rm-pupil-main .small { font-size: 12px; }
+.rm-pupil .iconbtn { width: 26px; height: 26px; min-height: 26px; margin: 2px 2px 2px 0; }
+.rm-pupil .iconbtn svg { width: 15px; height: 15px; }
+.rm-room ul { margin: 0; }
+.rm-room .muted.small { margin: 2px 0 4px; }
+.rm-floor-scroll > .scrollrows { padding: 4px 10px 4px 4px; }
+.rm-floor { padding: 12px 10px 10px; }
+.rm-floor h2 { margin: 0 0 8px; }
+.rm-pupil-main .small { white-space: nowrap; }
