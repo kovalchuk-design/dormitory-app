@@ -22,8 +22,8 @@ function CopyButton({ text }: { text: string }) {
 /** Довідка для тих, хто готує шаблони (адміністратор): що писати у Word і як воно заповнюється. */
 export function TemplateHelp() {
   return (
-    <details className="panel help">
-      <summary><strong>Довідка: як підготувати шаблон</strong></summary>
+    <details className="help help-compact">
+      <summary>Як підготувати шаблон</summary>
       <ol className="help-steps">
         <li>Відкрийте звичайний документ у Word (наприклад, бланк заяви).</li>
         <li>Там, де має з’явитися дані учня чи дата, напишіть <strong>мітку у подвійних фігурних дужках</strong>, наприклад <code>{'{{student.full_name}}'}</code>. Скопіювати готову мітку можна кнопками нижче й вставити у Word (Ctrl+V).</li>
