@@ -224,3 +224,12 @@ details > summary { cursor: pointer; padding: .5rem 0; min-height: 2.75rem; disp
 .prof-row { display: flex; align-items: center; gap: .25rem; border-bottom: 1px solid var(--border); padding: .15rem 0; }
 .prof-row.off { opacity: .75; }
 .prof-row .grow, .row .grow { flex: 1 1 14rem; min-width: 0; }
+
+/* ---- Підтвердження: вибір «стара / нова / обидві» галочками ---- */
+.pick { display: flex; align-items: flex-start; gap: 10px; margin: 0; min-height: 40px; cursor: pointer; }
+.pick input { margin-top: 2px; flex: none; }
+.pick span { overflow-wrap: anywhere; }
+.pick.on span { color: var(--text, inherit); font-weight: 600; }
+.pick.off span { color: var(--text2, var(--muted)); font-weight: 400; }
+.merge-result { font-weight: 700; overflow-wrap: anywhere; }
+.merge-help { margin: .25rem 0 .75rem; }
