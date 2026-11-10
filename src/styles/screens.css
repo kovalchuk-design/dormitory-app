@@ -242,3 +242,31 @@ table.data td:first-child a:hover { text-decoration: underline; }
 .sort-mark.on path.act { opacity: 1; fill: var(--outInk); }
 .th-btn:hover .sort-mark { opacity: .8; }
 .st-body thead th { white-space: nowrap; }
+
+/* ---- Шухляда збоку (картка учня) ---- */
+@keyframes drawer-in { from { opacity: 0; transform: translateX(32px); } to { opacity: 1; transform: none; } }
+@keyframes scrim-in { from { opacity: 0; } to { opacity: 1; } }
+.drawer-scrim { position: fixed; inset: 0; z-index: 150; background: var(--scrim); animation: scrim-in .2s var(--ease); }
+.drawer {
+  position: fixed; top: 12px; right: 12px; bottom: 12px; width: min(640px, calc(100vw - 24px)); display: flex; flex-direction: column;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 32px; box-shadow: var(--shadowPop); animation: drawer-in .28s var(--ease);
+  overflow: hidden; --text2: var(--text2Hi);
+}
+[data-theme='dark'] .drawer { border-color: var(--fieldBorder); }
+.drawer:focus { outline: none; }
+.drawer-bar { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 14px 16px 0 28px; }
+.drawer-actions .btn { min-height: 40px; font-size: 14px; }
+.drawer-scroll { flex: 1 1 0; min-height: 0; position: relative; }
+.drawer-scroll > .scrollrows { position: absolute; inset: 0; padding: 8px 28px 40px 28px; }
+.drawer .card-page { gap: 16px; }
+.drawer .card-page h1 { font-size: 28px; line-height: 1.1; }
+.drawer .panel { background: var(--muted); border: 0; box-shadow: none; border-radius: 24px; padding: 20px; }
+.drawer .table-wrap { background: transparent; }
+tr.is-open { background: color-mix(in oklch, var(--out) 8%, transparent); }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .drawer { top: 8px; right: 8px; bottom: 8px; width: calc(100vw - 16px); border-radius: 28px; }
+  .drawer-bar { padding: 10px 10px 0 20px; }
+  .drawer-scroll > .scrollrows { padding: 8px 18px 32px 20px; }
+  table.cards-on-mobile tr.is-open { background: color-mix(in oklch, var(--out) 8%, var(--surface)); }
+}
+.drawer .contacts li { background: var(--surface); }
