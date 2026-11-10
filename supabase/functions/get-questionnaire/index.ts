@@ -22,12 +22,20 @@ Deno.serve(async (req) => {
   if (!TOKEN_RE.test(token)) return INVALID_LINK()
   const tokenHash = await sha256Hex(token)
 
+  // Profession choices (radio buttons on the form) — names only, nothing personal; returned only for a valid link.
+  const professions = async (): Promise<string[]> => {
+    const { data: rows } = await db.from('professions').select('name').eq('is_active', true).order('sort_order').order('name')
+    return (rows ?? []).map((r: { name: string }) => r.name)
+  }
+
   const personal = await db.rpc('get_questionnaire_data', { p_token_hash: tokenHash })
   if (personal.error) return json({ ok: false, error: 'unavailable' }, 503)
-  if (personal.data != null) return json({ ok: true, mode: 'personal', ...(personal.data as Record<string, unknown>) })
+  if (personal.data != null) return json({ ok: true, mode: 'personal', ...(personal.data as Record<string, unknown>), professions: await professions() })
 
   const shared = await db.rpc('get_intake_link_state', { p_token_hash: tokenHash })
   if (shared.error) return json({ ok: false, error: 'unavailable' }, 503)
-  if (shared.data === true) return json({ ok: true, mode: 'shared', full_name: '', birth_date: null, room: null, profile: null })
+  if (shared.data === true) {
+    return json({ ok: true, mode: 'shared', full_name: '', birth_date: null, room: null, profile: null, professions: await professions() })
+  }
   return INVALID_LINK()
 })
