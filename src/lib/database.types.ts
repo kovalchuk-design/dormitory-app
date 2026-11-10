@@ -893,6 +893,7 @@ export type Database = {
         Row: {
           academic_year_id: string | null
           birth_date: string | null
+          course: number | null
           created_at: string
           first_name: string
           grade: number | null
@@ -905,6 +906,7 @@ export type Database = {
         Insert: {
           academic_year_id?: string | null
           birth_date?: string | null
+          course?: number | null
           created_at?: string
           first_name: string
           grade?: number | null
@@ -917,6 +919,7 @@ export type Database = {
         Update: {
           academic_year_id?: string | null
           birth_date?: string | null
+          course?: number | null
           created_at?: string
           first_name?: string
           grade?: number | null

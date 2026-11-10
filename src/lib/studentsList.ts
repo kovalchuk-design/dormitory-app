@@ -8,6 +8,7 @@ export interface StudentRow {
   patronymic: string | null
   birth_date: string | null
   grade: number | null
+  course: number | null
   status: StudentStatus
   room: string | null
   floor: number | null
@@ -58,7 +59,7 @@ export function filterStudents(rows: StudentRow[], f: Filters): StudentRow[] {
   )
 }
 
-export type SortKey = 'name' | 'grade' | 'room' | 'floor' | 'status'
+export type SortKey = 'name' | 'grade' | 'course' | 'room' | 'floor' | 'status'
 export type SortDir = 'asc' | 'desc'
 
 const collator = new Intl.Collator('uk', { numeric: true, sensitivity: 'base' })
@@ -71,6 +72,9 @@ export function sortStudents(rows: StudentRow[], key: SortKey, dir: SortDir): St
     switch (key) {
       case 'name':
         return sign * byName(a, b)
+      case 'course':
+        c = (a.course ?? 99) - (b.course ?? 99)
+        break
       case 'grade':
         c = (a.grade ?? 99) - (b.grade ?? 99)
         break
@@ -95,7 +99,7 @@ export function sortStudents(rows: StudentRow[], key: SortKey, dir: SortDir): St
 }
 
 export const CSV_HEADERS = [
-  'ПІБ', 'Клас', 'Статус', 'Поверх', 'Кімната', 'Телефон учня', 'Мама', 'Тато', 'Опікун',
+  'ПІБ', 'Курс', 'Клас', 'Статус', 'Поверх', 'Кімната', 'Телефон учня', 'Мама', 'Тато', 'Опікун',
 ]
 
 /** Експорт того, що зараз показано (з урахуванням фільтрів). Медичних даних немає. */
@@ -103,7 +107,7 @@ export function studentsToCsv(rows: StudentRow[]): string {
   return toCsv(
     CSV_HEADERS,
     rows.map((r) => [
-      fullName(r), r.grade ?? '', STATUS_LABELS[r.status], r.floor ?? '', r.room ?? 'нерозподілений',
+      fullName(r), r.course ?? '', r.grade ?? '', STATUS_LABELS[r.status], r.floor ?? '', r.room ?? 'нерозподілений',
       r.student_phone ?? '', r.mother_phone ?? '', r.father_phone ?? '', r.guardian_phone ?? '',
     ]),
   )

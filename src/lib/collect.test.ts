@@ -10,7 +10,7 @@ const link = (o: Partial<IntakeLink>): IntakeLink => ({
   id: 'l', floor: 3, expires_at: '2026-11-16T12:00:00Z', revoked_at: null, created_at: '2026-11-09T10:00:00Z', max_submissions: 500, ...o,
 })
 const st = (o: Partial<StudentRow>): StudentRow => ({
-  id: 'x', last_name: 'Іваненко', first_name: 'Іван', patronymic: 'Іванович', birth_date: '2009-01-01', grade: 10, status: 'active',
+  id: 'x', last_name: 'Іваненко', first_name: 'Іван', patronymic: 'Іванович', birth_date: '2009-01-01', grade: 10, course: null, status: 'active',
   room: null, floor: null, student_phone: null, mother_phone: null, father_phone: null, guardian_phone: null, ...o,
 })
 

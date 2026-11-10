@@ -84,7 +84,7 @@ export function StudentCardPage() {
         {canEdit && <Link className="btn secondary" to={`/students/${id}/edit`}>Редагувати</Link>}
       </div>
       <p className="muted">
-        {student.grade ? `${student.grade} клас · ` : ''}народився {formatDate(student.birth_date)} ·{' '}
+        {student.course ? `${student.course} курс · ` : ''}{student.grade ? `${student.grade} клас · ` : ''}народився {formatDate(student.birth_date)} ·{' '}
         {room ? <>кімната <strong>{room.number}</strong>, {room.floor} поверх</> : <span className="tag tag-unplaced">нерозподілений</span>}
       </p>
 

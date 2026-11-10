@@ -7,7 +7,7 @@ type RoomRef = { number: string; floor: number } | null
 /** Учні + поточна кімната + телефони з останньої затвердженої анкети (три запити, зʼєднання на клієнті). */
 export async function fetchStudentRows(): Promise<StudentRow[]> {
   const [st, asg, prof] = await Promise.all([
-    supabase.from('students').select('id,last_name,first_name,patronymic,birth_date,grade,status').order('last_name').limit(2000),
+    supabase.from('students').select('id,last_name,first_name,patronymic,birth_date,grade,course,status').order('last_name').limit(2000),
     supabase.from('room_assignments').select('student_id, rooms!room_assignments_room_id_fkey(number,floor)').is('to_date', null).limit(2000),
     supabase
       .from('student_profiles')
@@ -26,7 +26,7 @@ export async function fetchStudentRows(): Promise<StudentRow[]> {
     const p = profiles.get(s.id)
     return {
       id: s.id, last_name: s.last_name, first_name: s.first_name, patronymic: s.patronymic,
-      birth_date: s.birth_date, grade: s.grade,
+      birth_date: s.birth_date, grade: s.grade, course: s.course,
       status: isStudentStatus(s.status) ? s.status : 'active',
       room: room?.number ?? null, floor: room?.floor ?? null,
       student_phone: p?.student_phone ?? null, mother_phone: p?.mother_phone ?? null,

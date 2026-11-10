@@ -14,6 +14,7 @@ import { useLoad } from '../lib/useLoad'
 
 const COLUMNS: { key: SortKey; label: string }[] = [
   { key: 'name', label: 'ПІБ' },
+  { key: 'course', label: 'Курс' },
   { key: 'grade', label: 'Клас' },
   { key: 'floor', label: 'Поверх' },
   { key: 'room', label: 'Кімната' },
@@ -118,6 +119,7 @@ export function StudentsPage() {
                   {rows.map((r) => (
                     <tr key={r.id}>
                       <td data-label="ПІБ"><Link to={`/students/${r.id}`}>{fullName(r)}</Link></td>
+                      <td data-label="Курс">{r.course ?? '—'}</td>
                       <td data-label="Клас">{r.grade ?? '—'}</td>
                       <td data-label="Поверх">{r.floor ?? '—'}</td>
                       <td data-label="Кімната">{r.room ?? <span className="tag tag-unplaced">нерозподілений</span>}</td>

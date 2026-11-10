@@ -8,7 +8,7 @@ import {
 } from './studentsList'
 
 const row = (o: Partial<StudentRow>): StudentRow => ({
-  id: 'x', last_name: 'Іваненко', first_name: 'Іван', patronymic: null, birth_date: null, grade: 10, status: 'active',
+  id: 'x', last_name: 'Іваненко', first_name: 'Іван', patronymic: null, birth_date: null, grade: 10, course: null, status: 'active',
   room: null, floor: null, student_phone: null, mother_phone: null, father_phone: null, guardian_phone: null, ...o,
 })
 
@@ -90,8 +90,8 @@ describe('students list', () => {
   it('експорт CSV: заголовок, рядки, без медичних даних', () => {
     const csv = studentsToCsv(sortStudents(rows, 'name', 'asc').slice(0, 2))
     const lines = csv.replace('﻿', '').trim().split('\r\n')
-    expect(lines[0]).toBe('ПІБ;Клас;Статус;Поверх;Кімната;Телефон учня;Мама;Тато;Опікун')
-    expect(lines[2]).toBe('Бойко Олег;9;Активний;3;305;+380671112233;+380501234567;;')
+    expect(lines[0]).toBe('ПІБ;Курс;Клас;Статус;Поверх;Кімната;Телефон учня;Мама;Тато;Опікун')
+    expect(lines[2]).toBe('Бойко Олег;;9;Активний;3;305;+380671112233;+380501234567;;')
     expect(csv.toLowerCase()).not.toContain('алерг')
   })
 })
