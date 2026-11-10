@@ -277,7 +277,9 @@ button.btn-outline-danger:hover:not(:disabled) { background: color-mix(in srgb, 
 .ap-item table.diff thead th { padding-top: 6px; padding-bottom: 6px; }
 .ap-item table.diff tbody th[scope='row'] { padding-top: 8px; }
 .ap-item table.diff tbody th[scope='row'] { background: var(--muted); color: var(--text); border-radius: 0; }
-.ap-item table.diff tbody tr:first-child th[scope='row'] { border-top-left-radius: 16px; border-top-right-radius: 16px; }
+/* заливка колонки починається на 5px вище лінії під назвами колонок */
+.ap-item table.diff thead th:first-child { background: linear-gradient(var(--muted), var(--muted)) bottom / 100% 5px no-repeat; border-radius: 5px 5px 0 0; }
+.ap-item table.diff tbody tr:last-child > th, .ap-item table.diff tbody tr:last-child > td { border-bottom: 0; }
 .ap-item table.diff tbody tr:last-child th[scope='row'] { border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
 .ap-item table.diff .pick { min-height: 0; gap: 8px; align-items: flex-start; }
 .ap-item table.diff .pick input { margin: 1px 0 0; }
