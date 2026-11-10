@@ -218,11 +218,8 @@ details > summary { cursor: pointer; padding: .5rem 0; min-height: 2.75rem; disp
 .review-actions > * { flex: 1 1 10rem; }
 .review-actions button[type='button']:not(.secondary) { width: auto; }
 
-/* ---- Вибір професії радіокнопками ---- */
-.form .prof { border: 0; padding: 0; margin: 0 0 .9rem; min-width: 0; }
-.form .prof legend { font-weight: 500; padding: 0; margin-bottom: .25rem; }
-.form .prof label.check { align-items: flex-start; padding: .35rem 0; }
-.form .prof label.check input { margin-top: .15rem; flex: none; }
+/* ---- Вибір професії: повна назва під списком (у полі вона обрізається) ---- */
+.prof-picked { margin: -.4rem 0 .9rem; color: var(--text2Hi, var(--muted)); overflow-wrap: anywhere; }
 
 .prof-row { display: flex; align-items: center; gap: .25rem; border-bottom: 1px solid var(--border); padding: .15rem 0; }
 .prof-row.off { opacity: .75; }
