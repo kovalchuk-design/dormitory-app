@@ -88,6 +88,13 @@ export function StudentCardPage() {
         {room ? <>кімната <strong>{room.number}</strong>, {room.floor} поверх</> : <span className="tag tag-unplaced">нерозподілений</span>}
       </p>
 
+      {student.notes && (
+        <section className="panel" aria-labelledby="notes-h">
+          <h2 id="notes-h">Примітки (потребує уточнення)</h2>
+          <p style={{ whiteSpace: 'pre-line' }}>{student.notes}</p>
+        </section>
+      )}
+
       <section className="panel" aria-labelledby="contacts-h">
         <h2 id="contacts-h">Контакти</h2>
         {!current && <p className="muted">Затвердженої анкети ще немає — контактів немає.</p>}
