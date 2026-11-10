@@ -69,6 +69,7 @@ function DiffTable({ rows, title, onlyChanged, beforeLabel = 'Чинна вер�
   return (
     <div className="table-wrap">
       <table className="data diff">
+        <colgroup><col className="c-field" /><col className="c-two" /><col className="c-two" /></colgroup>
         <caption className="sr-only">{title}</caption>
         <thead><tr><th scope="col">Поле</th><th scope="col">{beforeLabel}</th><th scope="col">{afterLabel}</th></tr></thead>
         <tbody>
@@ -95,19 +96,25 @@ function ApprovalCard({ item, onlyChanged, busy, onApprove, onReject }: {
   onReject: () => void
 }) {
   const [choices, setChoices] = useState<Record<string, Choice>>({})
+  const [edits, setEdits] = useState<Record<string, string>>({})
   const rows = useMemo(() => [...item.profileDiff, ...item.medDiff], [item])
-  const plan = useMemo(() => buildPlan(rows, choices), [rows, choices])
+  const plan = useMemo(() => buildPlan(rows, choices, edits), [rows, choices, edits])
   const n = changedCount(item.profileDiff) + changedCount(item.medDiff)
 
-  const toggle = (row: FieldDiff, side: 'old' | 'new') =>
+  const toggle = (row: FieldDiff, side: 'old' | 'new') => {
+    setEdits((prev) => Object.fromEntries(Object.entries(prev).filter(([k]) => k !== row.key)))
     setChoices((prev) => ({
       ...prev,
       [row.key]: toggleChoice(prev[row.key] ?? defaultChoice(row.before, row.after), side, MERGEABLE.has(row.key)),
     }))
+  }
+  const edit = (row: FieldDiff, value: string) => setEdits((prev) => ({ ...prev, [row.key]: value }))
 
   function approve() {
     if (!item.hasCurrent) return onApprove('simple')
-    const kind = plan.choices.social_status
+    const rec = plan.choices.social_status
+    const c = choices.social_status
+    const kind = rec === 'edited' ? (c ? (c.old && c.new ? 'both' : c.old ? 'old' : 'new') : 'new') : rec
     onApprove({
       values: plan.values,
       choices: plan.choices,
@@ -155,7 +162,7 @@ function ApprovalCard({ item, onlyChanged, busy, onApprove, onReject }: {
         )
       })()}
       {item.hasCurrent ? (
-        <MergeTable rows={item.profileDiff} title="Порівняння анкети: вибір значень" onlyChanged={onlyChanged} choices={choices} onToggle={toggle} />
+        <MergeTable rows={item.profileDiff} title="Порівняння анкети: вибір значень" onlyChanged={onlyChanged} choices={choices} edits={edits} onToggle={toggle} onEdit={edit} />
       ) : (
         <DiffTable rows={item.profileDiff} title="Порівняння анкети" onlyChanged={false} />
       )}
@@ -163,7 +170,7 @@ function ApprovalCard({ item, onlyChanged, busy, onApprove, onReject }: {
         <>
           <h3>Медична інформація (з поданої анкети)</h3>
           {item.hasCurrent || item.medDiff.some((r) => r.before)
-            ? <MergeTable rows={item.medDiff} title="Порівняння медичних даних: вибір значень" onlyChanged={false} choices={choices} onToggle={toggle} />
+            ? <MergeTable rows={item.medDiff} title="Порівняння медичних даних: вибір значень" onlyChanged={false} choices={choices} edits={edits} onToggle={toggle} onEdit={edit} />
             : <DiffTable rows={item.medDiff} title="Порівняння медичних даних" onlyChanged={false} />}
         </>
       )}

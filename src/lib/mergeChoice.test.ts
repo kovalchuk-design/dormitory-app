@@ -74,3 +74,18 @@ describe('mergeSocialData', () => {
     expect(mergeSocialData(null, null, 'both')).toEqual({ codes: [] })
   })
 })
+
+import { buildPlan as bp } from './mergeChoice'
+describe('buildPlan with manual edits', () => {
+  const rows = [{ key: 'address', label: 'Адреса', before: 'Рівне', after: 'Ровно', changed: true }]
+  it('records an edited value', () => {
+    const p = bp(rows, {}, { address: ' Рівне, вул. 1 ' })
+    expect(p.values.address).toBe('Рівне, вул. 1')
+    expect(p.choices.address).toBe('edited')
+    expect(p.editedCount).toBe(1)
+  })
+  it('ignores an edit equal to the computed value', () => {
+    const p = bp(rows, {}, { address: 'Ровно' })
+    expect(p.choices.address).toBe('new')
+  })
+})
