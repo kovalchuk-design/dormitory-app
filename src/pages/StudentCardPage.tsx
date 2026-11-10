@@ -1,4 +1,6 @@
-import type { ReactNode } from 'react'
+import { useContext, useEffect, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
+import { DrawerTitleSlot } from '../components/ui/drawerContext'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import { PhoneLink } from '../components/PhoneLink'
@@ -59,6 +61,17 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
   const role = profile?.role
   const canEdit = role === 'admin' || role === 'educator'
   const { data, error, loading } = useLoad(() => loadCard(id, canEdit), `${id}:${canEdit}`)
+  // У шухляді: коли великий заголовок прокрутили за верхній край, ім'я учня з'являється у шапці поруч із хрестиком.
+  const slot = useContext(DrawerTitleSlot)
+  const [h1, setH1] = useState<HTMLElement | null>(null)
+  const [scrolledPast, setScrolledPast] = useState(false)
+  useEffect(() => {
+    const root = h1?.closest<HTMLElement>('.scrollrows')
+    if (!h1 || !root || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(([e]) => setScrolledPast(!e.isIntersecting), { root, threshold: 0 })
+    io.observe(h1)
+    return () => io.disconnect()
+  }, [h1])
 
   if (loading) return <p className="muted">Завантаження…</p>
   if (error || !data) return <p className="error" role="alert">{error === 'NOT_FOUND' ? 'Учня не знайдено.' : error}</p>
@@ -87,9 +100,15 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
 
   return (
     <article className="card-page">
+      {embedded && slot && createPortal(
+        <span className={`drawer-title${scrolledPast ? ' on' : ''}`} aria-hidden={!scrolledPast}>
+          <strong>{name}</strong> <StatusBadge status={status} />
+        </span>,
+        slot,
+      )}
       {!embedded && <p><Link to="/students">← До списку</Link></p>}
       <div className="page-head">
-        <h1>{name} <StatusBadge status={status} /></h1>
+        <h1 ref={embedded ? setH1 : undefined}>{name} <StatusBadge status={status} /></h1>
         {canEdit && <Link className="btn secondary" to={`/students/${id}/edit`}>Редагувати</Link>}
       </div>
       <p className="muted">

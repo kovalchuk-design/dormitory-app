@@ -254,7 +254,7 @@ table.data td:first-child a:hover { text-decoration: underline; }
 }
 [data-theme='dark'] .drawer { border-color: var(--fieldBorder); }
 .drawer:focus { outline: none; }
-.drawer-bar { flex: none; display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 14px 16px 0 28px; }
+.drawer-bar { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 14px 16px 0 28px; }
 .drawer-scroll { flex: 1 1 0; min-height: 0; position: relative; }
 .drawer-scroll > .scrollrows { position: absolute; inset: 0; padding: 8px 28px 40px 28px; }
 .drawer .card-page { gap: 16px; }
@@ -279,3 +279,10 @@ tr.is-open { background: color-mix(in oklch, var(--out) 8%, transparent); }
 .drawer .fold[open] { padding-bottom: 16px; }
 .drawer .fold .panel { background: none; padding: 0; border: 0; box-shadow: none; margin: 0; }
 .fold .panel > h2 { display: none; }
+
+.drawer-title-slot { flex: 1; min-width: 0; display: flex; align-items: center; }
+.drawer-title { display: flex; align-items: center; gap: 10px; min-width: 0; font-size: 16px; opacity: 0; transform: translateY(4px); transition: opacity var(--t-mid) var(--ease), transform var(--t-mid) var(--ease); pointer-events: none; }
+.drawer-title.on { opacity: 1; transform: none; }
+.drawer-title strong { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.drawer-bar { border-bottom: 1px solid transparent; padding-bottom: 8px; }
+.drawer-bar:has(.drawer-title.on) { border-bottom-color: var(--border); }
