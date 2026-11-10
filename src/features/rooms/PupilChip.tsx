@@ -1,4 +1,5 @@
-import type { PointerEvent as ReactPointerEvent } from 'react'
+import { useContext, type PointerEvent as ReactPointerEvent } from 'react'
+import { HostelStudentCard } from '../../pages/hostelContext'
 import { Icon } from '../../components/ui/icons'
 import { pupilName, type Pupil } from './logic'
 
@@ -15,18 +16,20 @@ interface Props {
 
 /** Компактна однорядкова картка учня: ім'я ліворуч, іконка «перемістити» праворуч. */
 export function PupilChip({ pupil, roomId, canEdit, note, dragging, onDragStart, onMove }: Props) {
+  const { open } = useContext(HostelStudentCard)
   return (
     <li
       className={`rm-pupil${canEdit ? ' draggable' : ''}${dragging ? ' dragging' : ''}`}
       draggable={false}
       // Тягнути можна за будь-яке місце картки, зокрема за кнопку: клік без руху (<5 px) працює як звичайний клік.
-      onPointerDown={canEdit ? (e) => onDragStart(e, pupil, roomId) : undefined}
-      onMouseDown={canEdit ? (e) => !(e.target as HTMLElement).closest('button') && e.preventDefault() : undefined}
+      // ім'я — не зона перетягування: клік по ньому відкриває картку учня
+      onPointerDown={canEdit ? (e) => { if (!(e.target as HTMLElement).closest('.rm-pupil-name')) onDragStart(e, pupil, roomId) } : undefined}
+      onMouseDown={canEdit ? (e) => !(e.target as HTMLElement).closest('button, .rm-pupil-name') && e.preventDefault() : undefined}
       onDragStart={(e) => e.preventDefault()}
-      title={canEdit ? 'Перетягніть у іншу кімнату' : undefined}
+      title={canEdit ? 'Перетягніть у іншу кімнату (за будь-яке місце, крім імені)' : undefined}
     >
-      <span className="rm-pupil-name">
-        {pupilName(pupil)}
+      <span className="rm-pupil-main">
+        <button type="button" className="rm-pupil-name" title="Відкрити картку учня" onClick={() => open(pupil.id)}>{pupilName(pupil)}</button>
         {pupil.grade ? <span className="muted small"> {pupil.grade} кл.</span> : null}
         {note && <span className="muted small"> · {note}</span>}
       </span>

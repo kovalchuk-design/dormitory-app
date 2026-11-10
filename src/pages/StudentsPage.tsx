@@ -1,8 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
-import { HostelExportRegistry } from './hostelContext'
+import { HostelExportRegistry, HostelStudentCard } from './hostelContext'
 import { Link } from 'react-router-dom'
-import { Drawer } from '../components/ui/Drawer'
-import { StudentCardPage } from './StudentCardPage'
 import { ScrollArea } from '../components/ui/ScrollArea'
 import { PhoneLink } from '../components/PhoneLink'
 import { StatusBadge } from '../components/StatusBadge'
@@ -37,7 +35,7 @@ export function StudentsPage() {
   const { data, error, loading } = useLoad(fetchStudentRows, 'students')
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
   const [showFilters, setShowFilters] = useState(false)
-  const [openId, setOpenId] = useState<string | null>(null)
+  const { openId, open: setOpenId } = useContext(HostelStudentCard)
   const registerExport = useContext(HostelExportRegistry)
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'name', dir: 'asc' })
 
@@ -145,11 +143,6 @@ export function StudentsPage() {
             </ScrollArea>
           )}
         </>
-      )}
-      {openId && (
-        <Drawer label="Картка учня" onClose={() => setOpenId(null)}>
-          <StudentCardPage studentId={openId} embedded />
-        </Drawer>
       )}
     </section>
   )

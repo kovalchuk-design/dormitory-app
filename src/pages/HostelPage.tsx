@@ -2,12 +2,14 @@ import { useCallback, useRef, useState } from 'react'
 import { Navigate, NavLink, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import { ActionMenu, type ActionItem } from '../components/ui/ActionMenu'
+import { Drawer } from '../components/ui/Drawer'
 import { RoomsPage } from '../features/rooms/RoomsPage'
 import { downloadCsv } from '../lib/csv'
 import { errorMessage } from '../lib/format'
 import { fetchStudentRows } from '../lib/studentsApi'
 import { studentsToCsv, type StudentRow } from '../lib/studentsList'
-import { HostelExportRegistry, HostelNewRoom } from './hostelContext'
+import { HostelExportRegistry, HostelNewRoom, HostelStudentCard } from './hostelContext'
+import { StudentCardPage } from './StudentCardPage'
 import { StudentsPage } from './StudentsPage'
 
 /** «Гуртожиток»: одна сторінка з перемикачем виду — Студенти / Кімнати. Кнопки в шапці однакові в обох видах. */
@@ -20,6 +22,7 @@ export function HostelPage() {
   const getRows = useRef<(() => StudentRow[]) | null>(null)
   const register = useCallback((fn: (() => StudentRow[]) | null) => { getRows.current = fn }, [])
   const [creating, setCreating] = useState(false)
+  const [openId, setOpenId] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
   const [exportError, setExportError] = useState<string | null>(null)
 
@@ -60,7 +63,14 @@ export function HostelPage() {
       </div>
       <HostelExportRegistry.Provider value={register}>
         <HostelNewRoom.Provider value={{ creating, setCreating }}>
-          <div className="hostel-view">{view === 'rooms' ? <RoomsPage /> : <StudentsPage />}</div>
+          <HostelStudentCard.Provider value={{ openId, open: setOpenId }}>
+            <div className="hostel-view">{view === 'rooms' ? <RoomsPage /> : <StudentsPage />}</div>
+            {openId && (
+              <Drawer label="Картка учня" onClose={() => setOpenId(null)}>
+                <StudentCardPage studentId={openId} embedded />
+              </Drawer>
+            )}
+          </HostelStudentCard.Provider>
         </HostelNewRoom.Provider>
       </HostelExportRegistry.Provider>
     </section>
