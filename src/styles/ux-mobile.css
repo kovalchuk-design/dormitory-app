@@ -157,3 +157,15 @@ html[data-theme='dark'] { color-scheme: dark; }
   .chip:hover:not(:disabled) { background: transparent; }
   .chip.on:hover:not(:disabled) { background: var(--muted); }
 }
+
+/* ФОН ТЕЛЕФОНА — ОДНОТОННИЙ. Градієнт на краях неминуче давав шви: під годинником і під панеллю Safari iOS показує колір html, який не збігався з кінцем градієнта
+   (синя смуга внизу, «облізла» тінь меню на межі). Суцільний колір html = колір усього фону — шов неможливий. Публічна анкета (is-surface) — біла. */
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  :root { background: var(--g1); }
+  body { background: transparent; }
+  body::before { display: none; }
+  .shell-panel { background: transparent; }
+  :root.is-surface { background: var(--surface); }
+  /* меню-плашка: щільна, з невеликою тінню (велика тінь обрізалась краєм екрана) */
+  .tabs-m { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 14px rgba(0,0,0,.08); }
+}
