@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Navigate, NavLink, useParams } from 'react-router-dom'
 import { useQueueCounts } from '../lib/pending'
 import { ApprovalsPage } from './ApprovalsPage'
@@ -7,6 +8,7 @@ import { CollectPage } from './CollectPage'
 export function FormsPage() {
   const { view } = useParams<{ view: string }>()
   const counts = useQueueCounts(true)
+  const [onlyChanged, setOnlyChanged] = useState(true)
   if (view !== 'collect' && view !== 'updates') return <Navigate to="/forms/collect" replace />
   const count = (n: number, label: string) => n > 0 && <span className="count">{n}<span className="sr-only"> {label}</span></span>
   return (
@@ -17,8 +19,11 @@ export function FormsPage() {
           <NavLink to="/forms/collect" replace>Збір анкет{count(counts.unmatched, 'не зіставлено з учнем')}</NavLink>
           <NavLink to="/forms/updates" replace>Оновлення даних{count(counts.pending, 'очікують підтвердження')}</NavLink>
         </nav>
+        {view === 'updates' && (
+          <label className="check forms-aside"><input type="checkbox" checked={onlyChanged} onChange={(e) => setOnlyChanged(e.target.checked)} /> Лише змінені поля</label>
+        )}
       </div>
-      <div className="forms-view">{view === 'collect' ? <CollectPage /> : <ApprovalsPage />}</div>
+      <div className="forms-view">{view === 'collect' ? <CollectPage /> : <ApprovalsPage onlyChanged={onlyChanged} />}</div>
     </section>
   )
 }

@@ -416,6 +416,8 @@ button.rm-pupil-name { font-size: 13.5px; }
 @media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
   .forms .view-switch { flex: 1 1 100%; }
   .forms .view-switch a { white-space: nowrap; }
+  .forms .hostel-head { flex-wrap: wrap; }
+  .forms .forms-aside { flex: 1 1 100%; order: 3; margin-left: 0; min-height: 40px; white-space: nowrap; }
 }
 
 /* ручка перетягування: дві крапки (рівно 2 плитки 6×6, без обрізання третьої) */
@@ -450,3 +452,4 @@ button.rm-pupil-name { font-size: 13.5px; }
 }
 .forms.fill-page > .forms-view { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
 .forms-view > .fill-page { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.forms-aside { margin-left: auto; }

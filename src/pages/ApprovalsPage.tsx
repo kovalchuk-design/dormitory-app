@@ -179,11 +179,10 @@ function ApprovalCard({ item, onlyChanged, busy, onApprove, onReject }: {
   )
 }
 
-export function ApprovalsPage() {
+export function ApprovalsPage({ onlyChanged }: { onlyChanged: boolean }) {
   const { data, error, loading, reload } = useLoad(loadPending, 'pending')
   const [busyId, setBusyId] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
-  const [onlyChanged, setOnlyChanged] = useState(true)
 
   async function approve(id: string, how: Parameters<typeof ApprovalCard>[0]['onApprove'] extends (a: infer A) => void ? A : never) {
     setBusyId(id); setActionError(null)
@@ -210,10 +209,6 @@ export function ApprovalsPage() {
 
   return (
     <section className="fill-page st-page ap-page">
-      <div className="page-head">
-        <h1>Оновлення даних</h1>
-        <label className="check"><input type="checkbox" checked={onlyChanged} onChange={(e) => setOnlyChanged(e.target.checked)} /> Лише змінені поля</label>
-      </div>
       {/* Одна біла плашка на висоту екрана; анкети гортаються всередині неї */}
       <ScrollArea className="st-scroll ap-scroll" body="ap-body">
         {loading && <p className="muted">Завантаження…</p>}
