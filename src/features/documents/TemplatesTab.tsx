@@ -73,6 +73,7 @@ export function TemplatesTab({ lib }: { lib: Library }) {
   const selected = templates?.find((t) => t.id === selectedId) ?? null
   const previewing = templates?.find((t) => t.id === previewId) ?? null
   const closeAdd = useCallback(() => setAdding(false), [])
+  const closePreview = useCallback(() => setPreviewId(''), [])
 
   function use(t: TemplateRow) {
     setSelectedId(t.id)
@@ -104,8 +105,8 @@ export function TemplatesTab({ lib }: { lib: Library }) {
                       <button type="button" onClick={() => use(t)} aria-pressed={t.id === selectedId}>
                         {t.id === selectedId ? 'Використовується' : 'Використати'}
                       </button>
-                      <button type="button" className="secondary" onClick={() => setPreviewId(t.id === previewId ? '' : t.id)} aria-pressed={t.id === previewId}>
-                        {t.id === previewId ? 'Сховати перегляд' : 'Перегляд шаблону'}
+                      <button type="button" className="secondary" onClick={() => setPreviewId(t.id)}>
+                        Перегляд шаблону
                       </button>
                       {editable && <button type="button" className="danger" onClick={() => void remove(t)}>Видалити</button>}
                     </div>
@@ -121,21 +122,7 @@ export function TemplatesTab({ lib }: { lib: Library }) {
           </aside>
 
           <div className="tpl-right">
-            {previewing && (
-              <section className="panel" aria-label="Перегляд шаблону">
-                <div className="tpl-right-head">
-                  <h2>Перегляд: «{previewing.title}»</h2>
-                  <div className="card-actions">
-                    {previewing.id !== selectedId && <button type="button" onClick={() => use(previewing)}>Використати</button>}
-                    <button type="button" className="secondary" onClick={() => setPreviewId('')}>
-                      {selected ? 'Назад до вибору учнів' : 'Закрити перегляд'}
-                    </button>
-                  </div>
-                </div>
-                <PreviewPane key={previewing.id} storagePath={previewing.storage_path} title={previewing.title} fileType="docx" />
-              </section>
-            )}
-            <div hidden={!!previewing}>
+            <div>
               {selected ? (
                 <Autofill key={selected.id} template={selected} lib={lib} />
               ) : (
@@ -148,6 +135,21 @@ export function TemplatesTab({ lib }: { lib: Library }) {
             </div>
           </div>
         </div>
+      )}
+      {previewing && (
+        <Modal
+          title={`Перегляд: «${previewing.title}»`}
+          onClose={closePreview}
+          wide
+          footer={
+            <>
+              {previewing.id !== selectedId && <button type="button" onClick={() => use(previewing)}>Використати</button>}
+              <button type="button" className="secondary" onClick={closePreview}>Закрити</button>
+            </>
+          }
+        >
+          <PreviewPane key={previewing.id} storagePath={previewing.storage_path} title={previewing.title} fileType="docx" />
+        </Modal>
       )}
       {adding && (
         <Modal title="Додати шаблон" onClose={closeAdd}>

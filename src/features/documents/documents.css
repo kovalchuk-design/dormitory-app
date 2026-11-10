@@ -82,3 +82,5 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 .documents .pupil-list label input[type='checkbox'] { display: inline-grid; width: 22px; height: 22px; margin: 0; }
 .pupil-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .pupil-meta { white-space: nowrap; }
+.modal-wide { width: min(90rem, 100%); }
+.modal-foot { gap: .5rem; }
