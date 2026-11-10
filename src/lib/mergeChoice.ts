@@ -7,6 +7,8 @@ export interface Choice {
   new: boolean
 }
 export type ChoiceKind = 'old' | 'new' | 'both'
+/** Що записано в review_choices: вибір галочками або текст, виправлений вручну. */
+export type RecordedKind = ChoiceKind | 'edited'
 
 /** Вільний текст, де «стара, нова» має сенс. Решта (телефони, дата, група, ПІБ…) — лише одне значення. */
 export const MERGEABLE = new Set([
@@ -46,20 +48,30 @@ export interface MergePlan {
   /** значення полів, які змінено (лише вони передаються на сервер) */
   values: Record<string, string>
   /** як вирішено кожне змінене поле */
-  choices: Record<string, ChoiceKind>
+  choices: Record<string, RecordedKind>
+  /** кількість полів, виправлених вручну */
+  editedCount: number
   oldCount: number
   newCount: number
   bothCount: number
 }
 
 /** Зводить вибір по змінених рядках у план для `approve_student_profile_merged`. */
-export function buildPlan(rows: FieldDiff[], choices: Record<string, Choice>): MergePlan {
-  const plan: MergePlan = { values: {}, choices: {}, oldCount: 0, newCount: 0, bothCount: 0 }
+export function buildPlan(rows: FieldDiff[], choices: Record<string, Choice>, edits: Record<string, string> = {}): MergePlan {
+  const plan: MergePlan = { values: {}, choices: {}, editedCount: 0, oldCount: 0, newCount: 0, bothCount: 0 }
   for (const r of rows) {
     if (!r.changed) continue
     const c = choices[r.key] ?? defaultChoice(r.before, r.after)
     const kind = choiceKind(c)
-    plan.values[r.key] = mergedValue(r.before, r.after, c)
+    const merged = mergedValue(r.before, r.after, c)
+    const edit = edits[r.key]
+    if (edit !== undefined && norm(edit) !== norm(merged)) {
+      plan.values[r.key] = norm(edit)
+      plan.choices[r.key] = 'edited'
+      plan.editedCount++
+      continue
+    }
+    plan.values[r.key] = merged
     plan.choices[r.key] = kind
     if (kind === 'old') plan.oldCount++
     else if (kind === 'both') plan.bothCount++
