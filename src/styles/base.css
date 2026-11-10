@@ -26,7 +26,7 @@ input, select, textarea, button { font-family: inherit; }
 .rail-btn:focus-visible { box-shadow: 0 0 0 2px #fff; }
 .muted, .hint, dl.kv dt { --text2: var(--text2Hi); }
 [data-theme='dark'] .muted, [data-theme='dark'] .hint { --text2: #AEB9C3; }
-.tabular, td, th, .kpi-value { font-variant-numeric: tabular-nums; }
+.tabular, td, th { font-variant-numeric: tabular-nums; }
 
 /* ---- Кнопки ---- */
 button, a.btn {

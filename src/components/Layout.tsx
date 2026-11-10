@@ -8,7 +8,6 @@ import { Icon, type IconName } from './ui/icons'
 import { ElevateButton } from '../features/pin-login'
 
 const NAV_ICONS: Record<string, IconName> = {
-  '/': 'home',
   '/hostel': 'bed',
   '/updates': 'refresh',
   '/collect': 'link',
