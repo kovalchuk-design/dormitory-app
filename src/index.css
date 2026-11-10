@@ -230,7 +230,7 @@ details > summary { cursor: pointer; padding: .5rem 0; min-height: 2.75rem; disp
 .pick input { margin-top: 2px; flex: none; }
 .pick span { overflow-wrap: anywhere; }
 .pick.on span { color: var(--text, inherit); font-weight: 600; }
-.pick.off span { color: var(--text2, var(--muted)); font-weight: 400; }
+.pick.off span { color: var(--text2, var(--muted)); font-weight: 400; opacity: .5; }
 .merge-result { font-weight: 700; overflow-wrap: anywhere; }
 .merge-help { margin: .25rem 0 .75rem; }
 
@@ -248,7 +248,7 @@ table.merge .c-res { width: 30%; }
 @media (max-width: 720px) { .merge-result textarea { min-height: 3rem; } table.diff tbody th[scope='row'] { font-size: .8rem; } }
 
 /* «Буде записано»: без підсвітки колонки; поле виглядає як звичайний текст і стає полем вводу лише при наведенні/фокусі */
-table.diff.merge tr.changed td:last-child { background: transparent; }
+
 .merge-result textarea { background: transparent; border-color: transparent; resize: none; }
 .merge-result textarea:hover { border-color: var(--border); }
 .merge-result textarea:focus { background: var(--card); border-color: var(--outInk, #11618A); outline: none; resize: vertical; }
@@ -268,3 +268,21 @@ table.diff thead th { font-size: 12px; }
 /* Другорядна небезпечна дія: червона обводка без заливки */
 button.btn-outline-danger, button.btn-outline-danger:hover { background: transparent; color: var(--danger); border: 1.5px solid var(--danger); font-weight: 600; }
 button.btn-outline-danger:hover:not(:disabled) { background: color-mix(in srgb, var(--danger) 10%, transparent); }
+
+/* Порівняння в плашці «Оновлення даних»: без другої рамки й без гострих кольорових заливок; змінений рядок має крапку-маркер */
+.ap-item .table-wrap { border: 0; background: transparent; padding: 0; border-radius: 0; }
+.ap-item table.diff tbody tr:hover { background: transparent; }
+.ap-item table.diff tr.changed th[scope='row'] { color: var(--text); position: relative; padding-left: 22px; }
+.ap-item table.diff tr.changed th[scope='row']::before { content: ''; position: absolute; left: 6px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: var(--warn, #B7791F); }
+.ap-item table.diff tbody tr { border-radius: 12px; }
+.ap-item table.diff tr.changed > th, .ap-item table.diff tr.changed > td, .ap-item table.diff tr.changed td:last-child { background: color-mix(in srgb, var(--warn, #B7791F) 7%, transparent); }
+.ap-item table.diff tbody tr.changed > :first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+.ap-item table.diff tbody tr.changed > :last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+.ap-item table.diff.merge .merge-result.edited textarea { background: #fff8d6; }
+.pick.off span { opacity: .45; }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .ap-item table.diff tr.changed > th, .ap-item table.diff tr.changed > td, .ap-item table.diff tr.changed td:last-child { background: transparent; }
+  .ap-item table.diff tr.changed { background: color-mix(in srgb, var(--warn, #B7791F) 7%, transparent); border-color: color-mix(in srgb, var(--warn, #B7791F) 40%, var(--border)); }
+  .ap-item table.diff tr.changed th[scope='row'] { padding-left: 16px; }
+  .ap-item table.diff tr.changed th[scope='row']::before { left: 0; }
+}
