@@ -23,7 +23,7 @@
 @media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
   /* iOS Safari не вміє background-attachment: fixed — градієнт на html обрізався висотою сторінки, а нижче (під панеллю Safari) лишався плаский синій.
      Тому градієнт — на фіксованому шарі на весь екран (100lvh), а html має градієнт-запас для «гумової» прокрутки. */
-  html { background: linear-gradient(to bottom, var(--g1), var(--g2)); min-height: 100%; }
+  :root { background: linear-gradient(to bottom, var(--g1), var(--g2)); min-height: 100%; }
   body { background: transparent; min-height: 100vh; }
   body::before { content: ''; position: fixed; left: 0; right: 0; top: 0; height: 100vh; height: 100lvh; z-index: -1; pointer-events: none; background: linear-gradient(160deg, var(--g1), var(--g2)); }
   .shell-panel { background: transparent; padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
@@ -95,4 +95,12 @@
 .contacts-table th[scope='row'] { padding: 6px 12px 6px 0; }
 @media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
   .drawer .page-head h1 { flex: 1 1 0; min-width: 0; }
+}
+
+/* Колір системних зон (під годинником і під панеллю Safari) iOS бере з суцільного background-color html/body.
+   Прозорі html/body давали білу (світла тема) і чорну (темна) смугу з плавним переходом у фон. */
+html[data-theme='light'] { color-scheme: light; }
+html[data-theme='dark'] { color-scheme: dark; }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  :root { background-color: var(--g1); background-image: linear-gradient(to bottom, var(--g1), var(--g2)); background-repeat: no-repeat; background-size: 100% 100%; }
 }
