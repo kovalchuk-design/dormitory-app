@@ -30,7 +30,6 @@ export function PupilChip({ pupil, roomId, canEdit, note, dragging, onDragStart,
     >
       <span className="rm-pupil-main">
         <button type="button" className="rm-pupil-name" title="Відкрити картку учня" onClick={() => open(pupil.id)}>{pupilName(pupil)}</button>
-        {pupil.grade ? <span className="muted small"> {pupil.grade} кл.</span> : null}
         {note && <span className="muted small"> · {note}</span>}
       </span>
       {canEdit && (
