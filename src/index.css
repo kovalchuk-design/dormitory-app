@@ -135,7 +135,7 @@ table.diff tr.changed td:last-child { font-weight: 600; }
   table.cards-on-mobile tr { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: .4rem .6rem; margin-bottom: .6rem; }
   table.cards-on-mobile td { border: 0; padding: .2rem 0; display: flex; justify-content: space-between; gap: 1rem; }
   table.cards-on-mobile td::before { content: attr(data-label); color: var(--muted); font-size: .8rem; }
-  table.diff { font-size: .9rem; }
+  table.diff { font-size: 14px; }
   .contacts li { grid-template-columns: 4.5rem 1fr; }
   .contacts li a.phone, .contacts li > span.muted:last-child { grid-column: 1 / -1; }
 }
@@ -260,7 +260,10 @@ table.diff.merge .merge-result textarea {
   font-family: inherit; font-size: inherit; line-height: inherit; letter-spacing: inherit; font-weight: 600;
   margin: -.3rem -.4rem; width: calc(100% + .8rem);
 }
-table.diff.merge td, table.diff.merge .pick { font-size: .95rem; line-height: 1.4; }
+/* docs/style.md: текст таблиць — 14, допоміжний — 13, шапка таблиці — 12 */
+table.diff, table.diff td, table.diff .pick, table.diff .merge-result textarea { font-size: 14px; line-height: 1.4; }
+table.diff tbody th[scope='row'] { font-size: 13px; }
+table.diff thead th { font-size: 12px; }
 
 /* Другорядна небезпечна дія: червона обводка без заливки */
 button.btn-outline-danger, button.btn-outline-danger:hover { background: transparent; color: var(--danger); border: 1.5px solid var(--danger); font-weight: 600; }
