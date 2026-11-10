@@ -135,7 +135,7 @@ export function StudentCardPage() {
       <section className="panel" aria-labelledby="rooms-h">
         <h2 id="rooms-h">Історія кімнат</h2>
         {assignments.length === 0 ? <p className="muted">Ще не заселявся.</p> : (
-          <div className="table-wrap">
+          <div className="table-wrap" tabIndex={0} role="region" aria-label="Історія кімнат">
             <table className="data">
               <thead><tr><th scope="col">Кімната</th><th scope="col">З</th><th scope="col">По</th><th scope="col">Хто / чому</th></tr></thead>
               <tbody>
