@@ -50,5 +50,14 @@ export function errorMessage(e: unknown): string {
   }
   for (const [code, text] of Object.entries(known)) if (raw.includes(code)) return text
   if (/permission denied|row-level security/i.test(raw)) return 'Недостатньо прав для цієї дії.'
+  if (/failed to fetch|networkerror|load failed|network request failed|timeout/i.test(raw)) {
+    return 'Немає зв’язку із сервером. Перевірте інтернет і спробуйте ще раз.'
+  }
+  if (/JWT|not authenticated|session/i.test(raw) && /expired|invalid|missing|not/i.test(raw)) return 'Сеанс завершився. Увійдіть знову.'
+  // Технічний (англомовний) текст користувачу не показуємо — лише в консоль для розробника.
+  if (raw && !/[а-яіїєґ]/i.test(raw)) {
+    console.error('[помилка]', e)
+    return 'Не вдалося виконати дію. Спробуйте ще раз; якщо повторюється — повідомте адміністратора.'
+  }
   return raw || 'Невідома помилка'
 }

@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { HostelStudentCard } from './hostelContext'
 import { Link } from 'react-router-dom'
 import { Icon } from '../components/ui/icons'
@@ -11,6 +11,9 @@ import {
   type Filters, type SortDir, type SortKey,
 } from '../lib/studentsList'
 import { useLoad } from '../lib/useLoad'
+import { StudentsMobile } from '../features/students-list/StudentsMobile'
+import { useIsMobile } from '../features/students-list/logic'
+import { loadFilters, saveFilters } from '../features/students-list/persist'
 
 /** Пункти списку «Соціальний статус»: категорії + дві додаткові умови (примітки, нерозподілені). */
 const SOCIAL_OPTIONS_UI = [
@@ -38,16 +41,28 @@ function SortMark({ dir }: { dir: SortDir | null }) {
 
 export function StudentsPage() {
   const { data, error, loading } = useLoad(fetchStudentRows, 'students')
-  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
+  const [filters, setFilters] = useState<Filters>(loadFilters)
   const [showFilters, setShowFilters] = useState(false)
   const { openId, open: setOpenId } = useContext(HostelStudentCard)
+  const isMobile = useIsMobile()
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'name', dir: 'asc' })
 
   const rows = useMemo(() => sortStudents(filterStudents(data ?? [], filters), sort.key, sort.dir), [data, filters, sort])
+  useEffect(() => saveFilters(filters), [filters])
   const dirty = JSON.stringify(filters) !== JSON.stringify(DEFAULT_FILTERS)
   const set = <K extends keyof Filters>(k: K, v: Filters[K]) => setFilters((f) => ({ ...f, [k]: v }))
   const toggleSort = (key: SortKey) =>
     setSort((s) => (s.key === key ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' }))
+
+  if (isMobile) {
+    return (
+      <section className="fill-page st-page">
+        {loading && !data && <p className="muted">Завантаження…</p>}
+        {error && <p className="error" role="alert">{error}</p>}
+        {data && <StudentsMobile filters={filters} setFilters={setFilters} rows={rows} total={data.length} onOpen={setOpenId} openId={openId} />}
+      </section>
+    )
+  }
 
   return (
     <section className="fill-page st-page">
