@@ -27,7 +27,7 @@ export function AppRoutes() {
       <Route element={<RequireAuth />}>
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
-          <Route path="hostel" element={<Navigate to="/hostel/students" replace />} />
+          <Route path="hostel" element={<Navigate to="/hostel/rooms" replace />} />
           <Route path="hostel/:view" element={<HostelPage />} />
           <Route path="students" element={<Navigate to="/hostel/students" replace />} />
           <Route path="students/new" element={<StudentEditPage />} />
