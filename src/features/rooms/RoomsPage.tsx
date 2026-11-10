@@ -22,7 +22,7 @@ interface Pending {
 
 type HistoryTarget = { title: string; filter: { studentId: string } | { roomId: string }; showStudent: boolean }
 
-function Pool({ pupils, lastRoom, canEdit, hint, isOver, draggingId, onDragStart, onMove, onHistory }: {
+function Pool({ pupils, lastRoom, canEdit, hint, isOver, draggingId, onDragStart, onMove }: {
   pupils: Pupil[]
   lastRoom: Record<string, string>
   canEdit: boolean
@@ -31,7 +31,6 @@ function Pool({ pupils, lastRoom, canEdit, hint, isOver, draggingId, onDragStart
   draggingId: string | null
   onDragStart: (e: ReactPointerEvent, pupil: Pupil, roomId: string | null) => void
   onMove: (p: Pupil, roomId: string | null) => void
-  onHistory: (p: Pupil) => void
 }) {
   // Немає нерозподілених — розділ зникає; під час перетягування з кімнати лишається вузькою ціллю «зняти з кімнати».
   if (pupils.length === 0 && draggingId === null) return null
@@ -48,7 +47,7 @@ function Pool({ pupils, lastRoom, canEdit, hint, isOver, draggingId, onDragStart
       <ScrollArea className="rm-pool-scroll" body="rm-pool-list">
         <ul>
           {pupils.map((p) => (
-            <PupilChip key={p.id} pupil={p} roomId={null} canEdit={canEdit} dragging={draggingId === p.id} onDragStart={onDragStart} note={lastRoom[p.id] ? `було: ${lastRoom[p.id]}` : undefined} onMove={onMove} onHistory={onHistory} />
+            <PupilChip key={p.id} pupil={p} roomId={null} canEdit={canEdit} dragging={draggingId === p.id} onDragStart={onDragStart} note={lastRoom[p.id] ? `було: ${lastRoom[p.id]}` : undefined} onMove={onMove} />
           ))}
           {pupils.length === 0 && <li className="muted small">Перетягніть сюди, щоб зняти з кімнати.</li>}
         </ul>
@@ -170,7 +169,6 @@ export function RoomsPage() {
     void refresh()
   }
 
-  const openHistory = (p: Pupil) => setHistory({ title: `Історія: ${pupilName(p)}`, filter: { studentId: p.id }, showStudent: false })
   const startPick = (p: Pupil, fromRoomId: string | null) => setPicking({ pupil: p, fromRoomId })
 
   if (loading) return <p className="muted">Завантаження…</p>
@@ -195,7 +193,6 @@ export function RoomsPage() {
           draggingId={dragging?.pupil.id ?? null}
           onDragStart={onDragStart}
           onMove={startPick}
-          onHistory={openHistory}
         />
 
         <div className="rm-tabs" role="tablist" aria-label="Поверхи">
@@ -223,8 +220,7 @@ export function RoomsPage() {
                     onDragStart={onDragStart}
                     hint={hintFor({ kind: 'room', roomId: r.id })}
                     onMove={startPick}
-                    onHistory={openHistory}
-                    onRoomHistory={(room) => setHistory({ title: `Історія кімнати ${room.number}`, filter: { roomId: room.id }, showStudent: true })}
+                              onRoomHistory={(room) => setHistory({ title: `Історія кімнати ${room.number}`, filter: { roomId: room.id }, showStudent: true })}
                     onEdit={(room) => { setDialogError(null); setEditing(room) }}
                   />
                 ))}

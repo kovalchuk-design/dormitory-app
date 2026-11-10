@@ -15,12 +15,11 @@ interface Props {
   draggingId: string | null
   onDragStart: (e: ReactPointerEvent, pupil: Pupil, roomId: string | null) => void
   onMove: (p: Pupil, roomId: string | null) => void
-  onHistory: (p: Pupil) => void
   onRoomHistory: (r: RoomInfo) => void
   onEdit: (r: RoomInfo) => void
 }
 
-export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggingId, onDragStart, onMove, onHistory, onRoomHistory, onEdit }: Props) {
+export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggingId, onDragStart, onMove, onRoomHistory, onEdit }: Props) {
   const state = roomState(room)
   const cls = ['rm-room', `is-${state}`, hint === 'ok' && 'hint-ok', hint === 'blocked' && 'hint-blocked', isOver && 'over']
     .filter(Boolean)
@@ -50,7 +49,7 @@ export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggin
       )}
       <ul>
         {pupils.map((p) => (
-          <PupilChip key={p.id} pupil={p} roomId={room.id} canEdit={canEdit} dragging={draggingId === p.id} onDragStart={onDragStart} onMove={onMove} onHistory={onHistory} />
+          <PupilChip key={p.id} pupil={p} roomId={room.id} canEdit={canEdit} dragging={draggingId === p.id} onDragStart={onDragStart} onMove={onMove} />
         ))}
         {pupils.length === 0 && <li className="muted small">порожня</li>}
       </ul>

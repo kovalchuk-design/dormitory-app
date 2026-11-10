@@ -334,3 +334,9 @@ tr.is-open { background: color-mix(in oklch, var(--out) 8%, transparent); }
 .form-actions { position: sticky; bottom: 0; z-index: 4; padding: 12px 0; background: linear-gradient(to top, var(--g2) 60%, transparent); }
 @media (max-width: 1100px) { .edit-grid { grid-template-columns: 1fr; } }
 @media (max-width: 560px) { .pair, .edit-form .social-grid { grid-template-columns: 1fr; } .form-actions { bottom: 64px; } }
+
+/* однорядкова картка учня: ім'я ліворуч, іконка «перемістити» праворуч */
+.rm-pupil { flex-wrap: nowrap; padding: 4px 6px 4px 12px; min-height: 44px; gap: 6px; }
+.rm-pupil.draggable { padding-left: 28px; }
+.rm-pupil-name { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; line-height: 1.25; }
+.rm-pupil .iconbtn { flex: none; margin-left: auto; }
