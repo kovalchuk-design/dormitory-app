@@ -1,0 +1,576 @@
+# Ledgerline — портативний стайл-гайд
+
+Єдине джерело правди для вигляду продукту. Файл не залежить від конкретного застосунку: скопіюйте його в новий проєкт як `docs/style.md`, і два проєкти виглядатимуть однаково.
+Зібрано з Upwork Growth OS / Job Pilot (2026-11-10). Усе, що стосується лише тих екранів (План, Сьогодні, Архітектура тощо), винесено в загальні патерни (§12); конкретні назви замінено на нейтральні.
+
+---
+
+## 0. Як користуватися (процес і обмеження)
+
+### Підключення до нового проєкту
+1. Скопіювати цей файл у `docs/style.md`.
+2. Вставити токени з §2 у глобальний CSS, код з §10 у компоненти.
+3. Додати в `CLAUDE.md` (або інструкції для агента):
+   > Усі зміни вигляду (екрани, компоненти, кольори, відступи, списки, прокрутка) робимо **тільки за `docs/style.md`**. Чого там немає, не вигадуємо: спершу питаємо власника, дописуємо правило в `docs/style.md`, потім кодуємо. Нового `overflow:auto` із системною смугою не додаємо. Перед завершенням зміни UI: обидві теми, 375px, повзунок за 8px від краю блоку, контраст ≥ 4.5:1.
+
+### Правила застосування
+1. **Єдине джерело.** Дизайн-рішення беремо лише звідси. Чого немає, не вигадуємо «на око»: питаємо → дописуємо → кодуємо.
+2. **Тільки токени.** Жодного жорстко заданого кольору, радіуса чи тіні в компонентах. Єдиний виняток: тісна тінь карток усередині блоку прокрутки (§7.10).
+3. **Жодного нового `overflow:auto`** із системною смугою. Скрол усередині блоку лише через `ScrollTable`, `ScrollRows`, `ScrollArea` чи `useScrollThumb` (§7, §10).
+4. **Жорсткі числа, які не змінюємо без погодження:** повзунок 6px і за 8px від краю блоку; смуга вмісту 18px; довгі списки 7 рядків; картка радіус 28 і padding 24; поле й головна кнопка 48px; хіт-зона ≥ 40px.
+5. **Статус = колір + крапка + підпис.** Лише за кольором статус не передаємо.
+6. **Обидві теми й телефон.** Кожна зміна перевіряється в світлій і темній темі та на 375px без горизонтального скролу. Контраст тексту ≥ 4.5:1.
+7. **Файл і додаток мають збігатися.** Нова вимога до вигляду → дописати в потрібний розділ у тому ж коміті, що й код.
+8. **Не змішувати стилі:** один шрифт (Manrope), mono лише для блоків копіювання, один easing, один чекбокс, один випадний список (не рідний `<select>`).
+9. **Відхилення** від правила фіксуємо тут же окремим рядком із причиною, інакше це помилка.
+
+---
+
+## 1. Принципи
+
+- **Багато вільного місця.** Компактного режиму немає: відступи з §4 беремо повністю.
+- **Кольори несуть сенс.**
+  - Зелений `--in` = добре, на плані, гроші/результат «всередину».
+  - Синій `--out` = головний акцент, посилання, фокус, факт і прогноз.
+  - Бурштин `--warn` = під ризиком.
+  - Червоний `--danger` = поза планом, помилка, руйнівна дія.
+- **Шрифт:** Manrope скрізь. IBM Plex Mono лише для блоків копіювання (`pre`) і `code`.
+- **Числа** завжди з `font-variant-numeric: tabular-nums`.
+- **Темна тема без тіней:** шари розділяємо рамкою `--border` і сходинкою поверхонь `--page` → `--surface` → `--muted`.
+- **У темній темі текст не тьмянимо через `opacity`.** Для цього є окремі токени.
+- **Статус** завжди передаємо не лише кольором: поруч крапка й підпис.
+- **Простота замість пояснень:** довгі пояснення ховаємо в інфо-іконку (`InfoTip`), а не лишаємо рядком тексту під заголовком.
+- **Дії над рядком — іконки,** не текстові кнопки «Змінити / Видалити» в кожному рядку.
+
+---
+
+## 2. Токени (вставити як є)
+
+```css
+:root{
+  /* shell */
+  --page:#B7C5A6; --g1:#D8ECF8; --g2:#E4F0E4;
+  --rail:#000; --railBorder:transparent; --railBtn:#262626; --railIcon:#9A9A9A;
+  /* surfaces */
+  --surface:#FFFFFF; --muted:#F0F1EE; --pill:#FFFFFF;
+  --chip:rgba(255,255,255,.55); --chipBorder:transparent;
+  --glass:rgba(255,255,255,.55);
+  --field:#FFFFFF; --fieldBorder:rgba(17,17,17,.12);
+  --border:rgba(17,17,17,.06); --grid:rgba(17,17,17,.08);
+  --scrim:rgba(17,17,17,.18); --iconHover:rgba(255,255,255,.6);
+  /* text */
+  --text:#111111; --text2:#6B7280;
+  /* --text2 і --out на градієнті, --muted і --out-bg дають ~4.0–4.3:1; ці відтінки тримають дрібний текст на 4.5:1+ */
+  --text2Hi:#515A67; --outInk:#11618A;
+  /* semantic */
+  --in:#2E7D32; --in-bg:#E3F6E1;
+  --out:#1673A3; --out-bg:#DCEBF7;
+  --warn:#B7791F; --danger:#C53030; --badge:#C2410C; /* білий 11px на бейджі: 5.18:1; одне значення для обох тем */
+  --warnInk:#8C5B12; /* бурштиновий текст на світлому: темніший відтінок для 4.5:1 */
+  --warn-bg:color-mix(in oklch, var(--warn) 15%, var(--surface));
+  --danger-bg:color-mix(in oklch, var(--danger) 10%, var(--surface));
+  /* зони (прогрес, теплові карти) */
+  --zG:color-mix(in oklch, #2E7D32 40%, #F0F1EE);
+  --zA:color-mix(in oklch, #B7791F 45%, #F0F1EE);
+  --zR:color-mix(in oklch, #C53030 45%, #F0F1EE);
+  --tip:#111111; --tipText:#FFFFFF;
+  /* elevation */
+  --shadow:0 8px 32px rgba(0,0,0,.06); --shadowHover:0 12px 40px rgba(0,0,0,.10);
+  --shadowPop:0 24px 64px rgba(0,0,0,.16); --shadowTip:0 8px 24px rgba(0,0,0,.2);
+  /* helpers */
+  --axisFs:11px; --inMeta:var(--text2); --outMeta:var(--text2);
+  --offBg:var(--text); --offFg:var(--surface); --offBorder:transparent; --offOp:.35;
+  --ring:0 0 0 4px color-mix(in oklch, var(--out) 22%, transparent);
+  --font:Manrope,"Plus Jakarta Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --ease:cubic-bezier(.2,.8,.2,1); --t-fast:.16s; --t-mid:.24s;
+  color-scheme:light;
+}
+[data-theme="dark"]{
+  --page:#0E1411; --g1:#101C26; --g2:#12201A;
+  --railBorder:rgba(255,255,255,.08); --railBtn:#1A1A1A; --railIcon:#8A949C;
+  --surface:#182028; --muted:#263441; --pill:#263441;
+  --chip:#2A3946; --chipBorder:rgba(255,255,255,.18);
+  --glass:rgba(8,13,18,.55);
+  --field:#1F2B36; --fieldBorder:rgba(255,255,255,.22);
+  --border:rgba(255,255,255,.16); --grid:rgba(255,255,255,.18);
+  --scrim:rgba(0,0,0,.45); --iconHover:rgba(255,255,255,.14);
+  --text:#F2F5F7; --text2:#AEB9C3; --text2Hi:#AEB9C3; --outInk:#6CB8E6;
+  --in:#6FD38A; --in-bg:#15301F;
+  --out:#6CB8E6; --out-bg:#13293B;
+  --warn:#E6B450; --danger:#FF8A8A; --warnInk:#E6B450;
+  --warn-bg:color-mix(in oklch, var(--warn) 16%, var(--surface));
+  --danger-bg:color-mix(in oklch, var(--danger) 14%, var(--surface));
+  --zG:rgba(111,211,138,.7); --zA:rgba(230,180,80,.7); --zR:rgba(240,120,120,.7);
+  --tip:#F2F5F7; --tipText:#111111;
+  --shadow:none; --shadowHover:none; --shadowPop:0 24px 64px rgba(0,0,0,.5);
+  --axisFs:12px; --inMeta:#A8C4B3; --outMeta:#A5BFD2;
+  --offBg:#232B35; --offFg:#6B7480; --offBorder:rgba(255,255,255,.08); --offOp:1;
+  color-scheme:dark;
+}
+```
+
+### Правила токенів (контраст)
+- Сірий допоміжний текст на `--muted`, на рядку під курсором і на голому градієнті у світлій темі переходить з `--text2` на `--text2Hi`. Робимо це **перевизначенням змінної на контейнері**: `.paste,.notice,.seg,.client … { --text2: var(--text2Hi) }`. У темній вони однакові. Сюди ж: сірі плашки, підпис під списком (`.scrollmore`), порожній стан (`.empty`).
+- Синій текст малого розміру на `--out-bg` і на світлому фоні: `--outInk`, не `--out`.
+- Бурштиновий текст на світлому: `--warnInk`, не `--warn`.
+- Текст другого рівня на кольорових картках `--in-bg` / `--out-bg`: `--inMeta` / `--outMeta`. Якщо у світлій темі `--outMeta` дає менше 4.5:1 (на `--out-bg` ≈ 3.98:1), беремо `--text2Hi` і фіксуємо це як відхилення (§0.9).
+
+### Тема
+Перемикач циклічний: **система → світла → темна**. Вибір у `localStorage` (ключ `<app>-theme`), атрибут `data-theme` на `<html>`. Інлайн-скрипт у `index.html` ставить його ще до першого малювання, щоб не було спалаху.
+
+---
+
+## 3. Типографіка
+
+Ваги: 400 текст, 500 вторинний акцент, **600 за замовчуванням для UI і заголовків**, 700 лише для eyebrow.
+
+| Роль | Розмір / вага | Додатково |
+|---|---|---|
+| H1 | 40 / 600 (на телефоні 32) | `letter-spacing:-.01em; line-height:1` |
+| H2 | 24 / 600 | `letter-spacing:-.01em; line-height:1.2` |
+| H3, заголовок картки | 20 / 600 | `letter-spacing:-.01em; line-height:1.25` |
+| H4 | 16 / 600 | `line-height:1.3` |
+| Значення KPI | 32 / 600 | `line-height:1.1; tabular-nums` |
+| Основний текст, кнопки | 15 / 500–600 | `body{line-height:1.5}` |
+| Текст таблиць, банерів | 14 | |
+| Допоміжний | 13 | `color:var(--text2)` |
+| Підписи, шапка таблиці, бейджі | 12 | `color:var(--text2)` |
+| Вісь графіка | `var(--axisFs)` | |
+| Eyebrow | 13 / 700 | `letter-spacing:.06em; uppercase; color:var(--outInk)` |
+
+Додатково: `h1..h4 { text-wrap: balance; margin: 0 }`. `body { -webkit-font-smoothing: antialiased }`. **Поля вводу на екранах ≤560px мають 16px**, інакше iOS збільшує сторінку при фокусі.
+
+---
+
+## 4. Відступи, радіуси, розміри
+
+- **Крок відступів:** 2, 4, 6, 8, 10, 12, 16, 20, 24, 40.
+- **Радіуси:** 4–6 смужки й дрібні чипи · 10–12 малі кнопки, поля `inp`, іконки · **16 поля, кнопки, рядки списків** · 20–24 внутрішні панелі, таблиці · **28 картки** · 32 шухляда · 40 оболонка · 999 пілюлі й крапки.
+- **Висоти керування:** 32 компактна · 40 ghost, іконки, малі поля · 44 вторинна кнопка · **48 поля й головна кнопка** · 56 рядок списку.
+- **Тіні:** картка `--shadow`; наведення `--shadowHover`; попап і шухляда `--shadowPop`; підказка `--shadowTip`.
+- **Хіт-зона ≥ 40px** (сам візуальний елемент може бути меншим, наприклад квадрат 14px у кнопці 40px).
+
+---
+
+## 5. Каркас сторінки
+
+- **Оболонка:** чорна ліва колонка-рейка 88px (`--rail`), праворуч панель вмісту з градієнтом `160deg, --g1 → --g2` і закругленням `40px 0 0 40px`. Зовнішньої рамки навколо немає.
+- **Вміст:** `max-width:1320px; margin:0 auto; padding:24px 40px 64px; display:grid; gap:24px`.
+- **Рейка:** круглі кнопки 44px, колір `--railIcon`, активна біла з чорною іконкою, підказка-пілюля при наведенні. Бейдж лічильника `--badge`, 18px, цифра біла 11/700. Той самий бейдж на вкладках мобільної смуги.
+- **Сітки** лише `minmax(0,1fr)`, інакше довгий нерозривний текст розтягує колонку. Класи `grid2…grid6` з gap 16.
+- **Адаптив:**
+  - ≤1100px: 4 колонки → 2.
+  - ≤980px: `.split` в одну колонку, padding вмісту 24/28.
+  - **≤760px:** рейки немає, лишається липка смуга вкладок `.tabs-m` (скло з blur, кнопки 40px), сторінка прокручується вікном, `.card` padding 20 і радіус 24, усе в одну колонку.
+  - ≤560px: шапка в один рядок без переносу (`.topbar` nowrap, gap 4).
+  - ≤460px: інформаційні елементи шапки (дата) ховаємо.
+  - ≤340px: кнопки шапки 32px замість 36, щоб влазило на 320px.
+  - Кожна кнопка шапки має повністю вміщатися на 375px. **Горизонтального скролу немає;** перевіряти на 375px.
+- **Шапка ніколи не переноситься** в другий рядок: коли місця бракує, першим стискається підпис, далі назва, кнопки праворуч видно завжди (перевіряти на 1024 і 800px).
+
+### Телефон (правило для всіх екранів)
+«Телефон» — це не лише вертикальний режим: це вузький екран **АБО** низький сенсорний (телефон горизонтально, навіть 932px завширшки). Планшети (висота ≥768) і вікно комп'ютера сюди не входять.
+
+- Один і той самий запит у CSS і в JS:
+  ```css
+  @media (max-width:760px), (pointer:coarse) and (max-height:500px) { … }
+  ```
+  ```ts
+  export const PHONE_QUERY = '(max-width:760px), (pointer:coarse) and (max-height:500px)';
+  // useIsPhone(): useSyncExternalStore по matchMedia(PHONE_QUERY)
+  ```
+  Новий телефонний стиль пишемо лише з ним, без окремого `760px`.
+- **Мета телефона:** максимально просто й функціонально, одразу до суті. Без пояснювальних підписів і заголовків, що дублюють перемикачі (пояснення в `InfoTip` або взагалі прибрані); рахунки стисло; довгі списки фіксованої висоти з прокруткою; другорядні колонки таблиць ховаємо (`.ph-hide`).
+- Альбомний телефон: те саме, але де вистачає ширини (≥561px) показники стають в один рядок замість двох.
+- Таблиця має вміщатися в 375px без бокової прокрутки.
+
+---
+
+## 6. Компоненти
+
+### Картка
+```css
+background:var(--surface); border:1px solid var(--border); border-radius:28px;
+padding:24px; box-shadow:var(--shadow); display:grid; gap:16px; min-width:0;
+```
+Внутрішня відстань 24px з усіх боків, між блоками 16px. Скляна картка: `--glass` + `backdrop-filter:blur(16px)`.
+
+### KPI-плитка
+Як картка, padding `22px 24px`, gap 8. Підпис 14/600, значення 32/600, пояснення 13 `--text2`. Акцентна: рамка `--out`.
+
+### Кнопки
+- Базова: висота 44, padding `0 18px`, радіус 16, рамка `--fieldBorder`, 15/600. Наведення: фон `--muted`.
+- **Primary:** 48, фон `--text`, текст `--surface`, наведення `opacity:.88`.
+- **Ghost:** 40, радіус 12, фон `--chip`, 14.
+- **Small:** 32, радіус 10, 13.
+- **Вимкнена primary:** `--offBg/--offFg/--offOp`. На сірих панелях вимкнену кнопку малюємо прозорою з рамкою (сіре на сірому зникає).
+- **Кнопка-посилання:** без фону й рамки, `color:var(--out)`, 14/600.
+
+### Кнопка-іконка `.iconbtn`
+- Коло 40px, іконка 16–20px, фон прозорий, наведення `--iconHover`.
+- **Приглушена `.iconbtn.quiet`** для дій над рядком (змінити, видалити): колір `--text2`, при наведенні `--text`; руйнівна дія додає `.danger` (наведення `--danger`).
+- Обов'язкові `title` і `aria-label`.
+- В рядках списків іконки дій видно лише при наведенні на рядок або фокусі всередині; на пристроях без наведення (`hover:none`) вони сховані й з'являються після дотику до рядка (повторний дотик ховає). Виняток: перемикач-чекбокс завжди видимий.
+- Рядок у режимі редагування розкривається як окрема панель: фон `--muted`, padding 16, радіус 16, поля всередині на `--surface`, вимкнена primary прозора з рамкою.
+
+### Поле
+Висота 48, радіус 16, рамка 1.5px `--fieldBorder`, padding `0 16px`, 15. Фокус: `border-color:var(--out); box-shadow:var(--ring)`. Підпис зверху: колонка, gap 6, 13 `--text2`. Textarea: мін. висота 96, padding `12px 16px`. Компактне поле `inp`: 40 / радіус 12 / 14.
+
+### Випадний список (замість рідного `<select>`)
+Тригер як поле (`.sel.field` 48 або `.sel.sm` 40), шеврон праворуч. Список `position:fixed`, `--surface`, рамка `--border`, радіус 18, `--shadowPop`, поява `pop-in`. Опція: padding `10px 12px`, радіус 12, активна на `--muted`, галочка `--in` справа, опис 12 `--text2Hi`. Прокрутка в списку через спільний повзунок (§7), смуга справа 18px.
+
+### Сегмент-перемикач `.seg`
+Фон `--muted`, padding 4, радіус 14; кнопки 32, радіус 10, 13/600; активна на `--surface` з тонкою тінню.
+
+### Фільтр-чип
+34px, пілюля, рамка `--fieldBorder`, 13/600; вибраний: фон `--muted` + рамка `--text`.
+
+### Бейдж статусу `.pill`
+Висота 24, padding `0 10px`, 12/600, пілюля. Завжди перед текстом кругла крапка 8px кольором тексту. Пари:
+
+| Варіант | Фон / текст |
+|---|---|
+| good | `--in-bg` / `--in` |
+| warn | `--warn-bg` / `--warnInk` |
+| bad | `--danger-bg` / `--danger` |
+| info | `--out-bg` / `--outInk` |
+| нейтральний | `--muted` / `--text2Hi` |
+
+### Банер, нотатка, порожній стан
+- **Банер:** радіус 20, padding `14px 18px`, 14. Варіанти `warn/bad/good` на відповідних `*-bg` без рамки; без варіанта — нейтральний.
+- **Нотатка `.notice`:** радіус 16, фон `--muted`.
+- **Порожній стан:** рамка 1.5px dashed `--fieldBorder`, радіус 20, по центру.
+
+### Таблиця
+Обгортка `--surface`, рамка, радіус 24, padding `4px 12px`. Комірки `padding:12px`, роздільник `1px solid var(--border)`, шапка 12/600 `--text2`, числа праворуч з tabular-nums. Наведення на рядок: `color-mix(in oklch, var(--muted) 60%, transparent)`. Усередині картки обгортка без рамки й тіні. Дії над рядком — `.iconbtn.quiet` у `.acts`, видно лише при наведенні (на дотик: тап по рядку). Компактна `.tbl.compact`: padding `8px 10px`, 13px.
+
+### Рядок списку (наводиться)
+Мін. висота 56, padding `8px 12px`, радіус 16; наведення фон `--muted` **без тіні** (тінь у блоці прокрутки обрізається).
+
+### Чекбокс
+Один на весь додаток. 18px, радіус 6, рамка 1.5px `--text2`; вибраний — чорний квадрат з галочкою.
+
+### Шухляда
+Скрим `--scrim`; панель `position:fixed; top/right/bottom:12px; width:min(640px, 100vw-24px)`, радіус 32, `--shadowPop`, поява `drawer-in`. Внутрішній padding `24px 28px 48px`.
+
+### Інфо-іконка `InfoTip`
+Кругла кнопка 24px з іконкою `info` 16px, `--text2`, непрозорість .7; при наведенні/фокусі підсвітка `--muted`. Пояснення — підказка `.info-pop` (`--tip`, 13px, до 460px), закривається, коли курсор пішов. Стоїть після назви сторінки або картки; у картці підказка висить під усім рядком заголовка (на ≤980px на всю його ширину).
+
+### Шапка сторінки з елементом праворуч (`PageHead aside`)
+Перемикач/сегмент стоїть праворуч в одному рядку із заголовком (`.head.has-aside`, flex з переносом). Коли не влазить (телефон) — переноситься під заголовок і притискається вліво.
+
+### Шапка застосунку
+- Зліва іконка розділу/частини 30px, поруч двома рядками (gap 2): назва 16/600, підпис 13 `--text2Hi`. Підпис, що не влазить, обрізається трикрапкою.
+- На малих екранах (≤1024px завширшки або ≤500px заввишки) назва й підпис зникають, лишається іконка.
+- **Перемикач частин на телефоні:** у шапці замість назви кілька круглих `.iconbtn` 40px; активна на `--surface` з `--shadow`. Нижня смуга `.tabs-m` показує розділи лише вибраної частини (стільки колонок, скільки розділів).
+
+### Іконки
+Лінійні, viewBox 24, `fill:none; stroke:currentColor; stroke-width:1.8–2; round`. Показуємо 18–22px.
+
+### Діаграми
+- Сітка `1px dashed var(--grid)`; серії `--in` і `--out`; факт і прогноз сині, лінія цілі `--text`; підписи осей `--axisFs`.
+- **Прогрес-смужка** 8px, трек `--muted`, заливка `--zG/--zA/--zR` або `--out`. Нуль не малюємо смужкою — лишається трек.
+- **Лінії графіка** (recharts, завжди `type="monotone"`): цей період — суцільна 2.5px з заливкою 14% і кінцевою точкою 10px з обведенням `--surface`; попередній період — пунктир `4 4` 1.5px `--text2`; темп цілі — крапки `2 5` 1.5px `--in`. На 30 днях беремо кожну 3-тю точку, на 90 — щотижневу, останню точку лишаємо завжди.
+- **Воронка:** тонкі смуги 12px у рядку 28px, один колір `--out` зі сходинками світлості (`color-mix` з `--surface`) від першого етапу до останнього, відсоток від попереднього етапу праворуч; ті, що вибули, — нейтральним `--text2` 45%. Обов'язкова таблична версія в `<details>`.
+- **Мініграфіки-тренди:** лінія 2px `--out` із заливкою 16%, горизонтальний пунктир `--text2` (базова лінія), остання точка 8px з кільцем кольору поверхні, підказка `.tt`; різниця у відсотках біля підпису нейтральним кольором; тижні, що ще чекають даних, — пунктиром. Картки в парі однакової висоти (`.pair`: stretch).
+- **Горизонтальні смуги** (розподіл) 10px `--out`; **складена смуга** 28px, радіус 10, частини через 2px.
+- Порівняння з неповним попереднім періодом не показуємо.
+- Тижневий стовпчиковий графік: основна серія `--out` знизу, друга `--zG` зверху, маркер події — смужка 6px `--warn` над стовпцем.
+
+---
+
+## 7. Прокрутка (головне правило)
+
+Один вигляд і одна позиція на всіх сторінках.
+
+1. Системну смугу прокрутки всередині блоків ховаємо: `scrollbar-width:none` + `::-webkit-scrollbar{display:none}`. Safari й Chrome малюють її по-різному, а Safari лишає доріжку, яку не прибрати.
+2. Замість неї кастомний повзунок `.sr-thumb`: **без доріжки, 6px завширшки**, `border-radius:3px`, колір `--text2`, прозорість .5 при наведенні на блок і .85 на самому повзунку чи під час перетягування. Його можна тягнути.
+3. **Права кромка повзунка стоїть рівно 8px від видимого краю свого блоку.** Блок — це сам прокручуваний елемент або найближчий предок із рамкою чи фоном (картка, колонка канбану, шухляда, випадний список, таблиця з рамкою). Позицію рахує JS (`SCROLL_EDGE = 8`); у CSS `right` для повзунка не задаємо ніде. Padding картки чи рамка повзунок не зсувають.
+4. **Смуга під повзунок:** вміст тримаємо щонайменше за **18px** від краю блоку (8 відступ + 6 повзунок + 4 зазор). Картки мають padding 24, там нічого додавати не треба. Власні смуги: колонка канбану й `.scrollrows.stack` мають `padding-right:10px`, `.sel-list` має 18px.
+5. По вертикалі повзунок іде вздовж списку. Якщо прокручується весь блок із закругленими кутами, `inset` відсуває його від кутів: шухляда 24, меню 16, випадний список 10, блок тексту 6. Під липкою шапкою таблиці повзунок починається нижче шапки.
+6. **Скільки рядків:** довгі списки й таблиці показують **7** рядків, решта в прокрутці, під списком підпис «Показано 7, ще N нижче: прокрутіть список». Короткі таблиці з фіксованою кількістю рядків не обмежуємо.
+7. Прокрутка самої сторінки (вікно, `.content`) лишається системною. Правило тільки для прокрутки всередині блоку.
+8. Новий `overflow:auto` із системною смугою не додаємо. Вертикальний скрол усередині блоку — через `ScrollTable`, `ScrollRows`, `ScrollArea` або `useScrollThumb`.
+   - **8a. Горизонтальна прокрутка** (широкі таблиці на вузьких екранах, тижнева сітка) лишається, але без системної смуги: `scrollbar-width:none` + `::-webkit-scrollbar{display:none}`, гортаємо жестом чи трекпадом. Повзунка немає. Підказка, що праворуч є ще: м'яке згасання правого краю 32px (`mask-image`), яке зникає, коли блок догорнуто до кінця. CSS scroll-driven animation (`animation-timeline: scroll(self inline)`); браузер без підтримки просто не показує згасання.
+9. **Висота `fill`.** Головний блок сторінки (список, таблиця) не має фіксованої кількості рядків: `ScrollRows`/`ScrollTable` з `fill` беруть решту висоти вікна (від верху блоку до низу вікна мінус 48px: 24 padding картки й 24 поле сторінки), але **не менше 280px**, і перераховуються при зміні вікна й висоти вмісту над блоком. Для канбан-стовпців `fillGap` 30 (padding стовпця 12), стовпці однакової висоти (`align-items:stretch`). Картки в парі закінчуються на одному рівні: заголовки пари мають однакову мін. висоту 32px (`.split .card-h`). На телефоні `fill` вимкнено: фіксована кількість рядків (4–5) і прокрутка.
+10. Скролбокс обрізає тіні, тому картки всередині отримують тісну тінь `0 1px 3px rgba(0,0,0,.08)`, а сам блок має padding `6px 10px 6px 6px`.
+
+```css
+.scrollrows{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+.scrollrows::-webkit-scrollbar{display:none}
+.sr-wrap{position:relative;min-width:0}
+:where(.sr-area){position:relative;min-width:0}   /* :where(): нульова специфічність, шухляда зберігає свій position */
+.sr-wrap.inset{margin:-6px -4px -6px -6px}
+.sr-thumb{position:absolute;width:6px;border-radius:3px;background:var(--text2);opacity:0;transition:opacity .15s;cursor:grab;touch-action:none}
+.sr-wrap:hover .sr-thumb,.sr-wrap:focus-within .sr-thumb,.sr-area:hover .sr-thumb,.sel-pop:hover .sr-thumb{opacity:.5}
+.sr-thumb:hover,.sr-wrap.dragging .sr-thumb,.sr-area.dragging .sr-thumb,.sel-pop.dragging .sr-thumb{opacity:.85;cursor:grabbing}
+.scrollrows.stack,.tkcol{padding:6px 10px 6px 6px}
+.tbl.sticky thead th{position:sticky;top:0;z-index:2;background:var(--surface);box-shadow:0 1px 0 var(--border)}
+```
+
+Який компонент брати:
+
+| Випадок | Компонент |
+|---|---|
+| Таблиця, що росте | `ScrollTable` (липка шапка, 7 рядків) |
+| Список карток / рядків | `ScrollRows` (за замовчуванням 7) |
+| Панель, що прокручується цілком (шухляда, попап, довгий текст) | `ScrollArea` |
+| Власний випадок (як випадний список) | `useScrollThumb` + `<div className="sr-thumb" style={{ top, right, height }}>` |
+
+---
+
+## 8. Рух
+
+- Один easing `--ease` на весь додаток.
+- Hover і активні стани плавно змінюють `color`, `background-color`, `border-color`, `box-shadow`, `opacity` за `--t-fast` (.16s) / `--t-mid` (.24s).
+- Заливки прогресу ростуть `width .5s`.
+- Сторінка з'являється `fade-in .22s` **лише для миші** (`@media (hover:hover) and (pointer:fine)`), бо на iPhone Safari це дає білий спалах.
+- Шухляда `drawer-in .28s`, попапи `pop-in .16s`.
+- «Завантаження…» з'являється із затримкою .35s, щоб швидкі переходи не блимали.
+- Рух = «живе»: дихання крапки статусу (`good` раз на 2.4 с, `warn` раз на 1.2 с), «хвиля» оновлення, точки по зв'язках. Помилка/вимкнено — нерухомі. Лінійний рух (потоки, оберти) лінійний, не `--ease`.
+- **Обов'язково:**
+
+```css
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+```
+
+---
+
+## 9. Доступність
+
+- Текст ≥ **4.5:1** в обох темах (для цього токени `*Hi`, `*Ink`). Автоперевірку контрасту проганяти по всіх вкладках у світлій і темній темі.
+- Фокус: `:focus-visible{outline:none; box-shadow:var(--ring)}`; на чорній рейці біла обводка 2px.
+- Ціль натискання ≥ 40px, поля на телефоні 16px.
+- Іконка-кнопка завжди з `title` і `aria-label`; маркери стану (✓ ● ○ ✕) мають `aria-label` зі статусом.
+- Статус ніколи не лише кольором.
+
+---
+
+## 10. Код прокрутки для копіювання (React + TypeScript)
+
+Два файли. Тексти інтерфейсу винесено в пропс `moreLabel`.
+
+**`useScrollThumb.ts`**
+
+```ts
+import { useCallback, useState, type PointerEvent, type RefObject } from 'react';
+
+/** Права кромка повзунка стоїть на цій відстані від видимого краю свого блоку, на всіх сторінках. */
+export const SCROLL_EDGE = 8;
+
+/** Блок, з яким вирівнюємо повзунок: сам скролбокс або найближчий предок із рамкою чи фоном. */
+function edgeBlock(el: HTMLElement): HTMLElement {
+  for (let n: HTMLElement | null = el; n && n !== document.body; n = n.parentElement) {
+    const cs = getComputedStyle(n);
+    const bg = cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== 'transparent';
+    if (parseFloat(cs.borderRightWidth) > 0 || bg || cs.backgroundImage !== 'none') return n;
+  }
+  return el;
+}
+
+/** `inset` тримає повзунок осторонь закруглених кутів; `head` резервує верх під липку шапку таблиці. */
+export function useScrollThumb(ref: RefObject<HTMLElement | null>, inset = 0, head = 0) {
+  const [thumb, setThumb] = useState<{ top: number; right: number; h: number } | null>(null);
+  const [dragging, setDragging] = useState(false);
+
+  const place = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const track = clientHeight - 2 * inset - head;
+    // Цілі пікселі й той самий об'єкт, якщо нічого не змінилось: інакше виклик після рендеру зациклиться.
+    const next = scrollHeight <= clientHeight + 1 || track <= 0 ? null : (() => {
+      const h = Math.round(Math.max(32, (track * clientHeight) / scrollHeight));
+      const host = (el.offsetParent as HTMLElement | null) ?? el;
+      const hostEdge = host.getBoundingClientRect().right - parseFloat(getComputedStyle(host).borderRightWidth);
+      const right = Math.round(SCROLL_EDGE - (edgeBlock(el).getBoundingClientRect().right - hostEdge));
+      return { top: el.offsetTop + inset + head + Math.round((scrollTop / (scrollHeight - clientHeight)) * (track - h)), right, h };
+    })();
+    setThumb((prev) => (prev === next || (prev && next && prev.top === next.top && prev.right === next.right && prev.h === next.h) ? prev : next));
+  }, [ref, inset, head]);
+
+  const drag = (e: PointerEvent<HTMLElement>) => {
+    const el = ref.current;
+    if (!el || !thumb) return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragging(true);
+    const y0 = e.clientY;
+    const s0 = el.scrollTop;
+    const ratio = (el.scrollHeight - el.clientHeight) / (el.clientHeight - 2 * inset - head - thumb.h);
+    const move = (m: globalThis.PointerEvent) => { el.scrollTop = s0 + (m.clientY - y0) * ratio; };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return { thumb, place, drag, dragging };
+}
+```
+
+**`ScrollRows.tsx`**
+
+```tsx
+import { useLayoutEffect, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { useScrollThumb } from './useScrollThumb';
+
+export const LIST_ROWS = 7;
+
+/** Список показує рівно `rows` елементів, решта в прокрутці. Висоту міряємо по справжніх рядках (заголовки переносяться). */
+export function ScrollRows({ rows = LIST_ROWS, item, className, inset = true, moreLabel = (shown: number, more: number) => `Showing ${shown}, ${more} more below: scroll the list`, children }:
+  { rows?: number; item?: string; className?: string; inset?: boolean; moreLabel?: (shown: number, more: number) => string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number | undefined>();
+  const [more, setMore] = useState(0);
+  const [head, setHead] = useState(0);
+  const { thumb, place, drag, dragging } = useScrollThumb(ref, 0, head);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const rowsOf = () => Array.from(item ? el.querySelectorAll<HTMLElement>(item) : (el.children as HTMLCollectionOf<HTMLElement>));
+    const measure = () => {
+      const items = rowsOf();
+      setMore(Math.max(0, items.length - rows));
+      setHead(el.querySelector('thead')?.offsetHeight ?? 0);
+      if (items.length <= rows) setHeight(undefined);
+      else setHeight(Math.ceil(items[rows - 1].getBoundingClientRect().bottom - el.getBoundingClientRect().top + el.scrollTop) + 6);
+      place();
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    rowsOf().slice(0, rows).forEach((r) => ro.observe(r));
+    return () => ro.disconnect();
+  });
+
+  return (
+    <>
+      <div className={`sr-wrap${inset ? ' inset' : ''}${dragging ? ' dragging' : ''}`}>
+        <div ref={ref} className={`scrollrows ${className ?? ''}`} style={height ? { maxHeight: height } : undefined} onScroll={place}>{children}</div>
+        {thumb && <div className="sr-thumb" style={{ top: thumb.top, right: thumb.right, height: thumb.h }} onPointerDown={drag} aria-hidden="true" />}
+      </div>
+      {more > 0 && <div className="small muted scrollmore">{moreLabel(rows, more)}</div>}
+    </>
+  );
+}
+
+/** Таблиця з липкою шапкою: 7 рядків, решта в прокрутці. */
+export function ScrollTable({ rows, item = 'tbody tr', children }: { rows?: number; item?: string; children: ReactNode }) {
+  return <ScrollRows rows={rows} item={item} inset={false} className="tbl sticky">{children}</ScrollRows>;
+}
+
+/** Панель, що прокручується цілком (шухляда, попап, довгий текст): зовнішній елемент не скролиться, внутрішній `.scrollrows` скролиться. */
+export function ScrollArea({ as: Tag = 'div', className, body, inset = 0, children, ...rest }:
+  { as?: 'div' | 'aside'; className?: string; body?: string; inset?: number; children: ReactNode } & HTMLAttributes<HTMLElement>) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { thumb, place, drag, dragging } = useScrollThumb(ref, inset);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    place();
+    const ro = new ResizeObserver(place);
+    ro.observe(el);
+    Array.from(el.children).forEach((c) => ro.observe(c));
+    return () => ro.disconnect();
+  });
+  return (
+    <Tag className={`sr-area ${className ?? ''}${dragging ? ' dragging' : ''}`} {...rest}>
+      <div ref={ref} className={`scrollrows ${body ?? ''}`} onScroll={place}>{children}</div>
+      {thumb && <div className="sr-thumb" style={{ top: thumb.top, right: thumb.right, height: thumb.h }} onPointerDown={drag} aria-hidden="true" />}
+    </Tag>
+  );
+}
+```
+
+> Примітка: опція `fill` (§7.9) у цьому скороченому коді не реалізована. Додайте її в `ScrollRows`: висота = `window.innerHeight − el.getBoundingClientRect().top − 48` (мін. 280), перерахунок у `ResizeObserver` і на `resize` вікна.
+
+---
+
+## 11. Чек-лист для нового екрана
+
+1. Тільки токени, жодного жорсткого кольору (виняток: тінь скролбокса).
+2. Картка: радіус 28, padding 24, gap 16. Кнопки й поля з висотами з §4.
+3. Статуси: `.pill` з крапкою, пари кольорів із §6.
+4. Список росте? Обгорнути в `ScrollTable`/`ScrollRows`/`ScrollArea`. Вміст не заходить у 18px-смугу.
+5. Дрібний сірий текст на сірому: `--text2Hi`; синій дрібний: `--outInk`; бурштиновий: `--warnInk`.
+6. Перевірити в обох темах, на 375px (і альбомному телефоні), без горизонтального скролу.
+7. Повзунок за 8px від краю блоку, як на інших сторінках.
+8. Контраст ≥ 4.5:1 (автоперевірка по всіх вкладках в обох темах).
+9. Нове правило, якого немає в цьому файлі → спершу питаємо, дописуємо сюди, потім кодуємо.
+
+---
+
+## 12. Патерни складних екранів (узагальнено з досвіду проєкту)
+
+Це не жорсткі екрани, а перевірені схеми. Беріть те, що підходить, зберігаючи токени й розміри вище.
+
+### 12.1 Статус ланки / напряму / блока
+Єдиний словник станів, інших назв не вигадуємо:
+- `ahead`, `on_track` → `.pill.good` «На плані»
+- `at_risk` → `.pill.warn` «Під ризиком»
+- `off_track` → `.pill.bad` «Поза планом»
+- сутність без власної цілі → `.pill.info` «Підтримує»
+- немає даних → нейтральний `.pill` «Немає даних»
+
+Прогрес-смужка за станом: `--zG` / `--zA` / `--zR`, для «Підтримує» `--out`.
+
+### 12.2 Ланцюжок/воронка з 5–6 ланок (`.grid5` / `.grid6`)
+Ланка — внутрішня панель `--muted`, радіус 20, padding 16, gap 6: крок 12/600 `--text2Hi` → назва 16/600 → значення 32/600 tabular-nums → ціль 13 `--text2Hi` → `.pill` стану. Найслабша ланка на `--danger-bg`; під ланками банер `bad` з одним реченням висновку («Найслабша ланка»). Якщо все ок — банер `good`. Ланка без даних: пунктирна рамка 1.5px `--out`, `.pill` «Ще рано».
+
+### 12.3 Список дій («Що зробити», «Потребує вас»)
+Пункт стовпчиком: **тег** (12/600, пілюля) → заголовок 15/600 → деталі 13 `--text2` → кнопки small в кінці (головна дія primary). Роздільник `1px --border`, список у `ScrollRows` на 3–4 пункти (на комп'ютері — `fill`). Теги: основна дія `--out-bg/--outInk`; прострочене/критичне `--danger-bg/--danger`; нагадування/сигнал `--warn-bg/--warnInk`; решта `--muted/--text2Hi`. Однакові пункти групуємо в один («6 розмов мовчать 10–13 днів»). Для простроченого понад 7 днів кроку три дії: primary «Зробити сьогодні», ghost «Розбити», ghost «Відмовитись».
+
+### 12.4 Картка з кривою (`.kpi.trend`)
+Підпис 14/600 + `.pill` стану праворуч → значення 32/600 з приміткою 14 `--text2` → рядок зміни 13 (`▲ +N` `--in`, `▼ −N` `--danger`, «= як раніше» `--text2`) → крива 96px → підписи осі X 11 `--text2` (початок ліворуч, «сьогодні» праворуч), максимум шкали 11 у лівому верхньому куті → один факт 13 `--text2`. Кольори серій: подачі й відкриття `--out`, розмови `--in`, видимість `--warn`. Перемикач періоду `7 / 14 / 30 / 90 дн.` — `.seg` у `PageHead aside`, вибір запам'ятовується.
+
+### 12.5 Речення-підсумок і вердикт
+`.banner` без варіанта: ліворуч `.pill.info` («За N днів»), далі 1–3 речення 15px. Текст будує сервер за правилами, не вручну. Вердикт-банер — `.banner.bad` з `.pill.bad` «Найслабше: <етап>».
+
+### 12.6 Пари блоків однакової висоти
+`.split.eq` (stretch): ліворуч таблиця, праворуч список. На ≤980px одна колонка. `.split.eq.halves` — по половині.
+
+### 12.7 Календар-ритм і звички
+7 колонок Пн–Нд (≤980px 4, телефон 1); день — панель з рамкою `--border`, радіус 18, сьогодні — рамка `--out`. Квадрат дня 32px, радіус 10: зроблено `--in-bg/--in`, пропущено `--danger-bg/--danger`, сьогодні — рамка `--out`, попереду — тонка рамка. Квадрат — кнопка з хіт-зоною 40px і `aria-label` («Тиждень 3: зроблено»). Під ним легенда 12 `--text2` з усіма станами.
+
+### 12.8 Лінія часу (етапи)
+Смуга 14px з етапів (минулий `--zR`, поточний `--out`, майбутні `--muted`), позначка «сьогодні · день N» (лінія 2px `--text`), ромби рішень 10px `--warn`. Поточний етап на `--out-bg`.
+
+### 12.9 Маркери стану в списку кроків
+`✓` `--in` зроблено (текст `--text2`); `●` `--out` в роботі; `●` `--danger` прострочено (дата теж); `○` `--text2` до роботи; `–` пропущено (закреслено). Кожен маркер з `aria-label`.
+
+### 12.10 Шухляда з деталями (напр. картка блока/завдання)
+Eyebrow «<частина> · <шар>» → H2 назва → `.pill` стану → речення. Далі секції H3: «Що робить» (14), «Перевірки» (`.kv`: назва → `.pill` + деталь 13), «Параметри» (`.kv`), «Правила» (маркований список 14), «Формули» (назва 14/600 + `code`), «Звертається до» / «Звертаються сюди» (рядки-кнопки, мін. висота 56, радіус 16, праворуч `.pill`). Порожні секції не показуємо.
+
+### 12.11 Схема системи («жива карта»)
+Блок: кнопка-панель `--muted`, радіус 20, padding 16, мін. висота 72, рамка 1px transparent; наведення/фокус — рамка `--fieldBorder` і `--ring`. Зв'язки: SVG-шар під блоками (`pointer-events:none`), криві Безьє 1.5px. Колір за станом: працює `--out` 35% з точками, увага `--warn` 55% з однією повільною точкою, не працює `--danger` пунктир `2 4` без руху, вимкнено `--grid`. Підписи на лініях — тільки в шухляді блока. Ілюстрації блоків — дуотон 48px (контур `--ink`, заливка `--wash` за станом). На телефоні SVG-зв'язків немає, шари в одну колонку. `prefers-reduced-motion` вимикає всі точки, дихання й хвилі.
+
+### 12.12 Телефон: загальні скорочення
+Без підписів праворуч від заголовків; блоки в одну колонку; у вкладених списках менше рядків (2 замість 4); календарі стискаються (3 квадрати замість 6); з багатьох карток показуємо поточну, решту за кнопкою-посиланням «Усі …».
+
+---
+
+## 13. Короткий довідник цифр
+
+| Що | Значення |
+|---|---|
+| Картка | радіус 28, padding 24, gap 16 |
+| Поле / primary-кнопка | 48 |
+| Вторинна кнопка | 44 |
+| Ghost / іконка | 40 |
+| Small | 32 |
+| Рядок списку | мін. 56 |
+| Хіт-зона | ≥ 40 |
+| Повзунок | 6px, за 8px від краю, вміст ≥ 18px від краю |
+| Довгий список | 7 рядків |
+| `fill` | висота вікна − 48, мін. 280 |
+| Рейка | 88px |
+| Вміст | max 1320, padding 24/40/64 |
+| Брейкпоінти | 1100 · 980 · 760 (+ landscape-phone) · 560 · 460 · 340 |
+| Easing | `cubic-bezier(.2,.8,.2,1)`; .16 / .24 s |
+| Контраст | ≥ 4.5:1 |

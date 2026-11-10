@@ -7,6 +7,7 @@ import {
 import { BirthDateField } from '../components/BirthDateField'
 import { applyContactMode, detectContactMode, remapContactErrors, type ContactMode } from '../lib/contactMode'
 import { getQuestionnaire, submitQuestionnaire } from '../lib/publicApi'
+import { FormProgress } from '../components/ui/FormProgress'
 
 type Phase =
   | { name: 'loading' }
@@ -167,10 +168,21 @@ export function StudentFormPage() {
   const phone = (k: FieldKey, label: string, required = false) =>
     text(k, label, { required, type: 'tel', auto: 'tel', inputMode: 'tel', hint: 'Наприклад: +380671234567' })
 
+  const v = values as unknown as Record<string, unknown>
+  const required = [
+    'full_name', 'birth_date', 'group_number', 'profession', 'class_teacher', 'master', 'address', 'student_phone',
+    'school_activities', 'college_plans', 'allergies', 'chronic_conditions',
+    ...(mode === 'parents' ? ['mother_name', 'father_name'] : ['guardian_name', 'guardian_relation', 'guardian_phone']),
+  ]
+  const done = required.filter((k) => String(v[k] ?? '').trim() !== '').length
+    + (values.social_codes.length > 0 ? 1 : 0) + (values.consent ? 1 : 0)
+  const total = required.length + 2
+
   return (
     <Shell>
       <h1>Анкета мешканця гуртожитку</h1>
       <p className="muted">Привіт! Заповни, будь ласка, анкету — це займе кілька хвилин. Поля з * обовʼязкові. Вхід не потрібен.</p>
+      <FormProgress done={done} total={total} />
       <form ref={formRef} onSubmit={(e) => void onSubmit(e)} noValidate className="form">
         <fieldset><legend>Про тебе</legend>
           {text('full_name', 'ПІБ', { required: true, auto: 'name', hint: shared ? 'Пиши так, як у документах: прізвище, імʼя, по батькові — за цим ми знайдемо тебе у списку' : 'Прізвище, імʼя, по батькові' })}

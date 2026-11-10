@@ -1,0 +1,61 @@
+:root{
+  /* shell */
+  --page:#B7C5A6; --g1:#D8ECF8; --g2:#E4F0E4;
+  --rail:#000; --railBorder:transparent; --railBtn:#262626; --railIcon:#9A9A9A;
+  /* surfaces */
+  --surface:#FFFFFF; --muted:#F0F1EE; --pill:#FFFFFF;
+  --chip:rgba(255,255,255,.55); --chipBorder:transparent;
+  --glass:rgba(255,255,255,.55);
+  --field:#FFFFFF; --fieldBorder:rgba(17,17,17,.12);
+  --border:rgba(17,17,17,.06); --grid:rgba(17,17,17,.08);
+  --scrim:rgba(17,17,17,.18); --iconHover:rgba(255,255,255,.6);
+  /* text */
+  --text:#111111; --text2:#6B7280;
+  /* --text2 і --out на градієнті, --muted і --out-bg дають ~4.0–4.3:1; ці відтінки тримають дрібний текст на 4.5:1+ */
+  --text2Hi:#515A67; --outInk:#11618A;
+  /* semantic */
+  --in:#2E7D32; --in-bg:#E3F6E1;
+  --out:#1673A3; --out-bg:#DCEBF7;
+  --warn:#B7791F; --danger:#C53030; --badge:#C2410C; /* білий 11px на бейджі: 5.18:1; одне значення для обох тем */
+  --warnInk:#8C5B12; /* бурштиновий текст на світлому: темніший відтінок для 4.5:1 */
+  --warn-bg:color-mix(in oklch, var(--warn) 15%, var(--surface));
+  --danger-bg:color-mix(in oklch, var(--danger) 10%, var(--surface));
+  /* зони (прогрес, теплові карти) */
+  --zG:color-mix(in oklch, #2E7D32 40%, #F0F1EE);
+  --zA:color-mix(in oklch, #B7791F 45%, #F0F1EE);
+  --zR:color-mix(in oklch, #C53030 45%, #F0F1EE);
+  --tip:#111111; --tipText:#FFFFFF;
+  /* elevation */
+  --shadow:0 8px 32px rgba(0,0,0,.06); --shadowHover:0 12px 40px rgba(0,0,0,.10);
+  --shadowPop:0 24px 64px rgba(0,0,0,.16); --shadowTip:0 8px 24px rgba(0,0,0,.2);
+  /* helpers */
+  --axisFs:11px; --inMeta:var(--text2); --outMeta:var(--text2);
+  --offBg:var(--text); --offFg:var(--surface); --offBorder:transparent; --offOp:.35;
+  --ring:0 0 0 4px color-mix(in oklch, var(--out) 22%, transparent);
+  --font:Manrope,"Plus Jakarta Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --ease:cubic-bezier(.2,.8,.2,1); --t-fast:.16s; --t-mid:.24s;
+  color-scheme:light;
+}
+[data-theme="dark"]{
+  --page:#0E1411; --g1:#101C26; --g2:#12201A;
+  --railBorder:rgba(255,255,255,.08); --railBtn:#1A1A1A; --railIcon:#8A949C;
+  --surface:#182028; --muted:#263441; --pill:#263441;
+  --chip:#2A3946; --chipBorder:rgba(255,255,255,.18);
+  --glass:rgba(8,13,18,.55);
+  --field:#1F2B36; --fieldBorder:rgba(255,255,255,.22);
+  --border:rgba(255,255,255,.16); --grid:rgba(255,255,255,.18);
+  --scrim:rgba(0,0,0,.45); --iconHover:rgba(255,255,255,.14);
+  --text:#F2F5F7; --text2:#AEB9C3; --text2Hi:#AEB9C3; --outInk:#6CB8E6;
+  --in:#6FD38A; --in-bg:#15301F;
+  --out:#6CB8E6; --out-bg:#13293B;
+  --warn:#E6B450; --danger:#FF8A8A; --warnInk:#E6B450;
+  --warn-bg:color-mix(in oklch, var(--warn) 16%, var(--surface));
+  --danger-bg:color-mix(in oklch, var(--danger) 14%, var(--surface));
+  --zG:rgba(111,211,138,.7); --zA:rgba(230,180,80,.7); --zR:rgba(240,120,120,.7);
+  --tip:#F2F5F7; --tipText:#111111;
+  --shadow:none; --shadowHover:none; --shadowPop:0 24px 64px rgba(0,0,0,.5);
+  --axisFs:12px; --inMeta:#A8C4B3; --outMeta:#A5BFD2;
+  --offBg:#232B35; --offFg:#6B7480; --offBorder:rgba(255,255,255,.08); --offOp:1;
+  color-scheme:dark;
+}

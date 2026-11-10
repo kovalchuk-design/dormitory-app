@@ -10,13 +10,13 @@ import { StudentCardPage } from '../pages/StudentCardPage'
 import { StudentEditPage } from '../pages/StudentEditPage'
 import { StudentFormPage } from '../pages/StudentFormPage'
 import { RoomsPage } from '../features/rooms/RoomsPage'
+import { HomePage } from '../pages/HomePage'
 import { StudentsPage } from '../pages/StudentsPage'
 import { AdminDocumentSettings, DocumentsPage } from '../features/documents'
 import {
   AdminPage,
   CalendarPage,
   EventsPage,
-  HomePage,
 } from '../pages/placeholders'
 
 export function AppRoutes() {

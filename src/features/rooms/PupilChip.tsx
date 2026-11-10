@@ -1,4 +1,5 @@
 import type { PointerEvent as ReactPointerEvent } from 'react'
+import { Icon } from '../../components/ui/icons'
 import { pupilName, type Pupil } from './logic'
 
 interface Props {
@@ -28,8 +29,8 @@ export function PupilChip({ pupil, roomId, canEdit, note, dragging, onDragStart,
         {pupilName(pupil)} <span className="muted small">{pupil.grade} кл.</span>
         {note && <span className="muted small"> · {note}</span>}
       </span>
-      <button type="button" className="secondary rm-mini" title="Історія" aria-label={`Історія ${pupilName(pupil)}`} onClick={() => onHistory(pupil)}>
-        🕘
+      <button type="button" className="iconbtn quiet" title="Історія" aria-label={`Історія ${pupilName(pupil)}`} onClick={() => onHistory(pupil)}>
+        <Icon name="history" size={16} />
       </button>
       {canEdit && (
         <button type="button" className="secondary rm-mini" onClick={() => onMove(pupil, roomId)}>
