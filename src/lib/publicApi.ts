@@ -6,6 +6,8 @@ const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined
 export interface QuestionnairePrefill {
   /** personal — персональне посилання (є підстановка); shared — спільне посилання поверху (порожня форма). */
   mode: 'personal' | 'shared'
+  /** Перелік професій для вибору (порожній — вводити текстом) */
+  professions?: string[]
   full_name: string
   birth_date: string | null
   room: string | null
