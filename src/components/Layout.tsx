@@ -7,8 +7,7 @@ import { AccountMenu } from './AccountMenu'
 
 const NAV_ICONS: Record<string, IconName> = {
   '/hostel': 'bed',
-  '/updates': 'refresh',
-  '/collect': 'link',
+  '/forms': 'link',
   '/documents': 'file',
   '/events': 'star',
   '/calendar': 'calendar',
@@ -26,11 +25,12 @@ export function Layout() {
   const counts = useQueueCounts(profile?.role === 'admin')
 
 
+  const badgeCount = (i: NavItem) => (i.badge === 'forms' ? counts.pending + counts.unmatched : i.badge ? counts[i.badge] : 0)
   const badge = (i: NavItem) =>
-    i.badge && counts[i.badge] > 0 ? (
+    badgeCount(i) > 0 ? (
       <span className="nav-badge">
-        {counts[i.badge]}
-        <span className="sr-only">{i.badge === 'pending' ? ' очікують підтвердження' : ' не зіставлено з учнем'}</span>
+        {badgeCount(i)}
+        <span className="sr-only"> анкет потребують уваги</span>
       </span>
     ) : null
 

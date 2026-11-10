@@ -214,7 +214,7 @@ export function StudentCardPage({ studentId, embedded = false }: { studentId?: s
             })}
           </ul>
         )}
-        {canEdit && versions.some((v) => v.status === 'pending') && <p><Link to="/updates">Є версії, що чекають підтвердження →</Link></p>}
+        {canEdit && versions.some((v) => v.status === 'pending') && <p><Link to="/forms/updates">Є версії, що чекають підтвердження →</Link></p>}
       </Extra>
     </article>
   )

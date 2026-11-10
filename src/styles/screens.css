@@ -406,3 +406,14 @@ button.rm-pupil-name { font-size: 13.5px; }
 .rm-floor { padding: 12px 10px 10px; }
 .rm-floor h2 { margin: 0 0 8px; }
 .rm-pupil-main .small { white-space: nowrap; }
+
+/* ---- «Анкети»: вкладки «Збір анкет» / «Оновлення даних» ---- */
+.forms { display: grid; gap: 16px; align-content: start; }
+.forms-view > section { display: grid; gap: 16px; align-content: start; }
+.forms-view h1 { display: none; } /* заголовок сторінки — «Анкети», вкладка вже названа в перемикачі */
+.forms-view .page-head { justify-content: flex-end; }
+.view-switch .count { display: inline-grid; place-items: center; min-width: 18px; height: 18px; margin-left: 8px; padding: 0 5px; border-radius: 999px; background: var(--badge); color: #fff; font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .forms .view-switch { flex: 1 1 100%; }
+  .forms .view-switch a { white-space: nowrap; }
+}
