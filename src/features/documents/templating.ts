@@ -42,6 +42,9 @@ export const STUDENT_PLACEHOLDERS: PlaceholderDoc[] = [
   { key: 'guardian_phone', description: 'Телефон опікуна', example: '' },
   { key: 'class_teacher', description: 'Класний керівник', example: '' },
   { key: 'master', description: 'Майстер', example: '' },
+  { key: 'phone_line', description: 'Телефон учня з підписом «тел. …» (порожньо, якщо немає)', example: 'тел. 0000000000' },
+  { key: 'parents', description: 'Батьки/опікун: кожен з нового рядка («ПІБ, тел. …»), лише заповнені', example: 'Іваненко Ольга Петрівна, тел. 0000000000' },
+  { key: 'social_status', description: 'Соціальний статус (з анкети) — для графи «Примітка»', example: 'Напівсирота' },
   { key: 'index', description: 'Лише в циклі: порядковий номер (1, 2, 3…)', example: '1' },
 ]
 
@@ -68,6 +71,7 @@ export interface StudentSource {
   father_phone?: string | null
   guardian_name?: string | null
   guardian_phone?: string | null
+  social_status?: string | null
 }
 
 export function formatDate(value: string | Date | null | undefined): string {
@@ -88,6 +92,13 @@ export const fullName = (s: Pick<StudentSource, 'last_name' | 'first_name' | 'pa
 export function shortName(s: Pick<StudentSource, 'last_name' | 'first_name' | 'patronymic'>): string {
   const initial = (n?: string | null) => (n && n.trim() ? `${n.trim()[0].toLocaleUpperCase('uk')}.` : '')
   return [s.last_name, initial(s.first_name) + initial(s.patronymic)].filter(Boolean).join(' ')
+}
+
+function parentLine(name?: string | null, phone?: string | null): string {
+  const n = (name ?? '').trim()
+  const ph = (phone ?? '').trim()
+  if (!n && !ph) return ''
+  return ph ? `${n ? `${n}, ` : ''}тел. ${ph}` : n
 }
 
 export function buildStudentFields(s: StudentSource): Record<string, string> {
@@ -111,6 +122,9 @@ export function buildStudentFields(s: StudentSource): Record<string, string> {
     father_phone: s.father_phone ?? '',
     guardian_name: s.guardian_name ?? '',
     guardian_phone: s.guardian_phone ?? '',
+    phone_line: s.student_phone?.trim() ? `тел. ${s.student_phone.trim()}` : '',
+    parents: [parentLine(s.mother_name, s.mother_phone), parentLine(s.father_name, s.father_phone), parentLine(s.guardian_name, s.guardian_phone)].filter(Boolean).join('\n'),
+    social_status: s.social_status ?? '',
     class_teacher: s.class_teacher ?? '',
     master: s.master ?? '',
   }
@@ -129,7 +143,13 @@ const common = (vals: (string | number | null | undefined)[]): string => {
 }
 
 export function buildTemplateData(ctx: TemplateContext): Record<string, unknown> {
-  const rows = ctx.students.map((s, i) => {
+  // Список впорядковано за кімнатою (як у паперових формах), усередині кімнати — за алфавітом.
+  const sorted = [...ctx.students].sort(
+    (a, b) =>
+      (a.room ?? '\uffff').localeCompare(b.room ?? '\uffff', 'uk', { numeric: true }) ||
+      fullName(a).localeCompare(fullName(b), 'uk'),
+  )
+  const rows = sorted.map((s, i) => {
     const f = buildStudentFields(s)
     return { ...f, index: String(i + 1), student: f }
   })

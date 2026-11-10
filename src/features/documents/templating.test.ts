@@ -97,3 +97,24 @@ describe('docxtemplater', () => {
     expect(notDocx.error).toBeTruthy()
   })
 })
+
+describe('форма «Список учнів по поверху»', () => {
+  it('сортує за кімнатою й алфавітом, склеює батьків, соціальний статус і телефон', () => {
+    const base = { first_name: 'Ім', grade: 10 }
+    const data = buildTemplateData({
+      students: [
+        { ...base, last_name: 'Яр', room: '502', mother_name: 'Мати', mother_phone: '1', father_name: 'Батько' },
+        { ...base, last_name: 'Бойко', room: '500', social_status: 'Напівсирота', student_phone: '2' },
+        { ...base, last_name: 'Артем', room: '500' },
+      ],
+      educatorName: 'В',
+      yearName: null,
+    })
+    const rows = data.students as Record<string, string>[]
+    expect(rows.map((r) => r.last_name)).toEqual(['Артем', 'Бойко', 'Яр'])
+    expect(rows[1].social_status).toBe('Напівсирота')
+    expect(rows[1].phone_line).toBe('тел. 2')
+    expect(rows[0].phone_line).toBe('')
+    expect(rows[2].parents).toBe('Мати, тел. 1\nБатько')
+  })
+})

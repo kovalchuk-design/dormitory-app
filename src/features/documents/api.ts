@@ -204,7 +204,7 @@ export async function loadPupils(): Promise<PupilOption[]> {
     .select(
       'id,last_name,first_name,patronymic,birth_date,grade,' +
         'room_assignments(to_date,rooms!room_assignments_room_id_fkey(number,floor)),' +
-        'student_profiles(status,student_phone,address,group_number,profession,class_teacher,master,mother_name,mother_phone,father_name,father_phone,guardian_name,guardian_phone)',
+        'student_profiles(status,student_phone,address,group_number,profession,class_teacher,master,mother_name,mother_phone,father_name,father_phone,guardian_name,guardian_phone,social_status)',
     )
     .eq('status', 'active')
     .is('room_assignments.to_date', null)
@@ -237,6 +237,7 @@ export async function loadPupils(): Promise<PupilOption[]> {
       father_phone: prof.father_phone ?? null,
       guardian_name: prof.guardian_name ?? null,
       guardian_phone: prof.guardian_phone ?? null,
+      social_status: prof.social_status ?? null,
     }
   })
 }
