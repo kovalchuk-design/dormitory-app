@@ -174,7 +174,7 @@ export function RoomsPage() {
   if (loading) return <p className="muted">Завантаження…</p>
 
   return (
-    <section className="rm-page">
+    <section className="rm-page fill-page">
       <div className="rm-title">
         <h1>Кімнати</h1>
         {isAdmin && (

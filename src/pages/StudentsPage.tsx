@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
+import { ScrollArea } from '../components/ui/ScrollArea'
 import { PhoneLink } from '../components/PhoneLink'
 import { StatusBadge } from '../components/StatusBadge'
 import { downloadCsv } from '../lib/csv'
@@ -39,7 +40,7 @@ export function StudentsPage() {
     setSort((s) => (s.key === key ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' }))
 
   return (
-    <section>
+    <section className="fill-page st-page">
       <div className="page-head">
         <h1>Студенти</h1>
         <div className="row">
@@ -98,7 +99,7 @@ export function StudentsPage() {
         <>
           <p className="muted small" aria-live="polite">Знайдено: {rows.length} з {data.length}</p>
           {rows.length === 0 ? <p className="muted">Нікого не знайдено.</p> : (
-            <div className="table-wrap">
+            <ScrollArea className="st-scroll" body="st-body" head={44}>
               <table className="data cards-on-mobile">
                 <thead>
                   <tr>
@@ -131,7 +132,7 @@ export function StudentsPage() {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </ScrollArea>
           )}
         </>
       )}

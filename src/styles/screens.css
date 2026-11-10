@@ -187,10 +187,10 @@ table.data td:first-child a:hover { text-decoration: underline; }
 .contacts li { align-items: stretch; text-align: left; }
 
 /* ---- Кімнати: сторінка не гортається; угорі фіксовано «Нерозподілені», у кожного поверху гортаються лише кімнати ---- */
-.shell-panel:has(.rm-page) { height: 100vh; height: 100dvh; min-height: 0; }
-.content:has(> .rm-page) { min-height: 0; grid-template-rows: minmax(0, 1fr); padding-bottom: 24px; overflow: hidden; }
-.content > .rm-page { align-self: stretch; min-height: 0; display: flex; flex-direction: column; gap: 16px; align-content: normal; }
-.rm-page > * { flex: none; }
+.shell-panel:has(.fill-page) { height: 100vh; height: 100dvh; min-height: 0; }
+.content:has(> .fill-page) { min-height: 0; grid-template-rows: minmax(0, 1fr); padding-bottom: 24px; overflow: hidden; }
+.content > .fill-page { align-self: stretch; min-height: 0; display: flex; flex-direction: column; gap: 16px; align-content: normal; }
+.fill-page > * { flex: none; }
 .rm-page > .rm-floors { flex: 1 1 0; min-height: 0; }
 .rm-pool { padding: 16px 20px; }
 .rm-pool-scroll { max-height: min(30vh, 220px); }
@@ -212,10 +212,23 @@ table.data td:first-child a:hover { text-decoration: underline; }
   .rm-pool-scroll { max-height: min(26vh, 170px); }
 }
 @media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
-  .content:has(> .rm-page) { padding-bottom: 8px; }
-  .content > .rm-page { gap: 10px; }
+  .content:has(> .fill-page) { padding-bottom: 8px; }
+  .content > .fill-page { gap: 10px; }
   .rm-pool { padding: 12px; border-radius: 22px; }
   .rm-pool ul { grid-template-columns: 1fr; }
   .rm-title h1 { font-size: 28px; }
 }
 .modal-body { padding-top: 6px; } /* запас під рамку фокусу першого поля: .modal-body скролиться й обрізає */
+
+/* ---- Студенти: шапка й фільтри статичні, гортається лише таблиця (висота fill) ---- */
+.fill-page > .st-scroll { flex: 1 1 0; min-height: 0; position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 24px; }
+.st-scroll > .scrollrows { position: absolute; inset: 0; padding: 0 18px 0 12px; overflow: auto; border-radius: 24px; }
+.st-body table.data { min-width: 44rem; }
+.st-body thead th { position: sticky; top: 0; z-index: 2; background: var(--surface); box-shadow: 0 1px 0 var(--border); height: 44px; padding-top: 0; padding-bottom: 0; }
+.st-page .filters { padding: 16px 20px; }
+.st-page > p.muted.small { margin: -8px 4px -8px; }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .fill-page > .st-scroll { background: transparent; border: 0; border-radius: 0; }
+  .st-scroll > .scrollrows { padding: 4px 14px 4px 0; overflow-x: hidden; }
+  .st-body table.data { min-width: 0; }
+}

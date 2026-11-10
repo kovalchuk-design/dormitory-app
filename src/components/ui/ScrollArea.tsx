@@ -2,10 +2,10 @@ import { useLayoutEffect, useRef, type HTMLAttributes, type ReactNode } from 're
 import { useScrollThumb } from './useScrollThumb'
 
 /** Панель, що прокручується цілком: зовнішній елемент не скролиться, внутрішній `.scrollrows` скролиться з власним повзунком (docs/style.md §7, §10). */
-export function ScrollArea({ as: Tag = 'div', className, body, inset = 0, children, ...rest }:
-  { as?: 'div' | 'aside' | 'section'; className?: string; body?: string; inset?: number; children: ReactNode } & HTMLAttributes<HTMLElement>) {
+export function ScrollArea({ as: Tag = 'div', className, body, inset = 0, head = 0, children, ...rest }:
+  { as?: 'div' | 'aside' | 'section'; className?: string; body?: string; inset?: number; head?: number; children: ReactNode } & HTMLAttributes<HTMLElement>) {
   const ref = useRef<HTMLDivElement>(null)
-  const { thumb, place, drag, dragging } = useScrollThumb(ref, inset)
+  const { thumb, place, drag, dragging } = useScrollThumb(ref, inset, head)
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
