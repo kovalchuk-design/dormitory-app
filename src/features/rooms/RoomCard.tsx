@@ -1,8 +1,7 @@
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import { Icon } from '../../components/ui/icons'
 import { PupilChip } from './PupilChip'
-import { capacityOptions, roomState, type Pupil, type RoomInfo } from './logic'
-import { Select } from '../../components/ui/Select'
+import { roomState, type Pupil, type RoomInfo } from './logic'
 
 export type DropHint = 'ok' | 'blocked' | null
 
@@ -19,10 +18,9 @@ interface Props {
   onHistory: (p: Pupil) => void
   onRoomHistory: (r: RoomInfo) => void
   onEdit: (r: RoomInfo) => void
-  onCapacity: (r: RoomInfo, capacity: number) => void
 }
 
-export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggingId, onDragStart, onMove, onHistory, onRoomHistory, onEdit, onCapacity }: Props) {
+export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggingId, onDragStart, onMove, onHistory, onRoomHistory, onEdit }: Props) {
   const state = roomState(room)
   const cls = ['rm-room', `is-${state}`, hint === 'ok' && 'hint-ok', hint === 'blocked' && 'hint-blocked', isOver && 'over']
     .filter(Boolean)
@@ -49,20 +47,6 @@ export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggin
         <div className="meter rm-meter" aria-hidden="true">
           <span style={{ width: `${room.capacity ? Math.min(100, (room.occupied / room.capacity) * 100) : 0}%` }} />
         </div>
-      )}
-      {canEdit && state !== 'inactive' && (
-        <label className="rm-cap">
-          Місць:
-          <Select className="sm"
-            value={room.capacity}
-            aria-label={`Максимум місць у кімнаті ${room.number}`}
-            onChange={(e) => onCapacity(room, Number(e.target.value))}
-          >
-            {capacityOptions(room.capacity, room.occupied).map((o) => (
-              <option key={o.value} value={o.value} disabled={o.disabled}>{o.value}</option>
-            ))}
-          </Select>
-        </label>
       )}
       <ul>
         {pupils.map((p) => (
