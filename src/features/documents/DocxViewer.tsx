@@ -1,6 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { loadChunk } from './lazy'
 
+/** docx-preview ігнорує від’ємний відступ таблиці (w:tblInd), через що широка таблиця виходить за сторінку. Повертаємо його вручну. */
+async function applyTableIndents(source: Blob | ArrayBuffer, container: HTMLElement) {
+  const buf = source instanceof Blob ? await source.arrayBuffer() : source
+  const { default: PizZip } = await loadChunk(() => import('pizzip'))
+  const xml = new PizZip(buf).file('word/document.xml')?.asText() ?? ''
+  const tables = [...container.querySelectorAll<HTMLElement>('section.docx table')]
+  xml
+    .split('<w:tbl>')
+    .slice(1)
+    .forEach((part, i) => {
+      const m = /<w:tblPr>[\s\S]*?<w:tblInd w:w="(-\d+)"/.exec(part.slice(0, part.indexOf('</w:tblPr>') + 10))
+      if (m && tables[i]) tables[i].style.marginLeft = `${(Number(m[1]) / 1440) * 96}px`
+    })
+}
+
 /** Рендерить .docx у браузері (docx-preview завантажується ліниво). */
 export function DocxViewer({ source, onError }: { source: Blob | ArrayBuffer; onError?: (message: string) => void }) {
   const rootRef = useRef<HTMLDivElement>(null)
@@ -15,7 +30,8 @@ export function DocxViewer({ source, onError }: { source: Blob | ArrayBuffer; on
     const page = bodyRef.current?.querySelector<HTMLElement>('section.docx')
     if (!root || !wrapper || !page) return
     wrapper.style.zoom = '1'
-    const free = root.clientWidth - 2 * 32
+    const cs = getComputedStyle(root)
+    const free = root.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)
     const scale = Math.min(1, free / page.offsetWidth)
     wrapper.style.zoom = String(Math.max(0.3, scale))
   }, [])
@@ -40,6 +56,7 @@ export function DocxViewer({ source, onError }: { source: Blob | ArrayBuffer; on
           breakPages: true,
           useBase64URL: true,
         })
+        await applyTableIndents(source, bodyRef.current).catch(() => undefined)
         if (!cancelled) {
           fit()
           setState('ready')

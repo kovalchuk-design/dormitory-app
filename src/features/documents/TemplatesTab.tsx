@@ -392,12 +392,14 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
       )}
       {result && (
         <div className="tpl-result" aria-label="Готовий документ">
-          <h3>Готовий документ</h3>
-          <DocxViewer source={result.blob} />
-          <div className="tpl-result-actions">
-            <button type="button" className="secondary" onClick={() => setZoomed(true)}>Відкрити на весь екран</button>
-            <button type="button" onClick={save} title={result.name}>Завантажити документ (.docx)</button>
+          <div className="tpl-result-head">
+            <h3>Готовий документ</h3>
+            <div className="card-actions">
+              <button type="button" className="secondary" onClick={() => setZoomed(true)}>Відкрити на весь екран</button>
+              <button type="button" onClick={save} title={result.name}>Завантажити документ (.docx)</button>
+            </div>
           </div>
+          <DocxViewer source={result.blob} />
         </div>
       )}
       {zoomed && result && (

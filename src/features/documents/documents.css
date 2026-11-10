@@ -88,9 +88,11 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 /* ---- Результат формування ---- */
 .tpl-result { margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px solid var(--grid); display: grid; gap: .8rem; }
 .tpl-result h3 { margin: 0; }
-.tpl-result .docx-viewer { max-height: none; padding: 1.2rem 0 .4rem; border-radius: 20px 20px 0 0; }
-.tpl-result .docx-viewer .docx-wrapper { padding: 0 2rem 1rem !important; }
+.tpl-result-head { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: space-between; align-items: center; }
+.tpl-result-head .card-actions { margin-top: 0; }
+.docx-viewer { padding: 24px; border-radius: 20px; }
+.docx-viewer .docx-wrapper { padding: 0 !important; }
+.tpl-result .docx-viewer { max-height: none; }
 .docx-viewer section.docx { border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,.12) !important; }
-.tpl-result-actions { margin-top: -.8rem; padding: .8rem 1.2rem 1.2rem; background: var(--muted); border-radius: 0 0 20px 20px; display: flex; flex-wrap: wrap; gap: .5rem; justify-content: flex-end; }
-.docx-viewer section.docx { overflow: visible !important; }
+.docx-viewer section.docx:last-of-type { margin-bottom: 0 !important; }
 .filters button[aria-pressed='true'] { background: var(--muted); border-color: var(--text); }
