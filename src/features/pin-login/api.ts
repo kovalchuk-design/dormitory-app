@@ -44,7 +44,7 @@ export function loginErrorMessage(d: LoginResponse): string {
   if (d.error === 'invalid_credentials') {
     if (d.kind === 'pin') {
       const left = d.attempts_left
-      return typeof left === 'number' ? `Невірний PIN. Залишилось спроб: ${left}.` : 'Невірний PIN.'
+      return typeof left === 'number' ? `Невірний пароль. Залишилось спроб: ${left}.` : 'Невірний пароль.'
     }
     return 'Невірний пароль.'
   }

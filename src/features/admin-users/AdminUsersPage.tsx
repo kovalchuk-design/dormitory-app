@@ -4,6 +4,7 @@ import { ROLE_LABELS, isRole } from '../../auth/roles'
 import { useLoad } from '../../lib/useLoad'
 import { AdminApiError, resetPassword, updateUser } from './api'
 import { ConfirmDialog, PasswordResultDialog } from './Dialogs'
+import { Select } from '../../components/ui/Select'
 import { UserFormDialog } from './UserFormDialog'
 import { PinDialog } from './PinDialog'
 import { EMPTY_FILTERS, errorText, filterUsers, lastSeenLabel, sortUsers, type AdminUser, type UserFilters } from './logic'
@@ -59,15 +60,15 @@ export function AdminUsersPage() {
           type="search" placeholder="Пошук за ПІБ або email" aria-label="Пошук користувачів"
           value={filters.q} onChange={(e) => setFilters({ ...filters, q: e.target.value })}
         />
-        <select aria-label="Фільтр за роллю" value={filters.role} onChange={(e) => setFilters({ ...filters, role: isRole(e.target.value) ? e.target.value : '' })}>
+        <Select className="au-sel" aria-label="Фільтр за роллю" value={filters.role} onChange={(e) => setFilters({ ...filters, role: isRole(e.target.value) ? e.target.value : '' })}>
           <option value="">Усі ролі</option>
           {(['admin', 'educator', 'staff_readonly'] as const).map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
-        </select>
-        <select aria-label="Фільтр за статусом" value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value as UserFilters['status'] })}>
+        </Select>
+        <Select className="au-sel" aria-label="Фільтр за статусом" value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value as UserFilters['status'] })}>
           <option value="">Усі статуси</option>
           <option value="active">Активні</option>
           <option value="inactive">Неактивні</option>
-        </select>
+        </Select>
       </div>
 
       {notice && <p role="status" className="au-notice">{notice}</p>}
