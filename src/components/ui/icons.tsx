@@ -20,6 +20,7 @@ const P: Record<string, ReactNode> = {
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
   close: <path d="M6 6l12 12M18 6L6 18" />,
   move: <path d="M4 8h15M15 4l4 4-4 4M20 16H5M9 12l-4 4 4 4" />,
+  filter: <path d="M4 6h16M7 12h10M10 18h4" />,
   reset: <path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5" />,
   search: <><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4" /></>,
   history: <><path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.5" /><path d="M4 4v4.5h4.5M12 8v4.5l3 1.5" /></>,
