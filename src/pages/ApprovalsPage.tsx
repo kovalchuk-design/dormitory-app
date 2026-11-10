@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import {
   changedCount, diffRecords, MEDICAL_FIELDS, PROFILE_FIELDS, withStudentIdentity, type FieldDiff,
 } from '../lib/diff'
+import { ScrollArea } from '../components/ui/ScrollArea'
 import { MergeTable } from '../components/MergeTable'
 import { errorMessage, fullName, formatDateTime } from '../lib/format'
 import { buildPlan, defaultChoice, mergeSocialData, toggleChoice, MERGEABLE, type Choice, type SocialData } from '../lib/mergeChoice'
@@ -123,7 +124,7 @@ function ApprovalCard({ item, onlyChanged, busy, onApprove, onReject }: {
   }
 
   return (
-    <article className="panel" aria-labelledby={`h-${item.id}`}>
+    <article className="ap-item" aria-labelledby={`h-${item.id}`}>
       <div className="approval-head">
         <div className="approval-title">
           <h2 id={`h-${item.id}`}><Link to={`/students/${item.student.id}`}>{fullName(item.student)}</Link></h2>
@@ -208,19 +209,22 @@ export function ApprovalsPage() {
   }
 
   return (
-    <section>
+    <section className="fill-page st-page ap-page">
       <div className="page-head">
         <h1>Оновлення даних</h1>
         <label className="check"><input type="checkbox" checked={onlyChanged} onChange={(e) => setOnlyChanged(e.target.checked)} /> Лише змінені поля</label>
       </div>
-      {loading && <p className="muted">Завантаження…</p>}
-      {error && <p className="error" role="alert">{error}</p>}
-      {actionError && <p className="error" role="alert">{actionError}</p>}
-      {data && data.length === 0 && <p className="muted">Немає версій, що чекають підтвердження.</p>}
-      {data?.map((item) => (
-        <ApprovalCard key={item.id} item={item} onlyChanged={onlyChanged} busy={busyId === item.id}
-          onApprove={(how) => void approve(item.id, how)} onReject={() => void reject(item.id)} />
-      ))}
+      {/* Одна біла плашка на висоту екрана; анкети гортаються всередині неї */}
+      <ScrollArea className="st-scroll ap-scroll" body="ap-body">
+        {loading && <p className="muted">Завантаження…</p>}
+        {error && <p className="error" role="alert">{error}</p>}
+        {actionError && <p className="error" role="alert">{actionError}</p>}
+        {data && data.length === 0 && <p className="muted">Немає версій, що чекають підтвердження.</p>}
+        {data?.map((item) => (
+          <ApprovalCard key={item.id} item={item} onlyChanged={onlyChanged} busy={busyId === item.id}
+            onApprove={(how) => void approve(item.id, how)} onReject={() => void reject(item.id)} />
+        ))}
+      </ScrollArea>
     </section>
   )
 }

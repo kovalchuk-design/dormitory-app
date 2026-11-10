@@ -10,7 +10,7 @@ export function FormsPage() {
   if (view !== 'collect' && view !== 'updates') return <Navigate to="/forms/collect" replace />
   const count = (n: number, label: string) => n > 0 && <span className="count">{n}<span className="sr-only"> {label}</span></span>
   return (
-    <section className="forms">
+    <section className={`forms${view === 'updates' ? ' fill-page' : ''}`}>
       <div className="hostel-head">
         <h1>Анкети</h1>
         <nav className="view-switch" aria-label="Вкладки">
