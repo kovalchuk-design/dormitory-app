@@ -10,7 +10,6 @@ import { StudentCardPage } from '../pages/StudentCardPage'
 import { StudentEditPage } from '../pages/StudentEditPage'
 import { StudentFormPage } from '../pages/StudentFormPage'
 import { HostelPage } from '../pages/HostelPage'
-import { HomePage } from '../pages/HomePage'
 import { AdminDocumentSettings, DocumentsPage } from '../features/documents'
 import { AdminUsersPage, ChangePasswordPage } from '../features/admin-users'
 import {
@@ -26,7 +25,7 @@ export function AppRoutes() {
       <Route path="/form/:token" element={<StudentFormPage />} />
       <Route element={<RequireAuth />}>
         <Route element={<Layout />}>
-          <Route index element={<HomePage />} />
+          <Route index element={<Navigate to="/hostel/rooms" replace />} />
           <Route path="hostel" element={<Navigate to="/hostel/rooms" replace />} />
           <Route path="hostel/:view" element={<HostelPage />} />
           <Route path="students" element={<Navigate to="/hostel/students" replace />} />
