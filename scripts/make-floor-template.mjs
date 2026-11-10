@@ -23,7 +23,7 @@ const CELLS = [
   ['{{birth_date}}'],
   ['{{room}}'],
   ['{{group_number}}, «{{profession}}»'],
-  ['{{class_teacher}}'],
+  ['{{curators}}'],
   ['{{address}}', '{{phone_line}}'],
   ['{{parents}}'],
   ['{{social_status}}{{/students}}'],

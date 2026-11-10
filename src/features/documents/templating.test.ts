@@ -115,6 +115,7 @@ describe('форма «Список учнів по поверху»', () => {
     expect(rows[1].social_status).toBe('Напівсирота')
     expect(rows[1].phone_line).toBe('тел. 2')
     expect(rows[0].phone_line).toBe('')
+    expect(buildTemplateData({ students: [{ ...base, last_name: 'К', class_teacher: 'Кл', master: ' Майстер ' }], educatorName: 'В', yearName: null }).student).toMatchObject({ curators: 'Кл\nМайстер' })
     expect(rows[2].parents).toBe('Мати, тел. 1\nБатько')
   })
 })
