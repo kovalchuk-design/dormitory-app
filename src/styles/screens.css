@@ -436,3 +436,17 @@ button.rm-pupil-name { font-size: 13.5px; }
   .approval-actions { width: 100%; }
   .approval-actions button { flex: 1; }
 }
+
+/* ---- Оновлення даних: одна біла плашка на висоту екрана, анкети гортаються всередині ---- */
+.fill-page > .st-scroll.ap-scroll { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; }
+.ap-scroll > .scrollrows { padding: 8px 24px 24px 24px; overflow-x: hidden; }
+.ap-item { padding: 20px 0 24px; margin: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+.ap-item + .ap-item { border-top: 1px solid var(--border); }
+.ap-item .approval-head { position: static; }
+.ap-page .page-head { margin-bottom: 0; }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .fill-page > .st-scroll.ap-scroll { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; }
+  .ap-scroll > .scrollrows { padding: 4px 14px 16px 14px; border-radius: 22px; }
+}
+.forms.fill-page > .forms-view { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+.forms-view > .fill-page { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
