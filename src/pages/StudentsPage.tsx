@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
+import { Drawer } from '../components/ui/Drawer'
+import { StudentCardPage } from './StudentCardPage'
 import { ScrollArea } from '../components/ui/ScrollArea'
 import { PhoneLink } from '../components/PhoneLink'
 import { StatusBadge } from '../components/StatusBadge'
@@ -38,6 +40,7 @@ export function StudentsPage() {
   const { data, error, loading } = useLoad(fetchStudentRows, 'students')
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
   const [showFilters, setShowFilters] = useState(false)
+  const [openId, setOpenId] = useState<string | null>(null)
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'name', dir: 'asc' })
 
   const rooms = useMemo(
@@ -129,8 +132,13 @@ export function StudentsPage() {
                 </thead>
                 <tbody>
                   {rows.map((r) => (
-                    <tr key={r.id}>
-                      <td data-label="ПІБ"><Link to={`/students/${r.id}`}>{fullName(r)}</Link></td>
+                    <tr key={r.id} className={openId === r.id ? 'is-open' : undefined}>
+                      <td data-label="ПІБ">
+                        <Link to={`/students/${r.id}`} onClick={(e) => {
+                          // звичайний клік — шухляда збоку; Ctrl/Cmd/Shift-клік і середня кнопка відкривають окрему сторінку
+                          if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) { e.preventDefault(); setOpenId(r.id) }
+                        }}>{fullName(r)}</Link>
+                      </td>
                       <td data-label="Клас">{r.grade}</td>
                       <td data-label="Поверх">{r.floor ?? '—'}</td>
                       <td data-label="Кімната">{r.room ?? <span className="tag tag-unplaced">нерозподілений</span>}</td>
@@ -146,6 +154,11 @@ export function StudentsPage() {
             </ScrollArea>
           )}
         </>
+      )}
+      {openId && (
+        <Drawer label="Картка учня" onClose={() => setOpenId(null)} actions={<Link className="btn secondary" to={`/students/${openId}`}>Відкрити окремо</Link>}>
+          <StudentCardPage studentId={openId} embedded />
+        </Drawer>
       )}
     </section>
   )

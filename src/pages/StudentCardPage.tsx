@@ -44,8 +44,10 @@ async function loadCard(id: string, withMedical: boolean) {
   return { student: st.data, assignments: asg.data, versions: ver.data, medical: med.data }
 }
 
-export function StudentCardPage() {
-  const { id = '' } = useParams<{ id: string }>()
+/** Картка учня: окрема сторінка (/students/:id) або вміст бічної шухляди (`studentId` + `embedded`). */
+export function StudentCardPage({ studentId, embedded = false }: { studentId?: string; embedded?: boolean } = {}) {
+  const params = useParams<{ id: string }>()
+  const id = studentId ?? params.id ?? ''
   const { profile } = useAuth()
   const role = profile?.role
   const canEdit = role === 'admin' || role === 'educator'
@@ -78,7 +80,7 @@ export function StudentCardPage() {
 
   return (
     <article className="card-page">
-      <p><Link to="/students">← До списку</Link></p>
+      {!embedded && <p><Link to="/students">← До списку</Link></p>}
       <div className="page-head">
         <h1>{name} <StatusBadge status={status} /></h1>
         {canEdit && <Link className="btn secondary" to={`/students/${id}/edit`}>Редагувати</Link>}
