@@ -31,7 +31,7 @@ export function AppRoutes() {
           <Route path="students/new" element={<StudentEditPage />} />
           <Route path="students/:id" element={<StudentCardPage />} />
           <Route path="students/:id/edit" element={<StudentEditPage />} />
-          <Route path="forms" element={<Navigate to="/forms/unmatched" replace />} />
+          <Route path="forms" element={<Navigate to="/forms/updates" replace />} />
           <Route
             path="forms/:view"
             element={
