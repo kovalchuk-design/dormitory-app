@@ -25,7 +25,8 @@ const GAP = 284
 const COL_W = Math.floor((TEXT_W - GAP) / 2) // 5244
 const DAY_W = 405
 const NAME_W = COL_W - DAY_W * 7 // 2409
-const ROW_H = 230 // мінімальна висота рядка кімнати (twips)
+const KITCHEN_ROW_H = 270 // висота рядка для запису від руки
+const ROW_H = 225 // мінімальна висота рядка кімнати (twips)
 
 const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
@@ -79,16 +80,18 @@ const columnsTable =
   `<w:tblGrid><w:gridCol w:w="${COL_W}"/><w:gridCol w:w="${GAP}"/><w:gridCol w:w="${COL_W}"/></w:tblGrid>` +
   `<w:tr>${outerCell(COL_W, loop('roomsLeft'))}${outerCell(GAP, p(''))}${outerCell(COL_W, loop('roomsRight'))}</w:tr></w:tbl>`
 
-// ---- блок «Чергові на кухні» на всю ширину: на кожну добу — «Кімната» + «Прізвище та ім’я» чергового
-const KROOM_W = 420
-const KDAY_W = Math.floor(TEXT_W / 7)
-const KNAME_W = KDAY_W - KROOM_W
-const kitchenGrid = `<w:tblGrid>${DAYS.map(() => `<w:gridCol w:w="${KROOM_W}"/><w:gridCol w:w="${KNAME_W}"/>`).join('')}</w:tblGrid>`
-const span2 = (w, content, shd) => `<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/><w:gridSpan w:val="2"/>${shd ? `<w:shd w:val="clear" w:color="auto" w:fill="${shd}"/>` : ''}<w:vAlign w:val="center"/></w:tcPr>${content}</w:tc>`
-const kitchenHead = tr(DAYS_FULL.map((d) => span2(KDAY_W, p(d, { bold: true, jc: 'center', sz: 14 }), GRAY)).join(''), { height: 220 })
-const kitchenSub = tr(DAYS.map(() => tc(KROOM_W, p('Кімн.', { sz: 12, jc: 'center' })) + tc(KNAME_W, p('Прізвище та ім’я', { sz: 12, jc: 'center' }))).join(''), { height: 200 })
-const kitchenRow = tr(DAYS.map(() => tc(KROOM_W, p('', { sz: 14 })) + tc(KNAME_W, p('', { sz: 14 }))).join(''), { height: 330 })
-const kitchenTable = `<w:tbl>${tblPr(KDAY_W * 7)}${kitchenGrid}${kitchenHead}${kitchenSub}${kitchenRow}${kitchenRow}${kitchenRow}</w:tbl>`
+// ---- блок «Чергові на кухні» на всю ширину: дві однакові половини (за шириною — як колонки кімнат),
+// у кожній «Кімн.» + «Прізвище, ім’я, по батькові» (довга колонка під почерк), по KITCHEN_ROWS рядків від руки.
+const KITCHEN_ROWS = 8
+const KROOM_W = 600
+const KNAME_W = COL_W - KROOM_W
+const kitchenGrid = `<w:tblGrid><w:gridCol w:w="${KROOM_W}"/><w:gridCol w:w="${KNAME_W}"/><w:gridCol w:w="${GAP}"/><w:gridCol w:w="${KROOM_W}"/><w:gridCol w:w="${KNAME_W}"/></w:tblGrid>`
+const gapCell = `<w:tc><w:tcPr><w:tcW w:w="${GAP}" w:type="dxa"/><w:tcBorders>${['top', 'left', 'bottom', 'right'].map((x) => `<w:${x} w:val="nil"/>`).join('')}</w:tcBorders></w:tcPr>${p('', { sz: 14 })}</w:tc>`
+const kHead = (text) => tc(KROOM_W, p('Кімн.', { sz: 14, bold: true, jc: 'center' }), { shd: GRAY }) + tc(KNAME_W, p(text, { sz: 14, bold: true, jc: 'center' }), { shd: GRAY })
+const kCells = () => tc(KROOM_W, p('', { sz: 14 })) + tc(KNAME_W, p('', { sz: 14 }))
+const kitchenHead = tr(kHead('Прізвище, ім’я, по батькові') + gapCell + kHead('Прізвище, ім’я, по батькові'), { height: 220 })
+const kitchenRow = tr(kCells() + gapCell + kCells(), { height: KITCHEN_ROW_H })
+const kitchenTable = `<w:tbl>${tblPr(TEXT_W)}${kitchenGrid}${kitchenHead}${Array.from({ length: KITCHEN_ROWS }, () => kitchenRow).join('')}</w:tbl>`
 
 const sect = (cols, type) =>
   `<w:sectPr>${type ? `<w:type w:val="${type}"/>` : ''}<w:pgSz w:w="${PAGE.w}" w:h="${PAGE.h}"/>` +
@@ -97,10 +100,9 @@ const sect = (cols, type) =>
   `</w:sectPr>`
 
 const body =
-  p('СПИСОК учнів, які залишаються в гуртожитку на ніч', { sz: 24, bold: true, jc: 'center', after: 20 }) +
-  p('{{floor}} поверх  ·  навчальний рік {{year}}  ·  тиждень з ____________ по ____________ 20___ р.', { sz: 18, jc: 'center', after: 60 }) +
+  p('СПИСОК учнів, які залишаються в гуртожитку на ніч — {{floor}} поверх', { sz: 24, bold: true, jc: 'center', after: 60 }) +
   columnsTable +
-  p('Чергові на кухні (записує вихователь від руки: кімната та прізвище й ім’я чергового на кожну добу)', { sz: 14, bold: true, before: 60, after: 30, border: true, keepNext: true }) +
+  p('Чергові на кухні', { sz: 16, bold: true, before: 60, after: 30, border: true, keepNext: true }) +
   kitchenTable +
   p('', { sz: 2, line: 20 }) +
   sect(1)
