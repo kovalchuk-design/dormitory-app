@@ -38,7 +38,13 @@ export function Layout() {
     <div className="app">
       <nav className="rail" aria-label="Головна навігація">
         <span className="rail-logo" aria-hidden="true"><Icon name="bed" size={22} /></span>
-        {items.map((i) => (
+        {items.map((i) => i.disabled ? (
+          <span key={i.to} className="rail-btn is-disabled" role="link" aria-disabled="true" title={`${i.label} — ще не доступно`}>
+            <Icon name={NAV_ICONS[i.to] ?? 'star'} />
+            <span className="rail-tip" aria-hidden="true">{i.label} · скоро</span>
+            <span className="sr-only">{i.label} (ще не доступно)</span>
+          </span>
+        ) : (
           <NavLink key={i.to} to={i.to} end={i.to === '/'} className={navClass(i.to, 'rail-btn')} title={i.label}>
             <Icon name={NAV_ICONS[i.to] ?? 'star'} />
             {badge(i)}
@@ -55,7 +61,12 @@ export function Layout() {
         </main>
       </div>
       <nav className="tabs-m" aria-label="Розділи">
-        {items.map((i) => (
+        {items.map((i) => i.disabled ? (
+          <span key={i.to} className="tab-m is-disabled" role="link" aria-disabled="true">
+            <Icon name={NAV_ICONS[i.to] ?? 'star'} />
+            <span>{i.label}</span>
+          </span>
+        ) : (
           <NavLink key={i.to} to={i.to} end={i.to === '/'} className={navClass(i.to, 'tab-m')}>
             <Icon name={NAV_ICONS[i.to] ?? 'star'} />
             {badge(i)}

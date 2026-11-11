@@ -25,6 +25,13 @@ describe('navItemsForRole', () => {
     expect(navItemsForRole('admin').find((i) => i.to === '/forms')?.badge).toBe('forms')
   })
 
+  it('«Івенти» і «Календар» видно, але вони вимкнені', () => {
+    const items = navItemsForRole('admin')
+    expect(items.find((i) => i.to === '/events')?.disabled).toBe(true)
+    expect(items.find((i) => i.to === '/calendar')?.disabled).toBe(true)
+    expect(items.filter((i) => i.disabled)).toHaveLength(2)
+  })
+
   it('без ролі бачимо лише публічні пункти', () => {
     expect(labels(null)).not.toContain('Адміністрування')
   })
