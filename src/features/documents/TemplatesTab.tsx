@@ -80,10 +80,12 @@ export function TemplatesTab({ lib }: { lib: Library }) {
   const closeAdd = useCallback(() => setAdding(false), [])
   const closePreview = useCallback(() => setPreviewId(''), [])
 
-  function use(t: TemplateRow) {
+  function pickTemplate(t: TemplateRow) {
     setSelectedId(t.id)
     setPreviewId('')
   }
+  /** Клік по рядку: вибрати шаблон; повторний клік по вибраному знімає вибір. */
+  const toggleUse = (t: TemplateRow) => (t.id === selectedId ? setSelectedId('') : pickTemplate(t))
 
   return (
     <div>
@@ -103,11 +105,12 @@ export function TemplatesTab({ lib }: { lib: Library }) {
             ) : shownTemplates.length === 0 ? (
               <p className="muted">Нічого не знайдено.</p>
             ) : (
-              <ul className="tpl-list">
+              <ul className="tpl-list" role="radiogroup" aria-label="Шаблон для формування документа">
                 {shownTemplates.map((t) => (
                   <li key={t.id} className={`tpl-row${t.id === selectedId ? ' selected' : ''}`}>
-                    <button type="button" className="tpl-pick" aria-pressed={t.id === selectedId} title={t.title} onClick={() => use(t)}>
-                      {t.title}
+                    <button type="button" role="radio" aria-checked={t.id === selectedId} className="tpl-pick" title={t.id === selectedId ? 'Зняти вибір' : 'Вибрати шаблон'} onClick={() => toggleUse(t)}>
+                      <span className="tpl-radio" aria-hidden="true" />
+                      <span className="tpl-title">{t.title}</span>
                     </button>
                     <button type="button" className="tpl-icon" aria-label={`Перегляд шаблону «${t.title}»`} title="Перегляд шаблону" onClick={() => setPreviewId(t.id)}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
@@ -148,7 +151,7 @@ export function TemplatesTab({ lib }: { lib: Library }) {
           title={`Перегляд: «${previewing.title}»`}
           onClose={closePreview}
           wide
-          footer={previewing.id !== selectedId ? <button type="button" onClick={() => use(previewing)}>Використати</button> : undefined}
+          footer={previewing.id !== selectedId ? <button type="button" onClick={() => pickTemplate(previewing)}>Використати</button> : undefined}
         >
           <PreviewPane key={previewing.id} storagePath={previewing.storage_path} title={previewing.title} fileType="docx" downloadable={false} />
         </Modal>

@@ -67,6 +67,15 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 .documents .tpl-row .tpl-pick { flex: 1; min-width: 0; min-height: 40px; height: auto; padding: .4rem .7rem; background: transparent; border: 0; color: var(--text); font-size: 15px; font-weight: 500; text-align: left; display: flex; justify-content: flex-start; align-items: center; line-height: 1.25; overflow-wrap: anywhere; box-shadow: none; }
 .documents .tpl-row.selected .tpl-pick { font-weight: 700; }
 .documents .tpl-row .tpl-icon { flex: none; width: 34px; height: 34px; min-height: 0; padding: 0; display: grid; place-items: center; border-radius: 10px; background: transparent; border: 0; color: var(--text2Hi); box-shadow: none; }
+.tpl-radio { flex: none; width: 20px; height: 20px; margin-right: .7rem; border: 1.5px solid var(--text2); border-radius: 50%; display: grid; place-items: center; background: transparent; transition: border-color var(--t-fast) var(--ease); }
+.tpl-radio::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--out); transform: scale(0); transition: transform var(--t-fast) var(--ease); }
+.tpl-row.selected .tpl-radio { border-color: var(--out); }
+.tpl-row.selected .tpl-radio::after { transform: scale(1); }
+.tpl-pick:hover .tpl-radio { border-color: var(--text); }
+.tpl-title { min-width: 0; }
+.documents .tpl-row .tpl-icon { opacity: 0; transition: opacity var(--t-fast) var(--ease), background var(--t-fast) var(--ease); }
+.tpl-row:hover .tpl-icon, .tpl-row:focus-within .tpl-icon { opacity: 1; }
+@media (hover: none) { .documents .tpl-row .tpl-icon { opacity: 1; } }
 .documents .tpl-row .tpl-icon:hover { background: var(--surface); color: var(--text); }
 .documents .tpl-row .tpl-icon.danger:hover { color: var(--danger); }
 .tpl-add { align-self: stretch; }
