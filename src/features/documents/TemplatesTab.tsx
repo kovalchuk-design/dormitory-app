@@ -114,7 +114,7 @@ export function TemplatesTab({ lib }: { lib: Library }) {
                       <span className="tpl-check" aria-hidden="true" />
                       <span className="tpl-title">{t.title}</span>
                     </button>
-                    <button type="button" className="tpl-icon" aria-label={`Перегляд шаблону «${t.title}»`} title="Перегляд" onClick={() => setPreviewId(t.id)}>
+                    <button type="button" className="tpl-icon" data-preview aria-label={`Перегляд шаблону «${t.title}»`} title="Перегляд" onClick={() => setPreviewId(t.id)}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
                     </button>
                     {editable && (

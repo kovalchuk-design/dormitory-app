@@ -155,3 +155,13 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 /* Меню «Завантажити» у підвалі вікна відкривається вгору, щоб не обрізатися краєм вікна */
 .modal-foot .action-menu-pop { top: auto; bottom: 100%; margin-top: 0; margin-bottom: 6px; }
 .modal-foot .action-menu-pop::before { top: auto; bottom: -8px; }
+
+/* Вікна на малих екранах: не ширші за екран (раніше сторінка документа розпирала вікно, і кнопка ✕ опинялась за краєм) */
+.modal-backdrop { grid-template-columns: minmax(0, 1fr); }
+.modal { min-width: 0; max-width: 100%; }
+.modal-body { min-width: 0; }
+
+/* Перегляд шаблону на телефонах недоступний (замалий екран); на планшетах і комп’ютерах — є */
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .documents .tpl-row .tpl-icon[data-preview] { display: none; }
+}
