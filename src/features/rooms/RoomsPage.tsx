@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useContext, useEffect, useMemo, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { HostelNewRoom } from '../../pages/hostelContext'
 import { useAuth } from '../../auth/useAuth'
 import { Icon } from '../../components/ui/icons'
@@ -178,6 +178,7 @@ export function RoomsPage() {
     if (res.error) return setDialogError(describeError(res.error))
     setCreating(false)
     setFloorTab(v.floor)
+    setNotice({ kind: 'ok', text: `Кімнату ${v.number} створено (${v.floor} поверх)` })
     void refresh()
   }
 
@@ -304,10 +305,21 @@ function pupilsWord(n: number): string {
 /** «Нова кімната» з виду «Студенти»: діалог відкривається на місці, без переходу на «Кімнати». */
 export function NewRoomHost() {
   const { creating } = useContext(HostelNewRoom)
-  return creating ? <NewRoomHostInner /> : null
+  const [done, setDone] = useState<string | null>(null)
+  useEffect(() => {
+    if (!done) return
+    const t = window.setTimeout(() => setDone(null), 4000)
+    return () => window.clearTimeout(t)
+  }, [done])
+  return (
+    <>
+      {creating && <NewRoomHostInner onDone={setDone} />}
+      {done && <p className="rm-notice ok" role="status">{done}</p>}
+    </>
+  )
 }
 
-function NewRoomHostInner() {
+function NewRoomHostInner({ onDone }: { onDone: (text: string) => void }) {
   const { setCreating } = useContext(HostelNewRoom)
   const { data, refresh } = useRoomsBoard()
   const [busy, setBusy] = useState(false)
@@ -318,6 +330,7 @@ function NewRoomHostInner() {
     setBusy(false)
     if (res.error) return setError(describeError(res.error))
     setCreating(false)
+    onDone(`Кімнату ${v.number} створено (${v.floor} поверх)`)
     void refresh()
   }
   return <NewRoomDialog rooms={data?.rooms ?? []} busy={busy} error={error} onCreate={(v) => void add(v)} onCancel={() => setCreating(false)} />
