@@ -118,6 +118,12 @@ export function StudentsPage() {
                       </th>
                     ))}
                     <th scope="col">Соціальний статус</th>
+                    <th scope="col" title="Останнє оновлення даних" aria-sort={sort.key === 'updated' ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+                      <button type="button" className="th-btn" onClick={() => toggleSort('updated')}>
+                        Оновлено
+                        <SortMark dir={sort.key === 'updated' ? sort.dir : null} />
+                      </button>
+                    </th>
                     <th scope="col">Примітки</th>
                   </tr>
                 </thead>
@@ -134,6 +140,7 @@ export function StudentsPage() {
                       <td data-label="Кімната">{r.room ?? <span className="tag tag-unplaced">нерозподілений</span>}</td>
                       <td data-label="Група">{r.group_number ?? '—'}</td>
                       <td data-label="Соц. статус" className="cell-text">{r.social_status ?? <span className="muted">—</span>}</td>
+                      <td data-label="Оновлено" className="cell-date">{r.data_updated_at ? new Date(r.data_updated_at).toLocaleDateString('uk-UA') : <span className="muted">—</span>}</td>
                       <td data-label="Примітки" className="cell-text cell-notes">{r.notes?.trim() ? r.notes : <span className="muted">—</span>}</td>
                     </tr>
                   ))}
