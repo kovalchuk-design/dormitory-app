@@ -64,7 +64,7 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 .tpl-row { display: flex; align-items: center; gap: .15rem; border-radius: 12px; border: 1.5px solid transparent; padding: .1rem .2rem .1rem 0; }
 .tpl-row:hover { background: var(--muted); }
 .tpl-row.selected { background: var(--out-bg); border-color: var(--out); }
-.documents .tpl-row .tpl-pick { flex: 1; min-width: 0; min-height: 40px; height: auto; padding: .4rem .7rem; background: transparent; border: 0; color: var(--text); font-size: .95rem; font-weight: 500; text-align: left; display: flex; justify-content: flex-start; align-items: center; line-height: 1.25; overflow-wrap: anywhere; box-shadow: none; }
+.documents .tpl-row .tpl-pick { flex: 1; min-width: 0; min-height: 40px; height: auto; padding: .4rem .7rem; background: transparent; border: 0; color: var(--text); font-size: 15px; font-weight: 500; text-align: left; display: flex; justify-content: flex-start; align-items: center; line-height: 1.25; overflow-wrap: anywhere; box-shadow: none; }
 .documents .tpl-row.selected .tpl-pick { font-weight: 700; }
 .documents .tpl-row .tpl-icon { flex: none; width: 34px; height: 34px; min-height: 0; padding: 0; display: grid; place-items: center; border-radius: 10px; background: transparent; border: 0; color: var(--text2Hi); box-shadow: none; }
 .documents .tpl-row .tpl-icon:hover { background: var(--surface); color: var(--text); }
@@ -105,21 +105,21 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 .modal-narrow { width: min(34rem, 100%); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; opacity: 0; }
 .file-field { display: grid; gap: .35rem; }
-.file-field-label { font-size: .9rem; color: var(--text2); }
+.file-field-label { font-size: 14px; color: var(--text2); }
 .documents .file-drop { display: flex; align-items: center; gap: .8rem; margin: 0; padding: .9rem 1rem; min-height: 64px; border: 1.5px dashed var(--fieldBorder); border-radius: 16px; background: var(--field); cursor: pointer; }
 .documents .file-drop:hover, .documents .file-drop:focus-within { border-color: var(--out); background: var(--out-bg); }
 .documents .file-drop.has-file { border-style: solid; border-color: var(--in); background: var(--in-bg); }
-.file-drop-icon { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--muted); font-size: 1.2rem; font-weight: 600; }
+.file-drop-icon { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--muted); font-size: 16px; font-weight: 600; }
 .has-file .file-drop-icon { background: var(--in); color: #fff; }
 .file-drop-text { flex: 1; min-width: 0; overflow-wrap: anywhere; display: grid; gap: .1rem; }
-.file-drop-change { flex: none; font-size: .85rem; color: var(--outInk); font-weight: 600; }
-.help-compact { margin-top: .6rem; padding: 0 1rem; background: var(--muted); border-radius: 16px; font-size: .85rem; color: var(--text2Hi); }
+.file-drop-change { flex: none; font-size: 13px; color: var(--outInk); font-weight: 600; }
+.help-compact { margin-top: .6rem; padding: 0 1rem; background: var(--muted); border-radius: 16px; font-size: 13px; color: var(--text2Hi); }
 .help-compact summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: .6rem; min-height: 48px; cursor: pointer; font-weight: 600; color: var(--text); }
 .help-compact summary::-webkit-details-marker { display: none; }
 .help-compact summary::after { content: ''; flex: none; width: 8px; height: 8px; border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-2px, -2px); transition: transform var(--t-fast) var(--ease); }
 .help-compact[open] summary::after { transform: rotate(-135deg) translate(-2px, -2px); }
 .help-compact[open] { padding-bottom: .6rem; }
 .help-compact summary:hover { color: var(--outInk); }
-.help-compact .help-steps, .help-compact .help-table { font-size: .82rem; }
+.help-compact .help-steps, .help-compact .help-table { font-size: 13px; }
 .help-compact code { background: var(--surface); }
-.help-compact h3, .help-compact h4 { font-size: .9rem; }
+.help-compact h3, .help-compact h4 { font-size: 14px; }
