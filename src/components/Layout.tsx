@@ -61,16 +61,11 @@ export function Layout() {
         </main>
       </div>
       <nav className="tabs-m" aria-label="Розділи">
-        {items.map((i) => i.disabled ? (
-          <span key={i.to} className="tab-m is-disabled" role="link" aria-disabled="true">
-            <Icon name={NAV_ICONS[i.to] ?? 'star'} />
-            <span>{i.label}</span>
-          </span>
-        ) : (
-          <NavLink key={i.to} to={i.to} end={i.to === '/'} className={navClass(i.to, 'tab-m')}>
-            <Icon name={NAV_ICONS[i.to] ?? 'star'} />
+        {/* телефон: лише іконки, без вимкнених пунктів; назва — для скрін-рідерів і підказки */}
+        {items.filter((i) => !i.disabled).map((i) => (
+          <NavLink key={i.to} to={i.to} end={i.to === '/'} className={navClass(i.to, 'tab-m')} aria-label={i.label} title={i.label}>
+            <Icon name={NAV_ICONS[i.to] ?? 'star'} size={24} />
             {badge(i)}
-            <span>{i.label.replace('Оновлення даних', 'Оновлення').replace('Адміністрування', 'Адмін')}</span>
           </NavLink>
         ))}
         <AccountMenu variant="tab" />

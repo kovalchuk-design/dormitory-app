@@ -144,13 +144,13 @@ html[data-theme='dark'] { color-scheme: dark; }
 
 /* Нижнє меню телефона: пункти рівномірно на всю ширину, нижче до краю (в межах безпечної зони), без градієнтного «підтирання» справа */
 @media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
-  :root { --tab-bottom: max(calc(env(safe-area-inset-bottom) - 14px), 6px); }
-  .shell-panel { padding-bottom: calc(var(--tab-bottom) + 78px); }
+  :root { --tab-bottom: max(calc(env(safe-area-inset-bottom) - 14px), 6px); --tab-h: 66px; }
+  .shell-panel { padding-bottom: calc(var(--tab-bottom) + var(--tab-h)); }
   .tabs-m { bottom: var(--tab-bottom); mask-image: none; -webkit-mask-image: none; justify-content: space-between; }
   .tab-m { flex: 1 1 0; min-width: 64px; }
-  .row.sticky-actions { bottom: calc(var(--tab-bottom) + 78px); }
+  .row.sticky-actions { bottom: calc(var(--tab-bottom) + var(--tab-h)); }
 }
-@media (max-width: 560px) { .form-actions { bottom: calc(var(--tab-bottom) + 78px); } }
+@media (max-width: 560px) { .form-actions { bottom: calc(var(--tab-bottom) + var(--tab-h)); } }
 /* ховер лише для миші: на дотик не залипає */
 @media (hover: none) {
   button:hover:not(:disabled), a.btn:hover { opacity: 1; }
@@ -168,4 +168,13 @@ html[data-theme='dark'] { color-scheme: dark; }
   :root.is-surface { background: var(--surface); }
   /* меню-плашка: щільна, з невеликою тінню (велика тінь обрізалась краєм екрана) */
   .tabs-m { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 14px rgba(0,0,0,.08); }
+}
+
+/* Нижнє меню телефона: лише іконки (без підписів), пункти рівномірно; активний — світло-синя плашка (--out-bg / --outInk), без білого з тінню */
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .tabs-m { padding: 5px; gap: 4px; justify-content: space-around; }
+  .tab-m, button.tab-m { flex: 1 1 0; min-width: 0; min-height: 48px; padding: 0; gap: 0; border-radius: 18px; color: var(--text2Hi); }
+  .tab-m svg { width: 24px; height: 24px; }
+  .tab-m.active { background: var(--out-bg); color: var(--outInk); box-shadow: none; }
+  .tab-m .nav-badge { top: 5px; right: calc(50% - 24px); }
 }
