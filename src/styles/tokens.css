@@ -17,6 +17,7 @@
   --in:#2E7D32; --in-bg:#E3F6E1;
   --out:#1673A3; --out-bg:#DCEBF7;
   --warn:#B7791F; --danger:#C53030; --badge:#C2410C; /* білий 11px на бейджі: 5.18:1; одне значення для обох тем */
+  --inInk:#1F6A25; /* зелений текст на --in-bg ≥ 4.5:1 (дописано, див. docs/style.md §14) */
   --warnInk:#8C5B12; /* бурштиновий текст на світлому: темніший відтінок для 4.5:1 */
   --warn-bg:color-mix(in oklch, var(--warn) 15%, var(--surface));
   --danger-bg:color-mix(in oklch, var(--danger) 10%, var(--surface));
@@ -49,7 +50,7 @@
   --text:#F2F5F7; --text2:#AEB9C3; --text2Hi:#AEB9C3; --outInk:#6CB8E6;
   --in:#6FD38A; --in-bg:#15301F;
   --out:#6CB8E6; --out-bg:#13293B;
-  --warn:#E6B450; --danger:#FF8A8A; --warnInk:#E6B450;
+  --warn:#E6B450; --danger:#FF8A8A; --warnInk:#E6B450; --inInk:#6FD38A;
   --warn-bg:color-mix(in oklch, var(--warn) 16%, var(--surface));
   --danger-bg:color-mix(in oklch, var(--danger) 14%, var(--surface));
   --zG:rgba(111,211,138,.7); --zA:rgba(230,180,80,.7); --zR:rgba(240,120,120,.7);
