@@ -151,3 +151,7 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 /* Перегляд .docx: без переносів слів (docx-preview за замовчуванням вмикає hyphens:auto, і браузер ділить «Оле-ксандрович»).
    Імена й прізвища переходять на новий рядок цілими словами. */
 .docx-viewer .docx, .docx-viewer .docx * { hyphens: manual !important; -webkit-hyphens: manual !important; overflow-wrap: normal; word-break: normal; }
+
+/* Меню «Завантажити» у підвалі вікна відкривається вгору, щоб не обрізатися краєм вікна */
+.modal-foot .action-menu-pop { top: auto; bottom: 100%; margin-top: 0; margin-bottom: 6px; }
+.modal-foot .action-menu-pop::before { top: auto; bottom: -8px; }

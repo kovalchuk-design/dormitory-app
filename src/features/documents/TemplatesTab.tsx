@@ -19,6 +19,8 @@ import { canEditTemplates } from './permissions'
 import { buildTemplateData, checkTemplate, docxHasText, fullName, renderDocxTemplate } from './templating'
 import type { TemplateRow } from './types'
 import { MultiSelect, type MultiOption } from '../../components/ui/MultiSelect'
+import { ActionMenu } from '../../components/ui/ActionMenu'
+import { buildPdf, detectPdfKind } from './pdf'
 
 const errText = (e: unknown) => (e instanceof Error ? e.message : String(e))
 
@@ -234,7 +236,10 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
   const [chosen, setChosen] = useState<Set<string>>(new Set())
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [result, setResult] = useState<{ blob: Blob; name: string } | null>(null)
+  const [result, setResult] = useState<{ blob: Blob; name: string; data: Record<string, unknown> } | null>(null)
+  const [pdfBusy, setPdfBusy] = useState(false)
+  const [pdfError, setPdfError] = useState<string | null>(null)
+  const pdfKind = useMemo(() => detectPdfKind(template.placeholders), [template.placeholders])
   const [zoomed, setZoomed] = useState(false)
 
   useEffect(() => {
@@ -345,7 +350,7 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
       const chosenFloors = [...new Set(selected.map((p) => p.floor))]
       const suffix =
         selected.length === 1 ? fullName(selected[0]) : chosenFloors.length === 1 && chosenFloors[0] != null ? `${chosenFloors[0]} поверх, ${selected.length} учнів` : `${selected.length} учнів`
-      setResult({ blob, name: downloadName(`${template.title} — ${suffix}`, 'x.docx') })
+      setResult({ blob, data, name: downloadName(`${template.title} — ${suffix}`, 'x.docx') })
     } catch (e) {
       setError(errText(e))
     } finally {
@@ -353,17 +358,38 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
     }
   }
 
-  function save() {
-    if (!result) return
-    const url = URL.createObjectURL(result.blob)
+  function saveFile(source: Blob, fileName: string) {
+    const url = URL.createObjectURL(source)
     const a = document.createElement('a')
     a.href = url
-    a.download = result.name
+    a.download = fileName
     document.body.appendChild(a)
     a.click()
     a.remove()
     setTimeout(() => URL.revokeObjectURL(url), 10_000)
   }
+  const saveDocx = () => result && saveFile(result.blob, result.name)
+  async function savePdf() {
+    if (!result || !pdfKind || pdfBusy) return
+    setPdfBusy(true)
+    setPdfError(null)
+    try {
+      const bytes = await buildPdf(pdfKind, result.data)
+      saveFile(new Blob([bytes as BlobPart], { type: 'application/pdf' }), result.name.replace(/\.docx$/i, '.pdf'))
+    } catch (e) {
+      setPdfError(`Не вдалося створити PDF: ${errText(e)}`)
+    } finally {
+      setPdfBusy(false)
+    }
+  }
+  /** «Завантажити» з вибором формату (PDF / Word); якщо в шаблону немає PDF-вигляду — лише Word. */
+  const downloadControl = (
+    pdfKind ? (
+      <ActionMenu label={pdfBusy ? 'Готуємо PDF…' : 'Завантажити'} items={[{ label: 'PDF', onClick: () => void savePdf() }, { label: 'Word (.docx)', onClick: saveDocx }]} />
+    ) : (
+      <button type="button" onClick={saveDocx} title={result?.name}>Завантажити .docx</button>
+    )
+  )
 
   return (
     <section className="panel tpl-active">
@@ -422,9 +448,10 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
             <h3>Готовий документ</h3>
             <div className="card-actions">
               <button type="button" className="secondary" onClick={() => setZoomed(true)}>Відкрити на весь екран</button>
-              <button type="button" onClick={save} title={result.name}>Завантажити документ (.docx)</button>
+              {downloadControl}
             </div>
           </div>
+          {pdfError && <p className="error">{pdfError}</p>}
           <DocxViewer source={result.blob} />
         </div>
       )}
@@ -435,7 +462,7 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
           wide
           footer={
             <>
-              <button type="button" onClick={save}>Завантажити документ (.docx)</button>
+              {downloadControl}
               <button type="button" className="secondary" onClick={() => setZoomed(false)}>Закрити</button>
             </>
           }
