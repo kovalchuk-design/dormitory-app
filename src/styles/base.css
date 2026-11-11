@@ -159,7 +159,7 @@ table.data thead th { font-size: 12px; font-weight: 600; color: var(--text2Hi); 
 table.data tbody tr:last-child td { border-bottom: 0; }
 table.data tbody tr { transition: background-color var(--t-fast) var(--ease); }
 table.data tbody tr:hover { background: color-mix(in oklch, var(--muted) 60%, transparent); }
-table.diff tr.changed td:last-child, table.diff tr.changed th { background: var(--warn-bg); }
+table.diff tr.changed th { background: var(--muted); }
 a.phone { white-space: nowrap; font-weight: 600; color: var(--outInk); text-decoration: none; }
 a.phone:hover { text-decoration: underline; }
 .help-table td, .help-table th { border-color: var(--border); }
@@ -206,11 +206,11 @@ label input[type='checkbox'], label input[type='radio'], .switch-row input, .rm-
 button.infotip-btn { width: 40px; height: 40px; min-height: 40px; padding: 0; margin: -8px 0; border-radius: 50%; background: transparent; color: var(--text2); opacity: .8; border: 0; }
 button.infotip-btn:hover:not(:disabled), .infotip.open .infotip-btn { background: var(--muted); opacity: 1; color: var(--text); }
 .info-pop {
-  display: none; position: absolute; z-index: 30; left: 16px; right: 16px; top: auto; margin-top: 30px; width: auto; max-width: 460px;
-  padding: 12px 16px; border-radius: 16px; background: var(--tip); color: var(--tipText); font-size: 13px; font-weight: 500;
-  line-height: 1.45; letter-spacing: 0; box-shadow: var(--shadowTip); animation: pop-in .16s var(--ease);
+  display: none; position: fixed; z-index: 220; box-sizing: border-box; padding: 12px 16px; border-radius: 16px;
+  background: var(--tip); color: var(--tipText); font-size: 13px; font-weight: 500; line-height: 1.45; letter-spacing: 0;
+  text-align: left; text-transform: none; box-shadow: var(--shadowTip); animation: pop-in .16s var(--ease); pointer-events: none;
 }
-.infotip.open .info-pop, .infotip:hover .info-pop { display: block; }
+.infotip.open .info-pop { display: block; }
 .info-pop strong { font-weight: 700; }
 
 .form fieldset, .panel, .card { position: relative; }

@@ -27,11 +27,11 @@ await sc.evaluate((e) => e.scrollTo(0, 400))
 assert.ok((await sc.evaluate((e) => e.scrollTop)) > 300, 'scrollTop змінюється')
 await sc.evaluate((e) => e.scrollTo(0, 0))
 assert.notEqual(await sc.evaluate((e) => getComputedStyle(e).backgroundColor), 'rgba(0, 0, 0, 0)', 'біла плашка')
-// шапка: один рядок, без великого заголовка
+// шапка: перемикач на всю ширину, без заголовка і без кнопки «+»
 const sw = await page.locator('.view-switch').boundingBox()
-const plus = await page.getByRole('button', { name: /^Додати/ }).or(page.getByRole('link', { name: /^Додати/ })).first().boundingBox()
-assert.ok(Math.abs((sw.y + sw.height / 2) - (plus.y + plus.height / 2)) < 6, 'перемикач і «+» в одному рядку')
 assert.ok(sw.y < 40, 'без заголовка зверху')
+assert.ok(sw.width > 340, 'перемикач на всю ширину')
+assert.equal(await page.getByRole('button', { name: /^Додати/ }).or(page.getByRole('link', { name: /^Додати/ })).count(), 0, 'на телефоні немає кнопки «+»')
 await page.screenshot({ path: 'ux-audit/shots/students-mobile-v2.png' })
 
 // пошук + лічильник + скидання
@@ -48,6 +48,18 @@ await page.getByRole('button', { name: 'Нерозподілені' }).first().c
 assert.equal((await page.locator('.sl-filter-btn .sl-badge').innerText()).trim(), '2')
 for (const t of await page.locator('.sl-sub').allInnerTexts()) assert.match(t, /^без кімнати/)
 await page.getByRole('button', { name: 'Скинути', exact: true }).click()
+
+// після дотику вибраний чіп читабельний (регресія: залипав :hover — світлий фон і білий текст)
+await page.getByRole('button', { name: '4 пов.' }).tap(); await page.waitForTimeout(500)
+const contrast = await page.getByRole('button', { name: '4 пов.' }).evaluate((e) => {
+  const cs = getComputedStyle(e); const rgb = (c) => c.match(/[\d.]+/g).slice(0, 3).map(Number); const L = ([r, g, b]) => 0.2126 * r + 0.7152 * g + 0.0722 * b
+  return Math.abs(L(rgb(cs.color)) - L(rgb(cs.backgroundColor)))
+})
+assert.ok(contrast > 100, `контраст вибраного чіпа після дотику: ${contrast}`)
+await page.getByRole('button', { name: 'Скинути', exact: true }).click()
+// нижнє меню: пункти розтягнуті на всю ширину, без маски
+const tabs = await page.locator('.tabs-m > *').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().width))
+assert.ok(tabs.length <= 4 ? Math.min(...tabs) > 80 : true, `пункти меню рівномірні: ${tabs}`)
 
 // нижній лист фільтрів
 await page.getByRole('button', { name: /Фільтри/ }).click()

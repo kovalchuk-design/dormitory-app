@@ -19,6 +19,8 @@ export interface StudentRow {
   group_number: string | null
   social_status: string | null
   notes: string | null
+  /** Коли востаннє оновлено дані учня: дата затвердження чинної версії анкети (approved_at). */
+  data_updated_at: string | null
 }
 
 export interface Filters {
@@ -88,7 +90,7 @@ export function filterStudents(rows: StudentRow[], f: Filters): StudentRow[] {
   )
 }
 
-export type SortKey = 'name' | 'grade' | 'room' | 'floor' | 'status' | 'group'
+export type SortKey = 'name' | 'grade' | 'room' | 'floor' | 'status' | 'group' | 'updated'
 export type SortDir = 'asc' | 'desc'
 
 const collator = new Intl.Collator('uk', { numeric: true, sensitivity: 'base' })
@@ -106,6 +108,14 @@ export function sortStudents(rows: StudentRow[], key: SortKey, dir: SortDir): St
         break
       case 'status':
         c = collator.compare(a.status, b.status)
+        break
+      case 'updated':
+        // без дати — в кінці незалежно від напрямку
+        if (!a.data_updated_at || !b.data_updated_at) {
+          if (!a.data_updated_at && !b.data_updated_at) return byName(a, b)
+          return a.data_updated_at ? -1 : 1
+        }
+        c = a.data_updated_at < b.data_updated_at ? -1 : a.data_updated_at > b.data_updated_at ? 1 : 0
         break
       case 'group':
         // записи без групи — в кінці

@@ -13,10 +13,15 @@ import { fetchStudentRows } from '../lib/studentsApi'
 import type { StudentRow } from '../lib/studentsList'
 import { supabase } from '../lib/supabase'
 import { useLoad } from '../lib/useLoad'
+import { Fold } from '../components/ui/Fold'
+import { InfoTip } from '../components/ui/InfoTip'
+import { ScrollArea } from '../components/ui/ScrollArea'
 import { Select } from '../components/ui/Select'
 
 const FLOORS = [2, 3, 4, 5]
 const TTL_OPTIONS = [3, 7, 14, 30]
+/** Скільки перших полів анкети показувати в картці «Не зіставлені» до розгортання. */
+const PREVIEW_FIELDS = 4
 
 async function loadCollect() {
   const [links, subs, students, profiles] = await Promise.all([
@@ -45,35 +50,58 @@ const VERSION_LABELS: Record<string, string> = {
   pending: 'очікує підтвердження', approved: 'підтверджено', superseded: 'застаріла', rejected: 'відхилено',
 }
 
-export function CollectPage() {
+/** Спільні дані вкладок «Не зіставлені» і «Налаштування»: завантаження + помилки дій. */
+function useCollect() {
   const { data, error, loading, reload } = useLoad(loadCollect, 'collect')
-  const { profile } = useAuth()
   const [actionError, setActionError] = useState<string | null>(null)
+  return { data, error, loading, reload, actionError, setActionError }
+}
 
+/** Вкладка «Не зіставлені»: одна біла плашка на висоту екрана, подання гортаються всередині (як на «Оновленні даних»). */
+export function UnmatchedTab() {
+  const { data, error, loading, reload, actionError, setActionError } = useCollect()
   const done = () => {
     notifyPendingChanged()
     reload()
   }
-
   return (
-    <section>
-      <h1>Збір анкет</h1>
-      <p className="muted">
-        Одне посилання на поверх: надішліть його в чат поверху, і кожен учень заповнить свою анкету. Анкета сама прикріпляється до учня в базі, якщо
-        ПІБ і дата народження збігаються точно; інакше потрапляє в «Не зіставлені». Підтверджує анкети завжди вихователь — на сторінці «Оновлення даних».
-      </p>
-      {loading && <p className="muted">Завантаження…</p>}
-      {error && <p className="error" role="alert">{error}</p>}
-      {actionError && <p className="error" role="alert">{actionError}</p>}
-      {data && (
-        <>
-          <FloorLinks data={data} onChanged={reload} onError={setActionError} />
-          <Unmatched data={data} onDone={done} onError={setActionError} />
-          <Progress data={data} />
-          {profile?.role === 'admin' && <ProfessionsPanel />}
-          <Journal data={data} />
-        </>
-      )}
+    <section className="fill-page st-page ap-page">
+      <ScrollArea className="st-scroll ap-scroll" body="ap-body">
+        {loading && <p className="muted">Завантаження…</p>}
+        {error && <p className="error" role="alert">{error}</p>}
+        {actionError && <p className="error" role="alert">{actionError}</p>}
+        {data && <Unmatched data={data} onDone={done} onError={setActionError} />}
+      </ScrollArea>
+    </section>
+  )
+}
+
+/** Вкладка «Налаштування»: посилання по поверхах (за замовчуванням згорнуті), статистика, журнал, професії. */
+export function SettingsTab() {
+  const { data, error, loading, reload, actionError, setActionError } = useCollect()
+  const { profile } = useAuth()
+  return (
+    <section className="fill-page st-page ap-page settings-tab">
+      <ScrollArea className="st-scroll ap-scroll" body="ap-body">
+        {loading && <p className="muted">Завантаження…</p>}
+        {error && <p className="error" role="alert">{error}</p>}
+        {actionError && <p className="error" role="alert">{actionError}</p>}
+        {data && (
+          <>
+            <Fold id="set-floors" title="Посилання по поверхах">
+              <p className="muted small">
+                Одне посилання на поверх: надішліть його в чат поверху, і кожен учень заповнить свою анкету. Анкета сама прикріпляється до учня в базі,
+                якщо ПІБ і дата народження збігаються точно; інакше потрапляє у вкладку «Не зіставлені». Підтверджує анкети завжди вихователь — на вкладці «Оновлення даних».
+              </p>
+              <FloorLinks data={data} onChanged={reload} onError={setActionError} />
+            </Fold>
+            {profile?.role === 'admin' && <Fold id="set-prof" title="Професії для анкети"><ProfessionsPanel /></Fold>}
+            <Fold id="set-progress" title="Хто ще не заповнив" always><Progress data={data} /></Fold>
+            {/* журнал — без сірої плашки, відкритий на білому тлі: таблиця потребує всієї ширини */}
+            <div className="journal-open"><Journal data={data} /></div>
+          </>
+        )}
+      </ScrollArea>
     </section>
   )
 }
@@ -182,20 +210,14 @@ function FloorLinks({ data, onChanged, onError }: { data: Data; onChanged: () =>
 
 function Unmatched({ data, onDone, onError }: { data: Data; onDone: () => void; onError: (m: string | null) => void }) {
   const queue = data.subs.filter((s) => s.status === 'unmatched').slice().reverse()
+  if (queue.length === 0) return <p className="muted">Усі подані анкети зіставлено.</p>
   return (
-    <section className="panel" aria-labelledby="unmatched-h">
-      <h2 id="unmatched-h">Не зіставлені ({queue.length})</h2>
-      {queue.length === 0 ? (
-        <p className="muted">Усі подані анкети зіставлено.</p>
-      ) : (
-        <>
-          <p className="muted small">Не вдалося точно знайти учня за ПІБ і датою народження (помилка в написанні, інша дата, є тезка, учня ще немає в базі).</p>
-          {queue.map((s) => (
-            <UnmatchedCard key={s.id} sub={s} students={data.students} onDone={onDone} onError={onError} />
-          ))}
-        </>
-      )}
-    </section>
+    <>
+      <p className="muted small unm-intro">Не вдалося точно знайти учня за ПІБ і датою народження (помилка в написанні, інша дата, є тезка, учня ще немає в базі).</p>
+      {queue.map((s) => (
+        <UnmatchedCard key={s.id} sub={s} students={data.students} onDone={onDone} onError={onError} />
+      ))}
+    </>
   )
 }
 
@@ -205,6 +227,7 @@ function UnmatchedCard({ sub, students, onDone, onError }: {
   const [q, setQ] = useState('')
   const [grade, setGrade] = useState('10')
   const [busy, setBusy] = useState(false)
+  const [showAll, setShowAll] = useState(false)
   const payload = (sub.payload ?? {}) as Record<string, unknown>
   const reason = useMemo(() => unmatchedReason({ name: sub.submitted_full_name, birth_date: sub.submitted_birth_date }, students), [sub, students])
   const candidates = useMemo(
@@ -227,8 +250,9 @@ function UnmatchedCard({ sub, students, onDone, onError }: {
 
   const pick = (s: StudentRow) => (
     <li key={s.id} className="candidate">
-      <span>
-        <strong>{fullName(s)}</strong>, {s.grade} кл. {s.room ? `· кімн. ${s.room}` : '· без кімнати'} · {s.birth_date ? formatDate(s.birth_date) : 'дата народження не вказана'}
+      <span className="candidate-text">
+        <strong>{fullName(s)}</strong>
+        <span className="muted small">{s.room ? `кімн. ${s.room}` : 'без кімнати'} · {s.birth_date ? formatDate(s.birth_date) : 'дата народження не вказана'}</span>
       </span>
       <button type="button" disabled={busy} onClick={() => void run(() => supabase.rpc('resolve_intake_submission', { p_submission_id: sub.id, p_student_id: s.id }))}>
         Це він(вона)
@@ -236,41 +260,57 @@ function UnmatchedCard({ sub, students, onDone, onError }: {
     </li>
   )
 
+  // ПІБ і дата народження вже в заголовку; спершу — кілька перших полів, решта — за кнопкою.
+  const fields = ANSWER_FIELDS.filter((f) => f.key !== 'full_name' && f.key !== 'birth_date')
+  const shown = showAll ? fields : fields.slice(0, PREVIEW_FIELDS)
+
   return (
-    <article className="subcard" aria-label={`Подання: ${sub.submitted_full_name}`}>
-      <h3>{sub.submitted_full_name} <span className="muted small">· нар. {formatDate(sub.submitted_birth_date)}</span></h3>
-      <p className="muted small">Подано {formatDateTime(sub.submitted_at)}</p>
-      <p className="reason" role="note"><strong>Чому не зіставлено:</strong> {reason}</p>
-      <details className="full-answers" open>
-        <summary>Повна анкета, яку заповнив(ла) учень</summary>
-        <dl className="kv">
-          {ANSWER_FIELDS.map((f) => {
-            const raw = f.key === 'birth_date' ? sub.submitted_birth_date : payload[f.key]
-            const text = raw == null || raw === '' ? '—' : f.key === 'birth_date' ? formatDate(String(raw)) : String(raw)
-            return <div key={f.key}><dt>{f.label}{f.medical ? ' (медична інформація)' : ''}</dt><dd>{text}</dd></div>
-          })}
-        </dl>
-      </details>
-      {candidates.length > 0 && (<><h4>Схожі учні</h4><ul className="plain">{candidates.map(pick)}</ul></>)}
-      <label>Знайти учня в базі
-        <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Прізвище або імʼя" />
-      </label>
-      {found.length > 0 && <ul className="plain">{found.map(pick)}</ul>}
-      <p className="muted small hint-line">Якщо це не той, хто в базі: створіть нового учня з цих даних. Якщо подання помилкове або це сміття — відхиліть (відповіді буде видалено).</p>
-      <div className="row actions">
-        <label className="inline">Клас нового
-          <Select value={grade} onChange={(e) => setGrade(e.target.value)}>
-            {[9, 10, 11].map((g) => <option key={g} value={g}>{g}</option>)}
-          </Select>
-        </label>
-        <button type="button" className="secondary" disabled={busy}
-          onClick={() => { if (window.confirm('Створити нового учня з цими даними?')) void run(() => supabase.rpc('create_student_from_intake', { p_submission_id: sub.id, p_grade: Number(grade) })) }}>
-          Створити нового учня
-        </button>
-        <button type="button" className="btn-danger" disabled={busy}
-          onClick={() => { if (window.confirm('Відхилити це подання як помилкове/сміття? Відповіді буде видалено.')) void run(() => supabase.rpc('dismiss_intake_submission', { p_submission_id: sub.id })) }}>
-          Відхилити подання (помилка / сміття)
-        </button>
+    <article className="subcard unm" aria-label={`Подання: ${sub.submitted_full_name}`}>
+      <header className="unm-head">
+        <h3>{sub.submitted_full_name} <span className="muted small">· нар. {formatDate(sub.submitted_birth_date)} · подано {formatDateTime(sub.submitted_at)}</span></h3>
+        <p className="reason" role="note"><strong>Чому не зіставлено:</strong> {reason}</p>
+      </header>
+      <div className="unm-grid">
+        <section className="unm-answers" aria-label="Анкета, яку заповнив(ла) учень">
+          <h4>Анкета учня</h4>
+          <dl className="kv compact">
+            {shown.map((f) => {
+              const raw = payload[f.key]
+              const text = raw == null || raw === '' ? '—' : String(raw)
+              return <div key={f.key}><dt>{f.label}{f.medical ? ' (медична інформація)' : ''}</dt><dd>{text}</dd></div>
+            })}
+          </dl>
+          {fields.length > PREVIEW_FIELDS && (
+            <button type="button" className="link" aria-expanded={showAll} onClick={() => setShowAll((v) => !v)}>
+              {showAll ? 'Згорнути анкету' : `Показати всю анкету (ще ${fields.length - PREVIEW_FIELDS})`}
+            </button>
+          )}
+        </section>
+        <section className="unm-actions" aria-label="Зіставлення">
+          {candidates.length > 0 && (<><h4>Схожі учні</h4><ul className="plain">{candidates.map(pick)}</ul></>)}
+          <label>Знайти учня в базі
+            <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Прізвище або імʼя" />
+          </label>
+          {found.length > 0 && <ul className="plain">{found.map(pick)}</ul>}
+          <div className="unm-buttons">
+            <label className="inline">Клас нового
+              <Select value={grade} onChange={(e) => setGrade(e.target.value)}>
+                {[9, 10, 11].map((g) => <option key={g} value={g}>{g}</option>)}
+              </Select>
+            </label>
+            <button type="button" className="secondary" disabled={busy}
+              onClick={() => { if (window.confirm('Створити нового учня з цими даними?')) void run(() => supabase.rpc('create_student_from_intake', { p_submission_id: sub.id, p_grade: Number(grade) })) }}>
+              Створити нового учня
+            </button>
+            <button type="button" className="btn-danger" disabled={busy}
+              onClick={() => { if (window.confirm('Відхилити це подання як помилкове/сміття? Відповіді буде видалено.')) void run(() => supabase.rpc('dismiss_intake_submission', { p_submission_id: sub.id })) }}>
+              Відхилити
+            </button>
+            <InfoTip id={`unm-hint-${sub.id}`} label="Що означають ці дії">
+              Якщо це не той, хто в базі, створіть нового учня з цих даних. Якщо подання помилкове або це сміття — відхиліть (відповіді буде видалено).
+            </InfoTip>
+          </div>
+        </section>
       </div>
     </article>
   )
@@ -289,14 +329,23 @@ function Progress({ data }: { data: Data }) {
         Заповнили: {active.length - left} з {active.length} активних учнів
         {since ? ` (з ${formatDate(since.toISOString())})` : ''}. Враховано будь-яку подану анкету, крім відхилених.
       </p>
-      {groups.length === 0 ? <p className="muted">Усі активні учні вже подали анкету.</p> : groups.map((g) => (
-        <details key={g.key}>
-          <summary>{g.title} — {g.students.length}</summary>
-          <ul className="plain">
-            {g.students.map((s) => <li key={s.id}><Link to={`/students/${s.id}`}>{fullName(s)}</Link>, {s.grade} кл.{s.room ? ` · кімн. ${s.room}` : ''}</li>)}
-          </ul>
-        </details>
-      ))}
+      {/* усі чотири поверхи показуємо завжди (порожній — «усі заповнили»); «Без кімнати» — лише якщо є кому */}
+      <div className="prog-board">
+        {[2, 3, 4, 5, 'none'].map((k) => {
+          const g = groups.find((x) => x.key === String(k)) ?? { key: String(k), title: k === 'none' ? 'Без кімнати' : `${k} поверх`, students: [] as StudentRow[] }
+          if (k === 'none' && g.students.length === 0) return null
+          return (
+            <section key={g.key} className="prog-col" aria-label={`${g.title}: ще не заповнили ${g.students.length}`}>
+              <header><strong>{g.title}</strong><span className={`pill ${g.students.length ? 'warn' : 'good'}`}>{g.students.length}</span></header>
+              {g.students.length === 0 ? <p className="muted small prog-empty">Усі заповнили</p> : (
+                <ul className="plain">
+                  {g.students.map((s) => <li key={s.id}><Link to={`/students/${s.id}`}>{fullName(s)}</Link>{s.room ? <span className="muted small"> · {s.room}</span> : null}</li>)}
+                </ul>
+              )}
+            </section>
+          )
+        })}
+      </div>
     </section>
   )
 }

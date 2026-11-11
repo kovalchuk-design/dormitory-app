@@ -4,14 +4,13 @@ import { RequireRole } from '../auth/RequireRole'
 import { Layout } from '../components/Layout'
 import { LoginPage } from '../pages/LoginPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
-import { ApprovalsPage } from '../pages/ApprovalsPage'
-import { CollectPage } from '../pages/CollectPage'
+import { FormsPage } from '../pages/FormsPage'
 import { StudentCardPage } from '../pages/StudentCardPage'
 import { StudentEditPage } from '../pages/StudentEditPage'
 import { StudentFormPage } from '../pages/StudentFormPage'
 import { HostelPage } from '../pages/HostelPage'
 import { AdminDocumentSettings, DocumentsPage } from '../features/documents'
-import { AdminUsersPage, ChangePasswordPage } from '../features/admin-users'
+import { AdminUsersPage } from '../features/admin-users'
 import {
   AdminPage,
   CalendarPage,
@@ -32,25 +31,20 @@ export function AppRoutes() {
           <Route path="students/new" element={<StudentEditPage />} />
           <Route path="students/:id" element={<StudentCardPage />} />
           <Route path="students/:id/edit" element={<StudentEditPage />} />
+          <Route path="forms" element={<Navigate to="/forms/updates" replace />} />
           <Route
-            path="updates"
+            path="forms/:view"
             element={
               <RequireRole roles={['admin']}>
-                <ApprovalsPage />
+                <FormsPage />
               </RequireRole>
             }
           />
-          <Route
-            path="collect"
-            element={
-              <RequireRole roles={['admin']}>
-                <CollectPage />
-              </RequireRole>
-            }
-          />
+          <Route path="updates" element={<Navigate to="/forms/updates" replace />} />
+          <Route path="collect" element={<Navigate to="/forms/unmatched" replace />} />
           <Route path="rooms" element={<Navigate to="/hostel/rooms" replace />} />
           <Route path="documents" element={<DocumentsPage />} />
-          <Route path="password" element={<ChangePasswordPage />} />
+          <Route path="password" element={<Navigate to="/hostel/rooms" replace />} />
           <Route path="events" element={<RequireRole roles={['admin', 'staff_readonly']}><EventsPage /></RequireRole>} />
           <Route path="calendar" element={<RequireRole roles={['admin', 'staff_readonly']}><CalendarPage /></RequireRole>} />
           <Route

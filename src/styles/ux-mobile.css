@@ -112,3 +112,69 @@ html[data-theme='dark'] { color-scheme: dark; }
   .public-page { min-height: 100vh; min-height: 100dvh; background: var(--surface); padding: env(safe-area-inset-top) 0 calc(24px + env(safe-area-inset-bottom)); }
   .public-card { border-radius: 0; box-shadow: none; background: transparent; }
 }
+
+/* Картки (поверхи в «Зборі анкет», подання, документи): вертикальний ритм через gap — раніше блоки .row «злипалися» без відступів */
+.floor-card { display: flex; flex-direction: column; gap: 12px; }
+.floor-card > * { margin: 0; }
+.floor-card > .row.actions:last-child { margin-top: auto; }
+.floor-card h3 { margin-bottom: 0; }
+.floor-card .notice { margin: 0; display: grid; gap: 10px; }
+.floor-card .notice > * { margin: 0; }
+.floor-card .row.actions > * { flex: 1 1 100%; }
+.subcard { display: grid; gap: 10px; align-content: start; }
+.subcard > * { margin: 0; }
+@media (pointer: coarse) { .rm-room header .iconbtn { width: 44px; height: 44px; min-width: 44px; min-height: 44px; } }
+
+/* Зміна пароля: вертикальний ритм (заголовок і підписи полів раніше злипалися) */
+.cp-card { display: grid; gap: 12px; align-content: start; }
+.cp-card > * { margin: 0; }
+.cp-card label { display: grid; gap: 6px; }
+
+/* Картка учня: анкета — сітка в кілька колонок замість довгого стовпця переважно з «—» */
+@media (min-width: 761px) {
+  .card-page dl.kv { grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 10px 24px; }
+  .card-page dl.kv > div { border-bottom: 0; padding: 0; }
+}
+
+/* Липка панель «Зберегти / Скасувати» на телефоні: суцільна плашка, щоб не накладатися на поля під нею */
+@media (max-width: 760px) {
+  .form-actions { padding: 10px; border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadowPop);
+    background: color-mix(in oklch, var(--surface) 94%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+}
+
+/* Нижнє меню телефона: пункти рівномірно на всю ширину, нижче до краю (в межах безпечної зони), без градієнтного «підтирання» справа */
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  :root { --tab-bottom: max(calc(env(safe-area-inset-bottom) - 14px), 6px); --tab-h: 66px; }
+  .shell-panel { padding-bottom: calc(var(--tab-bottom) + var(--tab-h)); }
+  .tabs-m { bottom: var(--tab-bottom); mask-image: none; -webkit-mask-image: none; justify-content: space-between; }
+  .tab-m { flex: 1 1 0; min-width: 64px; }
+  .row.sticky-actions { bottom: calc(var(--tab-bottom) + var(--tab-h)); }
+}
+@media (max-width: 560px) { .form-actions { bottom: calc(var(--tab-bottom) + var(--tab-h)); } }
+/* ховер лише для миші: на дотик не залипає */
+@media (hover: none) {
+  button:hover:not(:disabled), a.btn:hover { opacity: 1; }
+  .chip:hover:not(:disabled) { background: transparent; }
+  .chip.on:hover:not(:disabled) { background: var(--muted); }
+}
+
+/* ФОН ТЕЛЕФОНА — ОДНОТОННИЙ. Градієнт на краях неминуче давав шви: під годинником і під панеллю Safari iOS показує колір html, який не збігався з кінцем градієнта
+   (синя смуга внизу, «облізла» тінь меню на межі). Суцільний колір html = колір усього фону — шов неможливий. Публічна анкета (is-surface) — біла. */
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  :root { background: var(--g1); }
+  body { background: transparent; }
+  body::before { display: none; }
+  .shell-panel { background: transparent; }
+  :root.is-surface { background: var(--surface); }
+  /* меню-плашка: щільна, з невеликою тінню (велика тінь обрізалась краєм екрана) */
+  .tabs-m { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 14px rgba(0,0,0,.08); }
+}
+
+/* Нижнє меню телефона: лише іконки (без підписів), пункти рівномірно; активний — світло-синя плашка (--out-bg / --outInk), без білого з тінню */
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .tabs-m { padding: 5px; gap: 4px; justify-content: space-around; }
+  .tab-m, button.tab-m { flex: 1 1 0; min-width: 0; min-height: 48px; padding: 0; gap: 0; border-radius: 18px; color: var(--text2Hi); }
+  .tab-m svg { width: 24px; height: 24px; }
+  .tab-m.active { background: var(--out-bg); color: var(--outInk); box-shadow: none; }
+  .tab-m .nav-badge { top: 5px; right: calc(50% - 24px); }
+}

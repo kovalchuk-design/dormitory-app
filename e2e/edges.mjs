@@ -25,13 +25,16 @@ for (const scheme of ['light', 'dark']) for (const [route, signedIn] of routes) 
   const page = await ctx.newPage()
   await page.goto(BASE + route); await page.waitForTimeout(900)
   const info = await page.evaluate(() => ({ html: getComputedStyle(document.documentElement).backgroundColor, hscroll: document.documentElement.scrollWidth - innerWidth, text: document.body.innerText.slice(0, 40).replace(/\n/g, ' ') }))
+  let tr0, tg0, tb0
   for (const pos of ['top', 'bottom']) {
     if (pos === 'bottom') await page.evaluate(() => { window.scrollTo(0, 1e6); document.querySelectorAll('*').forEach((e) => { if (e.scrollHeight > e.clientHeight + 50 && getComputedStyle(e).overflowY !== 'visible' && e.closest('.content') === null) e.scrollTop = 1e6 }) })
     const e = await edges(await page.screenshot())
+    if (pos === 'top') [tr0, tg0, tb0] = e.top
     for (const [k, v] of Object.entries(e)) {
       const [r, g, b] = v
       const white = r > 250 && g > 250 && b > 250, black = r < 6 && g < 6 && b < 6
       const isForm = route.startsWith('#/form') && signedIn === false
+      if (!isForm && signedIn && Math.abs(r - tr0) + Math.abs(g - tg0) + Math.abs(b - tb0) > 6) problems.push(`${scheme} ${route} ${pos}/${k}: край ${v} ≠ верх ${[tr0, tg0, tb0]} (шов фону)`)
       if (!isForm && (scheme === 'light' ? white : black)) problems.push(`${scheme} ${route} ${pos}/${k}: ${v}`)
     }
   }

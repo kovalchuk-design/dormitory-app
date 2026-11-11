@@ -7,8 +7,7 @@ import { AccountMenu } from './AccountMenu'
 
 const NAV_ICONS: Record<string, IconName> = {
   '/hostel': 'bed',
-  '/updates': 'refresh',
-  '/collect': 'link',
+  '/forms': 'link',
   '/documents': 'file',
   '/events': 'star',
   '/calendar': 'calendar',
@@ -22,15 +21,16 @@ export function Layout() {
   // картка учня (/students/…) належить розділу «Гуртожиток»
   const navClass = (to: string, base: string) => ({ isActive }: { isActive: boolean }) =>
     `${base}${isActive || (to === '/hostel' && pathname.startsWith('/students')) ? ' active' : ''}`
-  const items = navItemsForRole(profile?.role)
+  const items = navItemsForRole(profile?.role).filter((i) => !i.inAccountMenu)
   const counts = useQueueCounts(profile?.role === 'admin')
 
 
+  const badgeCount = (i: NavItem) => (i.badge === 'forms' ? counts.pending + counts.unmatched : i.badge ? counts[i.badge] : 0)
   const badge = (i: NavItem) =>
-    i.badge && counts[i.badge] > 0 ? (
+    badgeCount(i) > 0 ? (
       <span className="nav-badge">
-        {counts[i.badge]}
-        <span className="sr-only">{i.badge === 'pending' ? ' очікують підтвердження' : ' не зіставлено з учнем'}</span>
+        {badgeCount(i)}
+        <span className="sr-only"> анкет потребують уваги</span>
       </span>
     ) : null
 
@@ -38,7 +38,13 @@ export function Layout() {
     <div className="app">
       <nav className="rail" aria-label="Головна навігація">
         <span className="rail-logo" aria-hidden="true"><Icon name="bed" size={22} /></span>
-        {items.map((i) => (
+        {items.map((i) => i.disabled ? (
+          <span key={i.to} className="rail-btn is-disabled" role="link" aria-disabled="true" title={`${i.label} — ще не доступно`}>
+            <Icon name={NAV_ICONS[i.to] ?? 'star'} />
+            <span className="rail-tip" aria-hidden="true">{i.label} · скоро</span>
+            <span className="sr-only">{i.label} (ще не доступно)</span>
+          </span>
+        ) : (
           <NavLink key={i.to} to={i.to} end={i.to === '/'} className={navClass(i.to, 'rail-btn')} title={i.label}>
             <Icon name={NAV_ICONS[i.to] ?? 'star'} />
             {badge(i)}
@@ -55,11 +61,11 @@ export function Layout() {
         </main>
       </div>
       <nav className="tabs-m" aria-label="Розділи">
-        {items.map((i) => (
-          <NavLink key={i.to} to={i.to} end={i.to === '/'} className={navClass(i.to, 'tab-m')}>
-            <Icon name={NAV_ICONS[i.to] ?? 'star'} />
+        {/* телефон: лише іконки, без вимкнених пунктів; назва — для скрін-рідерів і підказки */}
+        {items.filter((i) => !i.disabled).map((i) => (
+          <NavLink key={i.to} to={i.to} end={i.to === '/'} className={navClass(i.to, 'tab-m')} aria-label={i.label} title={i.label}>
+            <Icon name={NAV_ICONS[i.to] ?? 'star'} size={24} />
             {badge(i)}
-            <span>{i.label.replace('Оновлення даних', 'Оновлення').replace('Адміністрування', 'Адмін')}</span>
           </NavLink>
         ))}
         <AccountMenu variant="tab" />

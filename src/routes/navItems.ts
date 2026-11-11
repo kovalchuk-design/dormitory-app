@@ -6,7 +6,11 @@ export interface NavItem {
   /** Ролі, яким доступний пункт. Якщо не задано — усім. */
   roles?: Role[]
   /** Значок-лічильник біля пункту (дані дає Layout). */
-  badge?: 'pending' | 'unmatched'
+  badge?: 'pending' | 'unmatched' | 'forms'
+  /** Пункт видно, але відкрити не можна (розділ ще не розпочато). */
+  disabled?: boolean
+  /** Пункт живе в меню акаунта, а не в рейці/нижній смузі. */
+  inAccountMenu?: boolean
 }
 
 /**
@@ -15,12 +19,11 @@ export interface NavItem {
  */
 export const NAV_ITEMS: NavItem[] = [
   { to: '/hostel', label: 'Гуртожиток' },
-  { to: '/updates', label: 'Оновлення даних', roles: ['admin'], badge: 'pending' },
-  { to: '/collect', label: 'Збір анкет', roles: ['admin'], badge: 'unmatched' },
+  { to: '/forms', label: 'Анкети', roles: ['admin'], badge: 'forms' }, // вкладки: «Збір анкет» і «Оновлення даних»
   { to: '/documents', label: 'Документи' },
-  { to: '/events', label: 'Івенти', roles: ['admin', 'staff_readonly'] },
-  { to: '/calendar', label: 'Календар', roles: ['admin', 'staff_readonly'] },
-  { to: '/admin', label: 'Адміністрування', roles: ['admin'] },
+  { to: '/events', label: 'Івенти', roles: ['admin', 'staff_readonly'], disabled: true },
+  { to: '/calendar', label: 'Календар', roles: ['admin', 'staff_readonly'], disabled: true },
+  { to: '/admin', label: 'Адміністрування', roles: ['admin'], inAccountMenu: true },
 ]
 
 export function navItemsForRole(role: Role | null | undefined, items: NavItem[] = NAV_ITEMS): NavItem[] {

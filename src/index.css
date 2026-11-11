@@ -113,8 +113,7 @@ a.phone { white-space: nowrap; font-weight: 500; }
 dl.kv { margin: 0; display: grid; gap: .5rem; }
 dl.kv dt { color: var(--muted); font-size: .8rem; }
 dl.kv dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-table.diff tr.changed td:last-child, table.diff tr.changed th { background: #fff8d6; }
-table.diff tr.changed td:last-child { font-weight: 600; }
+table.diff tr.changed th { background: var(--muted); }
 .form { display: flex; flex-direction: column; gap: .5rem; max-width: 34rem; }
 .form fieldset { border: 1px solid var(--border); border-radius: 12px; padding: .75rem 1rem; margin: 0 0 .75rem; min-width: 0; }
 .form legend { font-weight: 600; padding: 0 .4rem; }
@@ -135,7 +134,7 @@ table.diff tr.changed td:last-child { font-weight: 600; }
   table.cards-on-mobile tr { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: .4rem .6rem; margin-bottom: .6rem; }
   table.cards-on-mobile td { border: 0; padding: .2rem 0; display: flex; justify-content: space-between; gap: 1rem; }
   table.cards-on-mobile td::before { content: attr(data-label); color: var(--muted); font-size: .8rem; }
-  table.diff { font-size: .9rem; }
+  table.diff { font-size: 14px; }
   .contacts li { grid-template-columns: 4.5rem 1fr; }
   .contacts li a.phone, .contacts li > span.muted:last-child { grid-column: 1 / -1; }
 }
@@ -173,9 +172,9 @@ input[type='checkbox'] { width: 1.4rem; height: 1.4rem; min-height: 0; flex: non
   table.diff thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   table.diff, table.diff tbody, table.diff tr, table.diff th, table.diff td { display: block; width: 100%; }
   table.diff tr { border: 1px solid var(--border); border-radius: 8px; margin-bottom: .5rem; padding: .4rem .6rem; }
-  table.diff th[scope='row'] { border: 0; padding: .1rem 0; color: var(--muted); font-size: .8rem; font-weight: 500; }
+  table.diff th[scope='row'] { border: 0; padding: .1rem 0; color: var(--text2Hi); font-size: .8rem; font-weight: 500; }
   table.diff td { border: 0; padding: .1rem 0; }
-  table.diff td::before { content: attr(data-label) ': '; color: var(--muted); font-size: .8rem; }
+  table.diff td::before { content: attr(data-label) ': '; color: var(--text2Hi); font-size: .8rem; }
   .row.sticky-actions { position: sticky; bottom: 0; background: var(--card); padding: .5rem 0; z-index: 5; } /* лише «Підтвердити / Відхилити» */
   .public-card { padding: 1rem; border-radius: 0; border-left: 0; border-right: 0; }
   .public-page { padding: 0; }
@@ -224,3 +223,72 @@ details > summary { cursor: pointer; padding: .5rem 0; min-height: 2.75rem; disp
 .prof-row { display: flex; align-items: center; gap: .25rem; border-bottom: 1px solid var(--border); padding: .15rem 0; }
 .prof-row.off { opacity: .75; }
 .prof-row .grow, .row .grow { flex: 1 1 14rem; min-width: 0; }
+
+/* ---- Підтвердження: вибір «стара / нова / обидві» галочками ---- */
+.pick { display: flex; align-items: flex-start; gap: 10px; margin: 0; min-height: 40px; cursor: pointer; }
+.pick input { margin-top: 2px; flex: none; }
+.pick span { overflow-wrap: anywhere; }
+.pick.on span { color: var(--text, inherit); font-weight: 600; }
+.pick.off span { color: var(--text2, var(--muted)); font-weight: 400; opacity: .5; }
+.merge-result { font-weight: 700; overflow-wrap: anywhere; }
+.merge-help { margin: .25rem 0 .75rem; }
+
+/* Єдина сітка таблиць порівняння: однакова ширина колонок у всіх учнів, як у Excel */
+table.diff { table-layout: fixed; }
+table.diff th, table.diff td { overflow-wrap: anywhere; }
+table.diff tbody th[scope='row'] { font-size: .8rem; font-weight: 600; color: var(--text2Hi); }
+table.diff thead th { font-size: .75rem; text-transform: uppercase; letter-spacing: .03em; color: var(--text2Hi); }
+table.diff .c-field { width: 16%; }
+table.diff .c-two { width: 42%; }
+table.merge .c-old, table.merge .c-new { width: 27%; }
+table.merge .c-res { width: 30%; }
+.merge-result textarea { width: 100%; box-sizing: border-box; font: inherit; font-weight: 600; padding: .3rem .4rem; resize: vertical; min-height: 2.4rem; border: 1px solid var(--border); border-radius: 6px; background: var(--card); }
+.merge-result.edited textarea { border-color: var(--out, #1673A3); background: var(--surface); }
+@media (max-width: 720px) { .merge-result textarea { min-height: 3rem; } table.diff tbody th[scope='row'] { font-size: .8rem; } }
+
+/* «Буде записано»: без підсвітки колонки; поле виглядає як звичайний текст і стає полем вводу лише при наведенні/фокусі */
+
+.merge-result textarea { background: transparent; border-color: transparent; resize: none; }
+.merge-result textarea:hover { border-color: var(--border); }
+.merge-result textarea:focus { background: var(--card); border-color: var(--outInk, #11618A); outline: none; resize: vertical; }
+.merge-result.edited textarea { background: var(--surface); border-color: var(--out, #11618A); }
+@media (hover: none) { .merge-result textarea { border-color: var(--border); } }
+
+/* Той самий шрифт у всіх трьох колонках: поле «Буде записано» успадковує розмір, інтервал і гарнітуру комірки */
+table.diff.merge .merge-result textarea {
+  font-family: inherit; font-size: inherit; line-height: inherit; letter-spacing: inherit; font-weight: 600;
+  margin: -.3rem -.4rem; width: calc(100% + .8rem);
+}
+/* docs/style.md: текст таблиць — 14, допоміжний — 13, шапка таблиці — 12 */
+table.diff, table.diff td, table.diff .pick, table.diff .merge-result textarea { font-size: 14px; line-height: 1.4; }
+table.diff tbody th[scope='row'] { font-size: 13px; }
+table.diff thead th { font-size: 12px; }
+
+/* Другорядна небезпечна дія: червона обводка без заливки */
+button.btn-outline-danger, button.btn-outline-danger:hover { background: transparent; color: var(--danger); border: 1.5px solid var(--danger); font-weight: 600; }
+button.btn-outline-danger:hover:not(:disabled) { background: color-mix(in srgb, var(--danger) 10%, transparent); }
+
+/* Порівняння в плашці «Оновлення даних»: заливка лише в першій колонці (назва зміненого поля); решта комірок білі.
+   Усе вирівняно по верхньому краю, рядки компактні (прості поля займають один рядок). */
+.ap-item .table-wrap { border: 0; background: transparent; padding: 0; border-radius: 0; }
+.ap-item table.diff tr.changed td, .ap-item table.diff tr.changed td:last-child { background: transparent; }
+.ap-item table.diff tbody tr:hover { background: transparent; }
+.ap-item table.diff th, .ap-item table.diff td { padding: 8px 12px; vertical-align: top; line-height: 20px; }
+.ap-item table.diff thead th { padding-top: 6px; padding-bottom: 6px; }
+.ap-item table.diff tbody th[scope='row'] { padding-top: 8px; }
+.ap-item table.diff tbody th[scope='row'] { background: var(--muted); color: var(--text); border-radius: 0; }
+/* заливка колонки починається на 5px вище лінії під назвами колонок */
+.ap-item table.diff thead th:first-child { background: linear-gradient(var(--muted), var(--muted)) bottom / 100% 5px no-repeat; border-radius: 5px 5px 0 0; }
+.ap-item table.diff tbody tr:last-child > th, .ap-item table.diff tbody tr:last-child > td { border-bottom: 0; }
+.ap-item table.diff tbody tr:last-child th[scope='row'] { border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
+.ap-item table.diff .pick { min-height: 0; gap: 8px; align-items: flex-start; }
+.ap-item table.diff .pick input { margin: 1px 0 0; }
+.ap-item table.diff.merge .merge-result textarea { margin: -1px -7px; width: calc(100% + 14px); padding: 1px 6px; min-height: 0; field-sizing: content; line-height: 20px; border-radius: 8px; }
+.ap-item table.diff.merge .merge-result.edited textarea { background: var(--surface); border-color: var(--out, #11618A); }
+.pick.off span { opacity: .45; }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .ap-item table.diff tr { padding: 8px 12px; }
+  .ap-item table.diff th, .ap-item table.diff td { padding: 2px 0; }
+  .ap-item table.diff tbody th[scope='row'] { padding: 4px 10px; margin-bottom: 4px; width: fit-content; border-radius: 10px; }
+}
+.ap-item > h3 { margin: 32px 0 8px; }

@@ -57,11 +57,23 @@ export async function installMock(context, { role = 'admin', data = makeData(), 
       return json(data.assignments.map((a) => ({ room_id: data.rooms.find((r) => r.number === a.rooms.number).id, students: data.students.find((s) => s.id === a.student_id) })))
     }
     if (p === '/rest/v1/room_assignments') return json(data.assignments)
+    if (p === '/rest/v1/student_profiles' && url.searchParams.get('status') === 'eq.pending') {
+      return json(data.profiles.slice(0, 2).map((x, i) => ({ ...x, id: `pp${i}`, status: 'pending', version_no: 2, submitted_at: '2026-11-09T10:00:00Z', mother_name: 'ТЕСТ Мама', father_name: null })))
+    }
     if (p === '/rest/v1/student_profiles') {
       const sid = url.searchParams.get('student_id')?.replace('eq.', '')
       return json(sid ? data.profiles.filter((x) => x.student_id === sid) : data.profiles)
     }
+    if (p === '/rest/v1/student_medical') {
+      const sid = url.searchParams.get('student_id')?.replace('eq.', '')
+      const idx = data.students.findIndex((x) => x.id === sid)
+      return single(idx >= 0 && idx % 2 === 1 ? [{ student_id: sid, allergies: 'Пилок (тест)', chronic_conditions: '', notes: null }] : [])
+    }
     if (p === '/rest/v1/rooms') return json(data.rooms)
+    if (p === '/rest/v1/intake_links') {
+      const soon = new Date(Date.now() + 5 * 864e5).toISOString()
+      return json([{ id: 'l2', floor: 2, expires_at: soon, revoked_at: null, max_submissions: 500, created_at: new Date().toISOString() }])
+    }
     return json([])
   })
 }

@@ -406,3 +406,138 @@ button.rm-pupil-name { font-size: 13.5px; }
 .rm-floor { padding: 12px 10px 10px; }
 .rm-floor h2 { margin: 0 0 8px; }
 .rm-pupil-main .small { white-space: nowrap; }
+
+/* ---- «Анкети»: вкладки «Збір анкет» / «Оновлення даних» ---- */
+.forms { display: grid; gap: 16px; align-content: start; }
+.forms-view > section { display: grid; gap: 16px; align-content: start; }
+.forms-view h1 { display: none; } /* заголовок сторінки — «Анкети», вкладка вже названа в перемикачі */
+.forms-view .page-head { justify-content: flex-end; }
+.view-switch .count { display: inline-grid; place-items: center; min-width: 18px; height: 18px; margin-left: 8px; padding: 0 5px; border-radius: 999px; background: var(--badge); color: #fff; font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .forms .view-switch { flex: 1 1 100%; }
+  .forms .view-switch a { white-space: nowrap; }
+  .forms .hostel-head { flex-wrap: wrap; }
+  .forms .forms-aside { flex: 1 1 100%; order: 3; margin-left: 0; min-height: 40px; white-space: nowrap; }
+}
+
+/* ручка перетягування: дві крапки (рівно 2 плитки 6×6, без обрізання третьої) */
+.rm-pupil.draggable::before {
+  width: 6px; height: 12px; opacity: .6;
+  background: radial-gradient(circle, var(--text2) 1.5px, transparent 1.9px) 0 0 / 6px 6px repeat-y;
+}
+
+/* оновлення даних: кнопки в одному рядку з ім'ям, невеликі; клас у заголовку не виводимо */
+.approval-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; margin-bottom: 8px; }
+.approval-title { min-width: 0; }
+.approval-title h2 { margin: 0 0 2px; }
+.approval-title p { margin: 0; }
+.approval-actions { display: flex; gap: 8px; flex: none; }
+.approval-actions button { min-height: 36px; padding: 0 16px; font-size: 14px; border-radius: 12px; }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .approval-head { position: sticky; top: 0; z-index: 5; margin: -4px -4px 8px; padding: 8px 4px; background: var(--surface); }
+  .approval-actions { width: 100%; }
+  .approval-actions button { flex: 1; }
+}
+
+/* ---- Оновлення даних: одна біла плашка на висоту екрана, анкети гортаються всередині ---- */
+.fill-page > .st-scroll.ap-scroll { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; }
+.ap-scroll > .scrollrows { padding: 8px 24px 24px 24px; overflow-x: hidden; }
+.ap-item { padding: 20px 0 24px; margin: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+.ap-item + .ap-item { border-top: 1px solid var(--border); }
+.ap-item .approval-head { position: static; }
+.ap-page .page-head { margin-bottom: 0; }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .fill-page > .st-scroll.ap-scroll { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; }
+  .ap-scroll > .scrollrows { padding: 4px 14px 16px 14px; border-radius: 22px; }
+}
+.forms.fill-page > .forms-view { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+.forms-view > .fill-page { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.forms label.check.forms-aside { margin-left: auto; }
+
+/* ---- «Не зіставлені»: ліворуч коротка анкета учня, праворуч зіставлення та дії ---- */
+.unm { padding: 16px 20px; }
+.unm-head h3 { font-size: 17px; margin: 0 0 8px; letter-spacing: 0; }
+.unm-head .reason { margin: 0 0 12px; padding: 8px 14px; border-radius: 14px; font-size: 14px; }
+.unm-grid { display: grid; grid-template-columns: minmax(16rem, 5fr) 7fr; gap: 20px; align-items: start; }
+.unm-answers, .unm-actions { min-width: 0; background: var(--surface); border-radius: 20px; padding: 14px 16px; }
+.unm-answers h4, .unm-actions h4 { margin: 0 0 8px; font-size: 13px; color: var(--text2Hi); font-weight: 600; }
+.unm-answers dl.kv.compact { gap: 0; }
+.unm-answers dl.kv.compact > div { display: grid; grid-template-columns: minmax(6rem, 9rem) 1fr; gap: 4px 12px; padding: 7px 0; border-bottom: 1px solid var(--border); align-items: baseline; }
+.unm-answers dl.kv.compact > div:last-child { border-bottom: 0; }
+.unm-answers dl.kv.compact dt { font-size: 12px; }
+.unm-answers dl.kv.compact dd { font-size: 14px; }
+.unm-answers .link { margin-top: 6px; }
+.unm-actions > label { margin-bottom: 8px; }
+.unm-actions ul.plain { margin-bottom: 12px; }
+.candidate { align-items: center; flex-wrap: nowrap; gap: 12px; padding: 6px 8px 6px 12px; min-height: 52px; }
+.candidate-text { display: grid; gap: 0; min-width: 0; }
+.candidate-text strong { font-size: 14px; }
+.unm-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.unm-buttons .inline { margin-right: auto; }
+.unm-buttons button { min-height: 40px; font-size: 14px; }
+@media (max-width: 980px) { .unm-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) {
+  .unm { padding: 12px; }
+  .unm-answers dl.kv.compact > div { grid-template-columns: 1fr; gap: 0; }
+  .unm-answers, .unm-actions { padding: 12px; }
+  .candidate { flex-wrap: wrap; }
+  .candidate button { width: 100%; }
+}
+
+.st-body table.data td.cell-date { white-space: nowrap; font-size: 14px; }
+
+/* ---- «Анкети»: усі три вкладки — біла плашка на висоту екрана з прокруткою всередині ---- */
+.unm-intro { margin: 8px 0 12px; }
+.ap-body .unm { background: var(--muted); margin-bottom: 12px; }
+.fold-sec > summary { list-style: none; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0; font-size: 18px; font-weight: 600; letter-spacing: -.01em; cursor: pointer; }
+.fold-sec > summary::-webkit-details-marker { display: none; }
+.fold-sec > summary::after { content: ''; width: 10px; height: 10px; border: solid var(--text2); border-width: 0 2px 2px 0; transform: rotate(45deg); transition: transform var(--t-fast) var(--ease); margin-right: 6px; }
+.fold-sec[open] > summary::after { transform: rotate(-135deg); }
+.fold-body { padding: 0 0 20px; }
+/* вкладені розділи (колишні панелі) — без власної картки й дублювання заголовка */
+.fold-body .panel { background: none; border: 0; box-shadow: none; padding: 0; margin: 0; border-radius: 0; }
+.fold-body .panel > h2:first-child { display: none; }
+
+/* ---- «Налаштування»: кожен розділ — у сірій плашці; картки всередині — білі для контрасту ---- */
+.settings-tab .ap-body > .fold-sec { background: var(--muted); border-radius: 24px; padding: 0 20px; margin-bottom: 12px; --text2: var(--text2Hi); }
+.settings-tab .ap-body > .fold-sec:last-child { margin-bottom: 0; }
+.settings-tab .fold-sec > summary { min-height: 60px; }
+.settings-tab .floor-card, .settings-tab .prog-col { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; }
+.settings-tab .fold-body .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 0 12px; }
+.settings-tab .fold-body input, .settings-tab .fold-body textarea { background-color: var(--field); }
+/* хто ще не заповнив: поверхи колонками */
+.prog-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 12px; align-items: start; margin-top: 8px; }
+.prog-col { padding: 0 14px 10px; min-width: 0; }
+.prog-col > header { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 0 8px; margin-bottom: 4px; background: var(--surface); border-bottom: 1px solid var(--border); border-radius: 20px 20px 0 0; }
+.prog-col ul.plain { gap: 0; }
+.prog-col li { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
+.prog-col li:last-child { border-bottom: 0; }
+
+.prog-empty { margin: 10px 0 4px; }
+/* журнал на білому тлі: компактна таблиця (шрифт як у списку студентів) */
+.journal-open { margin-top: 20px; }
+.journal-open > .panel { background: none; border: 0; box-shadow: none; padding: 0; margin: 0; border-radius: 0; }
+.journal-open > .panel > h2 { font-size: 18px; margin: 0 0 8px; letter-spacing: -.01em; }
+.journal-open .table-wrap { background: none; border: 0; padding: 0; }
+.journal-open table.data { font-size: 13px; }
+.journal-open table.data th, .journal-open table.data td { padding: 8px 10px; }
+.journal-open table.data thead th { font-size: 12px; }
+.journal-open table.data td:first-child { white-space: nowrap; }
+
+/* вкладки «Анкети» на телефоні: три вкладки з лічильниками не вміщаються — стискаємо відступи й дозволяємо горизонтальну прокрутку (без смуги) */
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .forms .view-switch { overflow-x: auto; scrollbar-width: none; max-width: 100%; box-sizing: border-box; scroll-snap-type: x proximity; }
+  .forms .view-switch::-webkit-scrollbar { display: none; }
+  .forms .view-switch { gap: 2px; padding: 3px; }
+  .forms .view-switch a { flex: 0 0 auto; padding: 0 7px; font-size: 13px; scroll-snap-align: start; }
+  .forms .view-switch .count { margin-left: 6px; }
+  .forms .view-switch .ph-hide { display: none; } /* на телефоні «Оновлення даних» → «Оновлення», щоб усі вкладки з лічильниками вміщались */
+}
+
+/* налаштування: однакові відступи зверху й з боків; стрілка по центру плашки; завжди відкритий розділ без стрілки */
+.settings-tab .ap-scroll > .scrollrows { padding: 24px; }
+.fold-sec > summary::after { transform: translateY(-3px) rotate(45deg); }
+.fold-sec[open] > summary::after { transform: translateY(3px) rotate(-135deg); }
+.drawer .fold > summary::after { transform: translateY(-3px) rotate(45deg); }
+.drawer .fold[open] > summary::after { transform: translateY(3px) rotate(-135deg); }
+.fold-static > .fold-title { display: flex; align-items: center; min-height: 60px; margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -.01em; }

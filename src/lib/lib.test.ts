@@ -10,7 +10,7 @@ import {
 const row = (o: Partial<StudentRow>): StudentRow => ({
   id: 'x', last_name: 'Іваненко', first_name: 'Іван', patronymic: null, birth_date: null, grade: 10, status: 'active',
   room: null, floor: null, student_phone: null, mother_phone: null, father_phone: null, guardian_phone: null,
-  group_number: null, social_status: null, notes: null, ...o,
+  group_number: null, social_status: null, notes: null, data_updated_at: null, ...o,
 })
 
 describe('diffRecords', () => {
@@ -94,6 +94,15 @@ describe('students list', () => {
     expect(g(['half_orphan'])).toEqual(['b'])
     expect(g(['large_family'])).toEqual(['b', 'd'])
     expect(g(['zsu', 'vpo'])).toEqual(['c', 'd'])
+  })
+  it('сортування за датою оновлення: без дати — в кінці в обох напрямках', () => {
+    const r = [
+      row({ id: 'a', last_name: 'А', data_updated_at: '2026-10-01T09:00:00Z' }),
+      row({ id: 'b', last_name: 'Б', data_updated_at: null }),
+      row({ id: 'c', last_name: 'В', data_updated_at: '2026-11-05T09:00:00Z' }),
+    ]
+    expect(sortStudents(r, 'updated', 'asc').map((x) => x.id)).toEqual(['a', 'c', 'b'])
+    expect(sortStudents(r, 'updated', 'desc').map((x) => x.id)).toEqual(['c', 'a', 'b'])
   })
   it('сортування: за ПІБ, клас; нерозподілені в кінці за кімнатою в обох напрямках', () => {
     expect(sortStudents(rows, 'name', 'asc').map((r) => r.id)).toEqual(['2', '1', '3', '4'])
