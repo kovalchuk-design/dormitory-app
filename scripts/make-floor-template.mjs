@@ -55,6 +55,8 @@ if (headerCells.length !== WIDTHS.length) throw new Error('Заголовок м
 let newHead = rows[0]
 headerCells.forEach((hc, i) => {
   let nc = setWidth(hc, WIDTHS[i])
+  // Вертикальне центрування заголовків: однорядкові («ПІП учня», «Примітка») стоять на одному рівні з дворядковими.
+  if (!nc.includes('<w:vAlign')) nc = nc.includes('<w:hideMark/>') ? nc.replace('<w:hideMark/>', '<w:vAlign w:val="center"/><w:hideMark/>') : nc.replace('</w:tcPr>', '<w:vAlign w:val="center"/></w:tcPr>')
   const lines = HEADER_LINES[i]
   if (lines) {
     const para = /<w:p[ >][\s\S]*?<\/w:p>/.exec(hc)[0]
