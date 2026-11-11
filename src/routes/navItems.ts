@@ -9,6 +9,8 @@ export interface NavItem {
   badge?: 'pending' | 'unmatched' | 'forms'
   /** Пункт видно, але відкрити не можна (розділ ще не розпочато). */
   disabled?: boolean
+  /** Пункт живе в меню акаунта, а не в рейці/нижній смузі. */
+  inAccountMenu?: boolean
 }
 
 /**
@@ -21,7 +23,7 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/documents', label: 'Документи' },
   { to: '/events', label: 'Івенти', roles: ['admin', 'staff_readonly'], disabled: true },
   { to: '/calendar', label: 'Календар', roles: ['admin', 'staff_readonly'], disabled: true },
-  { to: '/admin', label: 'Адміністрування', roles: ['admin'] },
+  { to: '/admin', label: 'Адміністрування', roles: ['admin'], inAccountMenu: true },
 ]
 
 export function navItemsForRole(role: Role | null | undefined, items: NavItem[] = NAV_ITEMS): NavItem[] {

@@ -10,7 +10,7 @@ import { StudentEditPage } from '../pages/StudentEditPage'
 import { StudentFormPage } from '../pages/StudentFormPage'
 import { HostelPage } from '../pages/HostelPage'
 import { AdminDocumentSettings, DocumentsPage } from '../features/documents'
-import { AdminUsersPage, ChangePasswordPage } from '../features/admin-users'
+import { AdminUsersPage } from '../features/admin-users'
 import {
   AdminPage,
   CalendarPage,
@@ -44,7 +44,7 @@ export function AppRoutes() {
           <Route path="collect" element={<Navigate to="/forms/collect" replace />} />
           <Route path="rooms" element={<Navigate to="/hostel/rooms" replace />} />
           <Route path="documents" element={<DocumentsPage />} />
-          <Route path="password" element={<ChangePasswordPage />} />
+          <Route path="password" element={<Navigate to="/hostel/rooms" replace />} />
           <Route path="events" element={<RequireRole roles={['admin', 'staff_readonly']}><EventsPage /></RequireRole>} />
           <Route path="calendar" element={<RequireRole roles={['admin', 'staff_readonly']}><CalendarPage /></RequireRole>} />
           <Route

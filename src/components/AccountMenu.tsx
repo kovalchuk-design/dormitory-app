@@ -3,7 +3,9 @@ import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import { ROLE_LABELS } from '../auth/roles'
+import { ChangePasswordDialog } from '../features/admin-users'
 import { ElevateDialog } from '../features/pin-login'
+import { navItemsForRole } from '../routes/navItems'
 import { useTheme } from '../lib/theme'
 import { Icon } from './ui/icons'
 
@@ -20,6 +22,7 @@ export function AccountMenu({ variant }: { variant: 'rail' | 'tab' }) {
   const { pref, cycle } = useTheme()
   const [open, setOpen] = useState(false)
   const [elevate, setElevate] = useState(false)
+  const [changePw, setChangePw] = useState(false)
   const [pos, setPos] = useState<{ left?: number; right?: number; bottom: number } | null>(null)
   const btn = useRef<HTMLButtonElement>(null)
   const pop = useRef<HTMLDivElement>(null)
@@ -45,6 +48,9 @@ export function AccountMenu({ variant }: { variant: 'rail' | 'tab' }) {
   }, [open])
   useEffect(() => () => clearTimeout(timer.current), [])
 
+  // Адміністрування — у меню акаунта; пароль адміністратора змінюється там само (керування користувачами), тож «Змінити пароль» йому не потрібен.
+  const adminItem = navItemsForRole(profile?.role).find((i) => i.inAccountMenu)
+  const canChangePassword = !!profile && !profile.pinSession && profile.role !== 'admin'
   const canElevate = !!profile?.pinSession && !!profile.adminAccount
   const label = profile ? `Акаунт: ${profile.full_name} · ${ROLE_LABELS[profile.role]}` : 'Акаунт'
   const hoverIn = (e: React.PointerEvent) => { if (variant !== 'rail' || e.pointerType !== 'mouse') return; clearTimeout(timer.current); if (!open) { hoverMode.current = true; setOpen(true) } }
@@ -64,14 +70,16 @@ export function AccountMenu({ variant }: { variant: 'rail' | 'tab' }) {
       {open && pos && createPortal(
         <div ref={pop} className="account-pop" role="menu" style={pos} onPointerEnter={hoverIn} onPointerLeave={hoverOut}>
           {profile && <div className="account-who"><strong>{profile.full_name}</strong><span className="muted small">{ROLE_LABELS[profile.role]}</span></div>}
+          {adminItem && <Link role="menuitem" className="action-item" to={adminItem.to} onClick={() => setOpen(false)}><Icon name="gear" size={18} />{adminItem.label}</Link>}
           <button type="button" role="menuitem" className="action-item" onClick={cycle}><Icon name={THEME_ICONS[pref]} size={18} />{THEME_LABELS[pref]}</button>
           {canElevate && <button type="button" role="menuitem" className="action-item" onClick={() => { setOpen(false); setElevate(true) }}><Icon name="settings" size={18} />Права адміністратора</button>}
-          {!profile?.pinSession && <Link role="menuitem" className="action-item" to="/password" onClick={() => setOpen(false)}><Icon name="link" size={18} />Змінити пароль</Link>}
+          {canChangePassword && <button type="button" role="menuitem" className="action-item" onClick={() => { setOpen(false); setChangePw(true) }}><Icon name="link" size={18} />Змінити пароль</button>}
           <button type="button" role="menuitem" className="action-item" onClick={() => { setOpen(false); void signOut() }}><Icon name="logout" size={18} />Вийти</button>
         </div>,
         document.body,
       )}
       <ElevateDialog open={elevate} onClose={() => setElevate(false)} />
+      <ChangePasswordDialog open={changePw} onClose={() => setChangePw(false)} />
     </>
   )
 }
