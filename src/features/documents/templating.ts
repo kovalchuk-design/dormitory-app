@@ -19,6 +19,7 @@ export const GLOBAL_PLACEHOLDERS: PlaceholderDoc[] = [
   { key: 'floor', description: 'Поверх (якщо всі вибрані учні на одному поверсі; інакше порожньо)', example: '3' },
   { key: 'count', description: 'Кількість вибраних учнів', example: '24' },
   { key: 'student.*', description: 'Поля першого вибраного учня (див. нижче) — зручно для документа на одного учня', example: '{{student.full_name}}' },
+  { key: 'rooms', description: 'Список кімнат з учнями — для циклу {{#rooms}}…{{/rooms}}; усередині: {{room}}, {{count}}, {{#students}}…{{/students}}', example: '' },
   { key: 'students', description: 'Список усіх вибраних учнів — для циклу {{#students}}…{{/students}}', example: '' },
 ]
 
@@ -148,6 +149,19 @@ const common = (vals: (string | number | null | undefined)[]): string => {
   return set.size === 1 ? [...set][0] : ''
 }
 
+/** Групує вже впорядкований список учнів за кімнатами (для шаблонів «кімната — список учнів»). */
+export function groupByRoom(rows: Record<string, unknown>[]): { room: string; count: string; students: Record<string, unknown>[] }[] {
+  const out: { room: string; count: string; students: Record<string, unknown>[] }[] = []
+  for (const r of rows) {
+    const room = String(r.room ?? '')
+    let g = out.find((x) => x.room === room)
+    if (!g) out.push((g = { room, count: '0', students: [] }))
+    g.students.push({ ...r, index: String(g.students.length + 1) })
+    g.count = String(g.students.length)
+  }
+  return out
+}
+
 export function buildTemplateData(ctx: TemplateContext): Record<string, unknown> {
   // Список впорядковано за кімнатою (як у паперових формах), усередині кімнати — за алфавітом.
   const sorted = [...ctx.students].sort(
@@ -168,6 +182,7 @@ export function buildTemplateData(ctx: TemplateContext): Record<string, unknown>
     count: String(ctx.students.length),
     student: rows[0]?.student ?? buildStudentFields({ last_name: '', first_name: '', grade: 0 }),
     students: rows,
+    rooms: groupByRoom(rows),
   }
 }
 

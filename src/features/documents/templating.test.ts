@@ -131,3 +131,16 @@ describe('loadChunk (ліниве завантаження)', () => {
     await expect(loadChunk(async () => { throw new Error('інша помилка') })).rejects.toThrow('інша помилка')
   })
 })
+
+describe('groupByRoom (шаблон «на ніч»)', () => {
+  it('групує за кімнатами в порядку списку й нумерує всередині кімнати', async () => {
+    const { groupByRoom } = await import('./templating')
+    const g = groupByRoom([
+      { room: '500', full_name: 'А' },
+      { room: '500', full_name: 'Б' },
+      { room: '502', full_name: 'В' },
+    ])
+    expect(g.map((x) => [x.room, x.count])).toEqual([['500', '2'], ['502', '1']])
+    expect(g[0].students.map((s) => s.index)).toEqual(['1', '2'])
+  })
+})
