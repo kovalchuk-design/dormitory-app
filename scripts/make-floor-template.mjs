@@ -9,6 +9,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 import PizZip from 'pizzip'
+import { ensureVCenter } from './lib/docx-cell.mjs'
 
 const [, , input, output] = process.argv
 if (!input || !output) {
@@ -55,8 +56,8 @@ if (headerCells.length !== WIDTHS.length) throw new Error('Заголовок м
 let newHead = rows[0]
 headerCells.forEach((hc, i) => {
   let nc = setWidth(hc, WIDTHS[i])
-  // Вертикальне центрування заголовків: однорядкові («ПІП учня», «Примітка») стоять на одному рівні з дворядковими.
-  if (!nc.includes('<w:vAlign')) nc = nc.includes('<w:hideMark/>') ? nc.replace('<w:hideMark/>', '<w:vAlign w:val="center"/><w:hideMark/>') : nc.replace('</w:tcPr>', '<w:vAlign w:val="center"/></w:tcPr>')
+  // Правило: усі клітинки по центру за висотою (scripts/lib/docx-cell.mjs)
+  nc = ensureVCenter(nc)
   const lines = HEADER_LINES[i]
   if (lines) {
     const para = /<w:p[ >][\s\S]*?<\/w:p>/.exec(hc)[0]
@@ -82,7 +83,7 @@ const newCells = cells.map((cell, i) => {
   const paras = CELLS[i]
     .map((t) => `<w:p>${pPr}<w:r>${rPr}<w:t xml:space="preserve">${esc(t)}</w:t></w:r></w:p>`)
     .join('')
-  return `<w:tc>${tcPr}${paras}</w:tc>`
+  return `<w:tc>${ensureVCenter(tcPr)}${paras}</w:tc>`
 })
 const trOpen = /^<w:tr[^>]*>/.exec(sample)[0]
 const trPr = /<w:trPr>[\s\S]*?<\/w:trPr>/.exec(sample)?.[0] ?? ''

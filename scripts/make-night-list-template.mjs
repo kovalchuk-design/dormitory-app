@@ -8,6 +8,7 @@
  */
 import { writeFileSync } from 'node:fs'
 import PizZip from 'pizzip'
+// Правила таблиць (vAlign = center у кожній клітинці) описані в scripts/lib/docx-cell.mjs
 
 const out = process.argv[2]
 if (!out) {
@@ -105,7 +106,7 @@ const KITCHEN_ROWS = 8
 const KROOM_W = 600
 const KNAME_W = COL_W - KROOM_W
 const kitchenGrid = `<w:tblGrid><w:gridCol w:w="${KROOM_W}"/><w:gridCol w:w="${KNAME_W}"/><w:gridCol w:w="${GAP}"/><w:gridCol w:w="${KROOM_W}"/><w:gridCol w:w="${KNAME_W}"/></w:tblGrid>`
-const gapCell = `<w:tc><w:tcPr><w:tcW w:w="${GAP}" w:type="dxa"/><w:tcBorders>${['top', 'left', 'bottom', 'right'].map((x) => `<w:${x} w:val="nil"/>`).join('')}</w:tcBorders></w:tcPr>${p('', { sz: 14 })}</w:tc>`
+const gapCell = `<w:tc><w:tcPr><w:tcW w:w="${GAP}" w:type="dxa"/><w:tcBorders>${['top', 'left', 'bottom', 'right'].map((x) => `<w:${x} w:val="nil"/>`).join('')}</w:tcBorders><w:vAlign w:val="center"/></w:tcPr>${p('', { sz: 14 })}</w:tc>`
 const kHead = (text) => tc(KROOM_W, p('Кімн.', { sz: 14, bold: true, jc: 'center' }), { shd: GRAY }) + tc(KNAME_W, p(text, { sz: 14, bold: true, jc: 'center' }), { shd: GRAY })
 const kCells = () => tc(KROOM_W, p('', { sz: 14 })) + tc(KNAME_W, p('', { sz: 14 }))
 const kitchenHead = tr(kHead('Прізвище, ім’я, по батькові') + gapCell + kHead('Прізвище, ім’я, по батькові'), { height: 220 })

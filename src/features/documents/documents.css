@@ -143,3 +143,7 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 .help-compact .help-steps, .help-compact .help-table { font-size: 13px; }
 .help-compact code { background: var(--surface); }
 .help-compact h3, .help-compact h4 { font-size: 14px; }
+
+/* Перегляд .docx: інтервал у клітинках як у Word (~1.15), а не успадкований від застосунку (1.4).
+   Розмір «розпірки» абзацу вирівнюється з його текстом у DocxViewer (alignParagraphsInCells), щоб текст стояв по центру клітинки. */
+.docx-viewer section.docx td p, .docx-viewer section.docx th p { line-height: 1.15; }

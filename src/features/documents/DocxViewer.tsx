@@ -1,6 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { loadChunk } from './lazy'
 
+/**
+ * Абзац у клітинці успадковує шрифт застосунку (Manrope 15px), а текст має власний (напр. Times 8pt): «розпірка» абзацу
+ * вище за текст і зсуває його нижче центру клітинки. Вирівнюємо розмір і шрифт абзацу за першим фрагментом тексту.
+ */
+function alignParagraphsInCells(container: HTMLElement) {
+  for (const p of container.querySelectorAll<HTMLElement>('section.docx td > p, section.docx th > p')) {
+    const run = p.querySelector<HTMLElement>('span')
+    if (!run) continue
+    const cs = getComputedStyle(run)
+    p.style.fontSize = cs.fontSize
+    p.style.fontFamily = cs.fontFamily
+  }
+}
+
 /** docx-preview ігнорує від’ємний відступ таблиці (w:tblInd), через що широка таблиця виходить за сторінку. Повертаємо його вручну. */
 async function applyTableIndents(source: Blob | ArrayBuffer, container: HTMLElement) {
   const buf = source instanceof Blob ? await source.arrayBuffer() : source
@@ -57,6 +71,7 @@ export function DocxViewer({ source, onError }: { source: Blob | ArrayBuffer; on
           useBase64URL: true,
         })
         await applyTableIndents(source, bodyRef.current).catch(() => undefined)
+        alignParagraphsInCells(bodyRef.current)
         if (!cancelled) {
           fit()
           setState('ready')
