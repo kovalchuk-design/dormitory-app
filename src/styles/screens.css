@@ -489,8 +489,6 @@ button.rm-pupil-name { font-size: 13.5px; }
 /* ---- «Анкети»: усі три вкладки — біла плашка на висоту екрана з прокруткою всередині ---- */
 .unm-intro { margin: 8px 0 12px; }
 .ap-body .unm { background: var(--muted); margin-bottom: 12px; }
-.settings-tab .ap-body > .fold-sec { border-top: 1px solid var(--border); }
-.settings-tab .ap-body > .fold-sec:first-child { border-top: 0; }
 .fold-sec > summary { list-style: none; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0; font-size: 18px; font-weight: 600; letter-spacing: -.01em; cursor: pointer; }
 .fold-sec > summary::-webkit-details-marker { display: none; }
 .fold-sec > summary::after { content: ''; width: 10px; height: 10px; border: solid var(--text2); border-width: 0 2px 2px 0; transform: rotate(45deg); transition: transform var(--t-fast) var(--ease); margin-right: 6px; }
@@ -499,3 +497,18 @@ button.rm-pupil-name { font-size: 13.5px; }
 /* вкладені розділи (колишні панелі) — без власної картки й дублювання заголовка */
 .fold-body .panel { background: none; border: 0; box-shadow: none; padding: 0; margin: 0; border-radius: 0; }
 .fold-body .panel > h2:first-child { display: none; }
+
+/* ---- «Налаштування»: кожен розділ — у сірій плашці; картки всередині — білі для контрасту ---- */
+.settings-tab .ap-body > .fold-sec { background: var(--muted); border-radius: 24px; padding: 0 20px; margin-bottom: 12px; --text2: var(--text2Hi); }
+.settings-tab .ap-body > .fold-sec:last-child { margin-bottom: 0; }
+.settings-tab .fold-sec > summary { min-height: 60px; }
+.settings-tab .floor-card, .settings-tab .prog-col { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; }
+.settings-tab .fold-body .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 0 12px; }
+.settings-tab .fold-body input, .settings-tab .fold-body textarea { background-color: var(--field); }
+/* хто ще не заповнив: поверхи колонками */
+.prog-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 12px; align-items: start; margin-top: 8px; }
+.prog-col { padding: 0 14px 10px; min-width: 0; }
+.prog-col > header { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 0 8px; margin-bottom: 4px; background: var(--surface); border-bottom: 1px solid var(--border); border-radius: 20px 20px 0 0; }
+.prog-col ul.plain { gap: 0; }
+.prog-col li { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
+.prog-col li:last-child { border-bottom: 0; }
