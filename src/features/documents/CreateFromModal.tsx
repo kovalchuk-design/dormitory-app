@@ -31,7 +31,7 @@ export function CreateFromModal({ source, lib, reload, onClose }: { source: Docu
 
   return (
     <Modal
-      title={created ? 'Документ створено' : 'Створити на основі документа'}
+      title={created ? 'Документ створено' : 'Створити копію'}
       onClose={onClose}
       footer={
         created ? (
@@ -42,7 +42,7 @@ export function CreateFromModal({ source, lib, reload, onClose }: { source: Docu
         ) : (
           <>
             <button type="button" disabled={busy || !canCreate({ step: 'confirm', title, sourceId: source.id, category: '', topic: '', createdId: null })} onClick={() => void create()}>
-              {busy ? 'Створення…' : 'Створити копію'}
+              {busy ? 'Створення…' : 'Створити'}
             </button>
             <button type="button" className="secondary" onClick={onClose}>Скасувати</button>
           </>

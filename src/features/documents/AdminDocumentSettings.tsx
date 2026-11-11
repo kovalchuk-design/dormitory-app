@@ -42,7 +42,7 @@ export function AdminDocumentSettings() {
           disabled={value === null || busy}
           onChange={(e) => void change(e.target.checked)}
         />
-        Вихователі можуть редагувати шаблони документів
+        Вихователі редагують шаблони
       </label>
       <p className="muted small">Адміністратор редагує шаблони завжди. Перемикач зберігається в налаштуванні <code>educators_can_edit_templates</code>.</p>
       {error && <p className="error">{error}</p>}

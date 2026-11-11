@@ -98,7 +98,7 @@ export function TemplatesTab({ lib }: { lib: Library }) {
           <aside className="panel tpl-left" aria-label="Шаблони">
             <h2>Шаблони</h2>
             {templates.length > 5 && (
-              <input type="search" className="tpl-search" placeholder="Пошук шаблону…" aria-label="Пошук шаблону" value={query} onChange={(e) => setQuery(e.target.value)} />
+              <input type="search" className="tpl-search" placeholder="Пошук…" aria-label="Пошук шаблону" value={query} onChange={(e) => setQuery(e.target.value)} />
             )}
             {templates.length === 0 ? (
               <p className="muted">Шаблонів ще немає.{editable ? '' : ' Їх додає адміністратор.'}</p>
@@ -112,11 +112,11 @@ export function TemplatesTab({ lib }: { lib: Library }) {
                       <span className="tpl-check" aria-hidden="true" />
                       <span className="tpl-title">{t.title}</span>
                     </button>
-                    <button type="button" className="tpl-icon" aria-label={`Перегляд шаблону «${t.title}»`} title="Перегляд шаблону" onClick={() => setPreviewId(t.id)}>
+                    <button type="button" className="tpl-icon" aria-label={`Перегляд шаблону «${t.title}»`} title="Перегляд" onClick={() => setPreviewId(t.id)}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
                     </button>
                     {editable && (
-                      <button type="button" className="tpl-icon danger" aria-label={`Видалити шаблон «${t.title}»`} title="Видалити шаблон" onClick={() => void remove(t)}>
+                      <button type="button" className="tpl-icon danger" aria-label={`Видалити шаблон «${t.title}»`} title="Видалити" onClick={() => void remove(t)}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6" /></svg>
                       </button>
                     )}
@@ -125,7 +125,7 @@ export function TemplatesTab({ lib }: { lib: Library }) {
               </ul>
             )}
             {editable ? (
-              <button type="button" className="tpl-add" onClick={() => setAdding(true)}>+ Додати шаблон</button>
+              <button type="button" className="tpl-add" onClick={() => setAdding(true)}>+ Додати</button>
             ) : (
               <p className="muted small">Шаблони додає й змінює адміністратор.</p>
             )}
@@ -139,7 +139,7 @@ export function TemplatesTab({ lib }: { lib: Library }) {
                 <section className="panel tpl-idle" aria-disabled="true">
                   <h2>Оберіть учнів</h2>
                   <p className="muted">Спершу виберіть шаблон ліворуч і натисніть «Використати» — тут з’явиться вибір учнів.</p>
-                  <button type="button" disabled>Сформувати документ</button>
+                  <button type="button" disabled>Сформувати</button>
                 </section>
               )}
             </div>
@@ -220,7 +220,7 @@ function TemplateUpload({ onDone }: { onDone: () => Promise<void> }) {
         </label>
       </div>
       {error && <p className="error">{error}</p>}
-      <button type="submit" disabled={busy || !file}>{busy ? 'Перевірка…' : 'Додати шаблон'}</button>
+      <button type="submit" disabled={busy || !file}>{busy ? 'Перевірка…' : 'Додати'}</button>
     </form>
   )
 }
@@ -264,7 +264,7 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
       rooms
         .map((r) => ({ r, ...roomInfo.get(r)! }))
         .sort((a, b) => (a.floor ?? 99) - (b.floor ?? 99) || a.r.localeCompare(b.r, 'uk', { numeric: true }))
-        .map(({ r, floor, ids }) => ({ value: r, label: `Кімната ${r} · ${ids.length} учн.`, group: floor != null ? `${floor} поверх` : 'Без поверху' })),
+        .map(({ r, floor, ids }) => ({ value: r, label: `${r} · ${ids.length} учн.`, group: floor != null ? `${floor} поверх` : 'Без поверху' })),
     [rooms, roomInfo],
   )
   const pickedRooms = useMemo(() => rooms.filter((r) => roomInfo.get(r)!.ids.every((id) => chosen.has(id))), [rooms, roomInfo, chosen])
@@ -390,8 +390,8 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
           <div className="filters">
             <input type="search" placeholder="Пошук учня…" aria-label="Пошук учня" value={search} onChange={(e) => setSearch(e.target.value)} />
             <MultiSelect label="Кімнати" aria-label="Вибрати кімнати" options={roomOptions} value={pickedRooms} onChange={setRooms} />
-            <button type="button" className="secondary" aria-pressed={onlyChosen} onClick={() => setOnlyChosen((v) => !v)}>Лише вибрані</button>
-            <button type="button" className="secondary" onClick={() => change(() => new Set())} disabled={chosen.size === 0}>Очистити вибір</button>
+            <button type="button" className="secondary" aria-pressed={onlyChosen} onClick={() => setOnlyChosen((v) => !v)}>Вибрані</button>
+            <button type="button" className="secondary" onClick={() => change(() => new Set())} disabled={chosen.size === 0}>Очистити</button>
           </div>
           {pupils.length === 0 && <p className="muted">Немає учнів, дані яких вам доступні.</p>}
           {pupils.length > 0 && shown.length === 0 && <p className="muted">Нікого не знайдено.</p>}
@@ -409,7 +409,7 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
           <p className="tpl-count" aria-live="polite">Вибрано: <strong>{chosen.size}</strong> із {pupils.length}</p>
           {error && <p className="error">{error}</p>}
           <button type="button" disabled={busy || chosen.size === 0} onClick={() => void generate()}>
-            {busy ? 'Формування…' : 'Сформувати документ'}
+            {busy ? 'Формування…' : 'Сформувати'}
           </button>
         </>
       )}
