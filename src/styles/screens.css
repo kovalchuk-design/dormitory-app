@@ -483,3 +483,5 @@ button.rm-pupil-name { font-size: 13.5px; }
   .candidate { flex-wrap: wrap; }
   .candidate button { width: 100%; }
 }
+
+.st-body table.data td.cell-date { white-space: nowrap; font-size: 14px; }
