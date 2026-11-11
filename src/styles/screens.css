@@ -52,7 +52,7 @@ table.data td:first-child a:hover { text-decoration: underline; }
 .rm-room.is-inactive { opacity: 1; background: var(--muted); box-shadow: none; border-style: dashed; }
 .rm-meter { margin: 0 0 12px; }
 .rm-actions { margin-left: auto; display: flex; gap: 0; }
-.rm-actions .iconbtn { width: 36px; height: 36px; min-height: 36px; }
+.rm-actions .iconbtn { width: 40px; height: 40px; min-height: 40px; }
 .rm-room ul, .rm-pool ul { list-style: none; margin: 0; padding: 0; }
 .rm-pupil {
   display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-height: 48px; padding: 6px 8px 6px 12px; border-radius: 12px;
@@ -65,8 +65,8 @@ table.data td:first-child a:hover { text-decoration: underline; }
 .rm-pupil.draggable:hover { box-shadow: 0 0 0 1.5px var(--fieldBorder); }
 .rm-pupil.dragging { opacity: .35; }
 .rm-pupil-name { flex: 1 1 8rem; font-weight: 600; font-size: 14px; }
-.rm-pupil .iconbtn { width: 36px; height: 36px; min-height: 36px; }
-.rm-pupil .rm-mini { min-height: 36px; }
+.rm-pupil .iconbtn { width: 40px; height: 40px; min-height: 40px; }
+.rm-pupil .rm-mini { min-height: 40px; }
 .rm-badge::before { display: none; }
 .rm-badge { gap: 0; font-variant-numeric: tabular-nums; }
 .rm-badge.free::before, .rm-badge.full::before, .rm-badge.inactive::before { display: block; margin-right: 6px; }
@@ -85,7 +85,7 @@ table.data td:first-child a:hover { text-decoration: underline; }
 .rm-tabs button:hover:not(:disabled) { opacity: 1; color: var(--text); }
 .rm-cap { font-size: 13px; color: var(--text2Hi); margin: 0 0 8px; min-height: 0; }
 .rm-cap .sel { width: auto; margin: 0; }
-@media (max-width: 900px) { .rm-tabs { display: flex; } }
+@media (max-width: 980px) { .rm-tabs { display: flex; } }
 
 /* ---- Публічна анкета ---- */
 .public-card h1 { font-size: 32px; margin-bottom: 8px; }
@@ -151,7 +151,7 @@ table.data td:first-child a:hover { text-decoration: underline; }
   table.cards-on-mobile td { display: flex; align-items: center; gap: 6px; padding: 0; border: 0; width: auto; justify-content: flex-start; font-size: 14px; }
   table.cards-on-mobile td:empty { display: none; }
   table.cards-on-mobile td::before { content: attr(data-label); color: var(--text2Hi); font-size: 12px; font-weight: 600; }
-  table.cards-on-mobile td[data-label='ПІБ'] { flex: 1 1 100%; font-size: 17px; font-weight: 600; min-height: 32px; }
+  table.cards-on-mobile td[data-label='ПІБ'] { flex: 1 1 100%; font-size: 16px; font-weight: 600; min-height: 32px; }
   table.cards-on-mobile td[data-label='ПІБ']::before, table.cards-on-mobile td[data-label='Статус']::before { display: none; }
   table.cards-on-mobile td[data-label='Статус'] { margin-left: auto; }
   table.cards-on-mobile td[data-label='Учень'], table.cards-on-mobile td[data-label='Мама'],
@@ -202,7 +202,7 @@ table.data td:first-child a:hover { text-decoration: underline; }
 .rm-room { box-shadow: 0 1px 3px rgba(0,0,0,.08); }
 [data-theme='dark'] .rm-room { box-shadow: none; }
 @media (max-width: 1100px) { .rm-floors { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 900px) {
+@media (max-width: 980px) {
   .rm-floors { display: flex; flex-direction: column; }
   .rm-floor { display: none; flex: 1 1 0; }
   .rm-floor.current { display: flex; }
@@ -430,7 +430,7 @@ button.rm-pupil-name { font-size: 14px; }
 .approval-title h2 { margin: 0 0 2px; }
 .approval-title p { margin: 0; }
 .approval-actions { display: flex; gap: 8px; flex: none; }
-.approval-actions button { min-height: 36px; padding: 0 16px; font-size: 14px; border-radius: 12px; }
+.approval-actions button { min-height: 40px; padding: 0 16px; font-size: 14px; border-radius: 12px; }
 @media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
   .approval-head { position: sticky; top: 0; z-index: 5; margin: -4px -4px 8px; padding: 8px 4px; background: var(--surface); }
   .approval-actions { width: 100%; }

@@ -6,7 +6,7 @@
   a.back-link { display: inline-flex; align-items: center; min-height: 44px; }
 }
 /* вкладки поверхів не мають обрізатися на вузьких екранах (було: «5» ховалося за краєм) */
-@media (max-width: 900px) {
+@media (max-width: 980px) {
   .rm-tabs { gap: 4px; }
   .rm-tabs button { flex: 1 1 auto; padding: 0 8px; white-space: nowrap; }
 }
