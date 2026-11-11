@@ -1,7 +1,20 @@
 import type { ReactNode } from 'react'
 
-/** Розділ, що згортається/розгортається (details). Заголовок — у summary; за замовчуванням згорнутий, якщо не задано `defaultOpen`. */
-export function Fold({ id, title, defaultOpen = false, children }: { id: string; title: string; defaultOpen?: boolean; children: ReactNode }) {
+/**
+ * Розділ у сірій плашці. Згортається/розгортається (details; за замовчуванням згорнутий, якщо не задано `defaultOpen`),
+ * а з `always` — завжди відкритий, без стрілки.
+ */
+export function Fold({ id, title, defaultOpen = false, always = false, children }: {
+  id: string; title: string; defaultOpen?: boolean; always?: boolean; children: ReactNode
+}) {
+  if (always) {
+    return (
+      <section className="fold-sec fold-static" aria-labelledby={id}>
+        <h2 id={id} className="fold-title">{title}</h2>
+        <div className="fold-body">{children}</div>
+      </section>
+    )
+  }
   return (
     <details className="fold-sec" open={defaultOpen}>
       <summary id={id}>{title}</summary>
