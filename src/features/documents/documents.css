@@ -61,7 +61,6 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
   .documents .hostel-head { flex-wrap: wrap; }
   .documents .view-switch { flex: 1 1 100%; }
   .documents .view-switch button { flex: 1; padding: 0 12px; white-space: nowrap; }
-  .documents .view-switch .ph-hide { display: none; } /* на телефоні «Шаблони й автозаповнення» → «Шаблони» */
 }
 
 /* ---- Шаблони: дві колонки ---- */

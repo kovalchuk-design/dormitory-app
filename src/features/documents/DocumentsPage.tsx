@@ -5,8 +5,8 @@ import { TemplatesTab } from './TemplatesTab'
 import './documents.css'
 
 type Tab = 'templates' | 'archive'
-const TABS: { id: Tab; label: string; more?: string }[] = [
-  { id: 'templates', label: 'Шаблони', more: ' й автозаповнення' },
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'templates', label: 'Шаблони' },
   { id: 'archive', label: 'Архів' },
 ]
 
@@ -49,7 +49,6 @@ export function DocumentsPage() {
               onClick={() => setTab(t.id)}
             >
               {t.label}
-              {t.more && <span className="ph-hide">{t.more}</span>}
             </button>
           ))}
         </div>
