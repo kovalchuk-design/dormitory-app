@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
+import { ScrollArea } from '../../components/ui/ScrollArea'
 
 export function Modal({ title, onClose, children, footer, wide, narrow }: { title: string; onClose: () => void; children: ReactNode; footer?: ReactNode; wide?: boolean; narrow?: boolean }) {
   useEffect(() => {
@@ -13,7 +14,7 @@ export function Modal({ title, onClose, children, footer, wide, narrow }: { titl
           <strong>{title}</strong>
           <button type="button" className="secondary" onClick={onClose} aria-label="Закрити">✕</button>
         </header>
-        <div className="modal-body">{children}</div>
+        <ScrollArea className="modal-scroll" body="modal-body" inset={16}>{children}</ScrollArea>
         {footer && <footer className="modal-foot">{footer}</footer>}
       </div>
     </div>

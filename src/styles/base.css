@@ -5,7 +5,7 @@ html { background: var(--rail); }
 body {
   margin: 0; font-family: var(--font); font-size: 15px; line-height: 1.5; color: var(--text);
   background: linear-gradient(160deg, var(--g1), var(--g2)) fixed, var(--page);
-  -webkit-font-smoothing: antialiased; text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased; text-size-adjust: 100%; font-variant-numeric: tabular-nums;
 }
 :root { font-family: var(--font); color: var(--text); background: transparent; }
 h1, h2, h3, h4 { margin: 0; text-wrap: balance; font-weight: 600; letter-spacing: -.01em; }
@@ -76,12 +76,12 @@ input:focus, textarea:focus { outline: none; border-color: var(--out); box-shado
 [aria-invalid='true'] { border-color: var(--danger); }
 [aria-invalid='true']:focus { box-shadow: 0 0 0 4px color-mix(in oklch, var(--danger) 22%, transparent); }
 input[type='checkbox'], input[type='radio'] {
-  appearance: none; -webkit-appearance: none; width: 22px; height: 22px; min-height: 0; padding: 0; margin: 0; flex: none;
+  appearance: none; -webkit-appearance: none; width: 18px; height: 18px; min-height: 0; padding: 0; margin: 0; flex: none;
   border: 1.5px solid var(--text2); border-radius: 6px; background: transparent; display: inline-grid; place-content: center;
 }
 input[type='radio'] { border-radius: 50%; }
 input[type='checkbox']:checked, input[type='radio']:checked { background: var(--text); border-color: var(--text); }
-input[type='checkbox']:checked::after { content: ''; width: 10px; height: 6px; border: solid var(--surface); border-width: 0 0 2.2px 2.2px; transform: rotate(-45deg) translate(1px, -1px); }
+input[type='checkbox']:checked::after { content: ''; width: 9px; height: 5px; border: solid var(--surface); border-width: 0 0 2px 2px; transform: rotate(-45deg) translate(1px, -1px); }
 input[type='radio']:checked::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--surface); }
 input[type='file'] { padding: 10px 12px; height: auto; }
 input[type='search'] { appearance: none; }
@@ -196,7 +196,7 @@ a.phone:hover { text-decoration: underline; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
 
 /* Ширина чекбоксів/радіо: перекриває старі `label.check input { width:auto }` з index.css */
-label input[type='checkbox'], label input[type='radio'], .switch-row input, .rm-check input, .pupil-list input { width: 22px; height: 22px; }
+label input[type='checkbox'], label input[type='radio'], .switch-row input, .rm-check input, .pupil-list input { width: 18px; height: 18px; }
 .seg-opt input[type='radio'] { width: 1px; height: 1px; }
 
 /* ---- InfoTip ---- */
@@ -247,6 +247,9 @@ button.sel-trigger[aria-invalid='true'] { border-color: var(--danger); }
 .scrollrows { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
 .scrollrows::-webkit-scrollbar { display: none; }
 :where(.sr-area) { position: relative; min-width: 0; }
+.sr-wrap { position: relative; min-width: 0; }
+.sr-wrap.inset { margin: -6px -4px -6px -6px; }
+.scrollmore { --text2: var(--text2Hi); padding: 6px 0 0; }
 .sr-thumb { position: absolute; width: 6px; border-radius: 3px; background: var(--text2); opacity: 0; transition: opacity .15s; cursor: grab; touch-action: none; }
 .sr-area:hover .sr-thumb, .sr-area:focus-within .sr-thumb, .sel-pop:hover .sr-thumb { opacity: .5; }
 .sr-thumb:hover, .sr-area.dragging .sr-thumb, .sel-pop.dragging .sr-thumb { opacity: .85; cursor: grabbing; }

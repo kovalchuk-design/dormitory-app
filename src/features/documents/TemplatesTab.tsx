@@ -20,6 +20,7 @@ import { buildTemplateData, checkTemplate, docxHasText, fullName, renderDocxTemp
 import type { TemplateRow } from './types'
 import { MultiSelect, type MultiOption } from '../../components/ui/MultiSelect'
 import { ActionMenu } from '../../components/ui/ActionMenu'
+import { ScrollRows } from '../../components/ui/ScrollRows'
 import { buildPdf, detectPdfKind } from './pdf'
 
 const errText = (e: unknown) => (e instanceof Error ? e.message : String(e))
@@ -107,7 +108,7 @@ export function TemplatesTab({ lib }: { lib: Library }) {
             ) : shownTemplates.length === 0 ? (
               <p className="muted">Нічого не знайдено.</p>
             ) : (
-              <ul className="tpl-list" role="group" aria-label="Шаблон для формування документа (можна вибрати один)">
+              <ScrollRows item=".tpl-row" inset={false}><ul className="tpl-list" role="group" aria-label="Шаблон для формування документа (можна вибрати один)">
                 {shownTemplates.map((t) => (
                   <li key={t.id} className={`tpl-row${t.id === selectedId ? ' selected' : ''}`}>
                     <button type="button" role="checkbox" aria-checked={t.id === selectedId} className="tpl-pick" title={t.id === selectedId ? 'Зняти вибір' : 'Вибрати шаблон'} onClick={() => toggleUse(t)}>
@@ -124,7 +125,7 @@ export function TemplatesTab({ lib }: { lib: Library }) {
                     )}
                   </li>
                 ))}
-              </ul>
+              </ul></ScrollRows>
             )}
             {editable ? (
               <button type="button" className="tpl-add" onClick={() => setAdding(true)}>+ Додати</button>
@@ -424,7 +425,7 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
           </div>
           {pupils.length === 0 && <p className="muted">Немає учнів, дані яких вам доступні.</p>}
           {pupils.length > 0 && shown.length === 0 && <p className="muted">Нікого не знайдено.</p>}
-          <ul className="pupil-list">
+          <div className="pupil-box"><ScrollRows item="li" inset={false}><ul className="pupil-list">
             {shown.map((p) => (
               <li key={p.id} className={chosen.has(p.id) ? 'on' : undefined}>
                 <label>
@@ -434,7 +435,7 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
                 </label>
               </li>
             ))}
-          </ul>
+          </ul></ScrollRows></div>
           <p className="tpl-count" aria-live="polite">Вибрано: <strong>{chosen.size}</strong> із {pupils.length}</p>
           {error && <p className="error">{error}</p>}
           <button type="button" disabled={busy || chosen.size === 0} onClick={() => void generate()}>
