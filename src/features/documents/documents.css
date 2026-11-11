@@ -147,3 +147,7 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 /* Перегляд .docx: інтервал у клітинках як у Word (~1.15), а не успадкований від застосунку (1.4).
    Розмір «розпірки» абзацу вирівнюється з його текстом у DocxViewer (alignParagraphsInCells), щоб текст стояв по центру клітинки. */
 .docx-viewer section.docx td p, .docx-viewer section.docx th p { line-height: 1.15; }
+
+/* Перегляд .docx: без переносів слів (docx-preview за замовчуванням вмикає hyphens:auto, і браузер ділить «Оле-ксандрович»).
+   Імена й прізвища переходять на новий рядок цілими словами. */
+.docx-viewer .docx, .docx-viewer .docx * { hyphens: manual !important; -webkit-hyphens: manual !important; overflow-wrap: normal; word-break: normal; }

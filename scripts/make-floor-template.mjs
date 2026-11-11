@@ -9,7 +9,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 import PizZip from 'pizzip'
-import { ensureVCenter } from './lib/docx-cell.mjs'
+import { ensureVCenter, noHyphenPPr } from './lib/docx-cell.mjs'
 
 const [, , input, output] = process.argv
 if (!input || !output) {
@@ -61,7 +61,7 @@ headerCells.forEach((hc, i) => {
   const lines = HEADER_LINES[i]
   if (lines) {
     const para = /<w:p[ >][\s\S]*?<\/w:p>/.exec(hc)[0]
-    const pPr = /<w:pPr>[\s\S]*?<\/w:pPr>/.exec(para)?.[0] ?? ''
+    const pPr = noHyphenPPr(/<w:pPr>[\s\S]*?<\/w:pPr>/.exec(para)?.[0] ?? '<w:pPr></w:pPr>')
     const rPr = /<w:r[ >][\s\S]*?(<w:rPr>[\s\S]*?<\/w:rPr>)/.exec(para)?.[1] ?? ''
     const paras = lines.map((t) => `<w:p>${pPr}<w:r>${rPr}<w:t xml:space="preserve">${t}</w:t></w:r></w:p>`).join('')
     nc = nc.replace(/<w:p[ >][\s\S]*<\/w:p>/, paras)
@@ -75,7 +75,7 @@ const newCells = cells.map((cell, i) => {
   const tcPr = setWidth(/<w:tcPr>[\s\S]*?<\/w:tcPr>/.exec(cell)?.[0] ?? '', WIDTHS[i])
   const firstP = /<w:p[ >][\s\S]*?<\/w:p>/.exec(cell)?.[0] ?? ''
   let pPr = /<w:pPr>[\s\S]*?<\/w:pPr>/.exec(firstP)?.[0] ?? '<w:pPr></w:pPr>'
-  pPr = pPr.replace(/<w:numPr>[\s\S]*?<\/w:numPr>/, '').replace(/<w:pStyle [^>]*\/>/, '')
+  pPr = noHyphenPPr(pPr.replace(/<w:numPr>[\s\S]*?<\/w:numPr>/, '').replace(/<w:pStyle [^>]*\/>/, ''))
   if (CENTER.has(i) && !pPr.includes('<w:jc ')) {
     pPr = pPr.includes('<w:rPr>') ? pPr.replace('<w:rPr>', '<w:jc w:val="center"/><w:rPr>') : pPr.replace('</w:pPr>', '<w:jc w:val="center"/></w:pPr>')
   }

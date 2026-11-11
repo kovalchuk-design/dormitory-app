@@ -158,3 +158,14 @@ describe('splitRooms (2 колонки)', () => {
     expect(one.right).toEqual([])
   })
 })
+
+describe('groupByFloor (шаблон «на ніч»: сторінка = поверх)', () => {
+  it('групує за поверхами за зростанням і ділить кімнати на колонки в межах поверху', async () => {
+    const { groupByFloor } = await import('./templating')
+    const mk = (floor: string, room: string, n: number) => Array.from({ length: n }, () => ({ floor, room }))
+    const g = groupByFloor([...mk('3', '301', 2), ...mk('2', '201', 3), ...mk('2', '202', 3), ...mk('', '', 1)])
+    expect(g.map((x) => [x.floor, x.count])).toEqual([['2', '6'], ['3', '2']])
+    expect(g[0].roomsLeft.map((r) => r.room)).toEqual(['201'])
+    expect(g[0].roomsRight.map((r) => r.room)).toEqual(['202'])
+  })
+})

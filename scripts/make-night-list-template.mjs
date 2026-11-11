@@ -31,10 +31,12 @@ const ROW_H = 210 // мінімальна висота рядка кімнати
 
 const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-function p(text, { sz = 16, bold = false, jc, keepNext = false, before = 0, after = 0, border = false, line } = {}) {
+function p(text, { sz = 16, bold = false, jc, keepNext = false, pageBreakBefore = false, before = 0, after = 0, border = false, line } = {}) {
   const ppr =
     (keepNext ? '<w:keepNext/>' : '') +
+    (pageBreakBefore ? '<w:pageBreakBefore/>' : '') +
     (border ? '<w:pBdr><w:top w:val="single" w:sz="6" w:space="4" w:color="808080"/></w:pBdr>' : '') +
+    '<w:suppressAutoHyphens/>' +
     `<w:spacing w:before="${before}" w:after="${after}"${line ? ` w:line="${line}" w:lineRule="exact"` : ''}/>` +
     (jc ? `<w:jc w:val="${jc}"/>` : '') +
     `<w:rPr><w:sz w:val="${sz}"/></w:rPr>`
@@ -119,14 +121,24 @@ const sect = (cols, type) =>
   (cols === 2 ? `<w:cols w:num="2" w:space="${GAP}"/>` : '<w:cols w:space="708"/>') +
   `</w:sectPr>`
 
+const TITLE = 'СПИСОК учнів, які залишаються в гуртожитку на ніч — {{floor}} поверх'
+// Один поверх = одна сторінка: усе, що нижче, повторюється по {{#floors}}; заголовок кожного поверху починається з нової сторінки.
 const body =
-  p('СПИСОК учнів, які залишаються в гуртожитку на ніч — {{floor}} поверх', { sz: 24, bold: true, jc: 'center', after: 60 }) +
+  p('{{#floors}}', { sz: 2, line: 20 }) +
+  // Заголовок першого поверху — без розриву сторінки, решти — з розривом (умовні блоки за полем `first`).
+  p('{{#first}}', { sz: 2, line: 20 }) +
+  p(TITLE, { sz: 24, bold: true, jc: 'center', after: 60 }) +
+  p('{{/first}}', { sz: 2, line: 20 }) +
+  p('{{^first}}', { sz: 2, line: 20 }) +
+  p(TITLE, { sz: 24, bold: true, jc: 'center', after: 60, pageBreakBefore: true }) +
+  p('{{/first}}', { sz: 2, line: 20 }) +
   columnsTable +
   p('', { sz: 2, line: 60 }) +
   totalTable +
   p('Чергові на кухні', { sz: 16, bold: true, before: 60, after: 30, border: true, keepNext: true }) +
   kitchenTable +
   p('', { sz: 2, line: 20 }) +
+  p('{{/floors}}', { sz: 2, line: 20 }) +
   sect(1)
 
 const NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'

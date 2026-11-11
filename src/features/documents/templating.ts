@@ -20,6 +20,7 @@ export const GLOBAL_PLACEHOLDERS: PlaceholderDoc[] = [
   { key: 'count', description: 'Кількість вибраних учнів', example: '24' },
   { key: 'student.*', description: 'Поля першого вибраного учня (див. нижче) — зручно для документа на одного учня', example: '{{student.full_name}}' },
   { key: 'rooms', description: 'Список кімнат з учнями — для циклу {{#rooms}}…{{/rooms}}; усередині: {{room}}, {{count}}, {{#students}}…{{/students}}', example: '' },
+  { key: 'floors', description: 'Поверхи (кожен — окрема сторінка): {{#floors}}…{{/floors}}; усередині: {{floor}}, {{count}}, {{roomsLeft}}, {{roomsRight}}', example: '' },
   { key: 'roomsLeft', description: 'Кімнати лівої колонки сторінки (для макета в 2 колонки): {{#roomsLeft}}…{{/roomsLeft}}', example: '' },
   { key: 'roomsRight', description: 'Кімнати правої колонки (продовження): {{#roomsRight}}…{{/roomsRight}}', example: '' },
   { key: 'students', description: 'Список усіх вибраних учнів — для циклу {{#students}}…{{/students}}', example: '' },
@@ -191,6 +192,16 @@ export function splitRooms(rooms: RoomGroup[]): { left: RoomGroup[]; right: Room
   return { left: rooms.slice(0, best), right: rooms.slice(best) }
 }
 
+/** Групує впорядкований список учнів за поверхами (для шаблонів «одна сторінка — один поверх»); учні без поверху пропускаються. */
+export function groupByFloor(rows: Record<string, unknown>[]) {
+  const floors = [...new Set(rows.map((r) => String(r.floor ?? '')).filter(Boolean))].sort((a, b) => Number(a) - Number(b))
+  return floors.map((floor, i) => {
+    const rooms = groupByRoom(rows.filter((r) => String(r.floor ?? '') === floor))
+    const cols = splitRooms(rooms)
+    return { floor, first: i === 0, count: String(rooms.reduce((n, r) => n + r.students.length, 0)), rooms, roomsLeft: cols.left, roomsRight: cols.right }
+  })
+}
+
 export function buildTemplateData(ctx: TemplateContext): Record<string, unknown> {
   // Список впорядковано за кімнатою (як у паперових формах), усередині кімнати — за алфавітом.
   const sorted = [...ctx.students].sort(
@@ -214,7 +225,7 @@ export function buildTemplateData(ctx: TemplateContext): Record<string, unknown>
     ...(() => {
       const rooms = groupByRoom(rows)
       const cols = splitRooms(rooms)
-      return { rooms, roomsLeft: cols.left, roomsRight: cols.right }
+      return { rooms, roomsLeft: cols.left, roomsRight: cols.right, floors: groupByFloor(rows) }
     })(),
   }
 }
