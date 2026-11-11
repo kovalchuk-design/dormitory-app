@@ -108,7 +108,7 @@ export function UserFormDialog({ user, selfId, onClose, onDone }: {
           {fieldErrors.role && <span className="field-error">{fieldErrors.role}</span>}
         </div>
         <div className="field">
-          <label htmlFor="au-floor">Поверх (довідково)</label>
+          <label htmlFor="au-floor">Поверх</label>
           <Select id="au-floor" value={floor} onChange={(e) => setFloor(e.target.value)}>
             <option value="">—</option>
             {FLOORS.map((f) => <option key={f} value={f}>{f}</option>)}

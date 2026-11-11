@@ -163,7 +163,7 @@ function ApprovalCard({ item, onlyChanged, busy, onApprove, onReject }: {
       )}
       {item.medDiff.length > 0 && (
         <>
-          <h3>Медична інформація (з поданої анкети)</h3>
+          <h3>Медична інформація</h3>
           {item.hasCurrent || item.medDiff.some((r) => r.before)
             ? <MergeTable rows={item.medDiff} title="Порівняння медичних даних: вибір значень" onlyChanged={false} choices={choices} edits={edits} onToggle={toggle} onEdit={edit} />
             : <DiffTable rows={item.medDiff} title="Порівняння медичних даних" onlyChanged={false} />}

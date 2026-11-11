@@ -67,7 +67,7 @@ export function UpdateLinksPanel({ studentId, canCreate }: { studentId: string; 
 
   return (
     <section className="panel" aria-labelledby="links-h">
-      <h2 id="links-h">Оновлення даних учнем</h2>
+      <h2 id="links-h">Оновлення даних</h2>
       {canCreate && (
         <div className="row">
           <label className="inline">

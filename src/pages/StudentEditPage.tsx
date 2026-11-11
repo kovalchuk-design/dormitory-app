@@ -150,7 +150,7 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
   )
   const actions = (
     <>
-      {serverError && <p className="error" role="alert">{serverError}{createdId && <> <Link to={`/students/${createdId}`}>Відкрити картку</Link></>}</p>}
+      {serverError && <p className="error" role="alert">{serverError}{createdId && <> <Link to={`/students/${createdId}`}>Картка</Link></>}</p>}
       <div className="row form-actions">
         <button type="submit" disabled={saving || !!createdId}>{saving ? 'Зберігаємо…' : 'Зберегти'}</button>
         <Link className="btn secondary" to={id ? `/students/${id}` : '/students'}>Скасувати</Link>
@@ -161,7 +161,7 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
   if (id) {
     return (
       <section>
-        <h1>Редагування учня</h1>
+        <h1>Редагування</h1>
         <form className="form edit-form" onSubmit={(e) => void submit(e)} noValidate>
           {basic}
           {actions}

@@ -67,7 +67,7 @@ export function StudentsPage() {
   return (
     <section className="fill-page st-page">
       <form className="filters" role="search" onSubmit={(e) => e.preventDefault()} aria-label="Пошук і фільтри">
-        <label className="grow">Пошук (ПІБ, телефон, кімната)
+        <label className="grow">Пошук
           <input type="search" value={filters.query} onChange={(e) => set('query', e.target.value)} placeholder="Іваненко, 067… або 305" />
         </label>
         <button type="button" className="secondary filters-toggle" aria-expanded={showFilters} aria-controls="filters-extra"

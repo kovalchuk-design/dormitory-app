@@ -57,7 +57,7 @@ export function AdminUsersPage() {
 
       <div className="au-filters">
         <input
-          type="search" placeholder="Пошук за ПІБ або email" aria-label="Пошук користувачів"
+          type="search" placeholder="Пошук…" aria-label="Пошук користувачів"
           value={filters.q} onChange={(e) => setFilters({ ...filters, q: e.target.value })}
         />
         <Select className="au-sel" aria-label="Фільтр за роллю" value={filters.role} onChange={(e) => setFilters({ ...filters, role: isRole(e.target.value) ? e.target.value : '' })}>

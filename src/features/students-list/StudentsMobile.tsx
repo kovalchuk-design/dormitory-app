@@ -29,7 +29,7 @@ export function StudentsMobile({ filters, setFilters, rows, total, onOpen, openI
     <>
       <div className="sl-bar">
         <form className="sl-search" role="search" onSubmit={(e) => e.preventDefault()}>
-          <label className="sr-only" htmlFor="sl-q">Пошук (ПІБ, телефон, кімната)</label>
+          <label className="sr-only" htmlFor="sl-q">Пошук</label>
           <input id="sl-q" type="search" enterKeyHint="search" autoComplete="off" autoCorrect="off" spellCheck={false}
             value={filters.query} onChange={(e) => set('query', e.target.value)} placeholder="Пошук учня" />
           <button type="button" className="sl-filter-btn" aria-haspopup="dialog" onClick={() => setSheet(true)}>

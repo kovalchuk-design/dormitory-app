@@ -96,7 +96,7 @@ export function SettingsTab() {
               <FloorLinks data={data} onChanged={reload} onError={setActionError} />
             </Fold>
             {profile?.role === 'admin' && <Fold id="set-prof" title="Професії для анкети"><ProfessionsPanel /></Fold>}
-            <Fold id="set-progress" title="Хто ще не заповнив" always><Progress data={data} /></Fold>
+            <Fold id="set-progress" title="Не заповнили" always><Progress data={data} /></Fold>
             {/* журнал — без сірої плашки, відкритий на білому тлі: таблиця потребує всієї ширини */}
             <div className="journal-open"><Journal data={data} /></div>
           </>
@@ -324,7 +324,7 @@ function Progress({ data }: { data: Data }) {
   const left = groups.reduce((n, g) => n + g.students.length, 0)
   return (
     <section className="panel" aria-labelledby="progress-h">
-      <h2 id="progress-h">Хто ще не заповнив</h2>
+      <h2 id="progress-h">Не заповнили</h2>
       <p className="muted small">
         Заповнили: {active.length - left} з {active.length} активних учнів
         {since ? ` (з ${formatDate(since.toISOString())})` : ''}. Враховано будь-яку подану анкету, крім відхилених.
@@ -358,12 +358,12 @@ function Journal({ data }: { data: Data }) {
   const rows = all ? data.subs : data.subs.slice(0, 30)
   return (
     <section className="panel" aria-labelledby="journal-h">
-      <h2 id="journal-h">Хто заповнив (журнал)</h2>
+      <h2 id="journal-h">Журнал</h2>
       {data.subs.length === 0 ? <p className="muted">Подань за спільними посиланнями ще немає.</p> : (
         <>
           <div className="table-wrap">
             <table className="data cards-on-mobile">
-              <thead><tr><th scope="col">Час</th><th scope="col">Як вказав(ла)</th><th scope="col">Поверх</th><th scope="col">Результат</th><th scope="col">Учень у базі</th><th scope="col">Анкета</th></tr></thead>
+              <thead><tr><th scope="col">Час</th><th scope="col">Вказано</th><th scope="col">Поверх</th><th scope="col">Результат</th><th scope="col">В базі</th><th scope="col">Анкета</th></tr></thead>
               <tbody>
                 {rows.map((s) => {
                   const st = s.student_id ? students.get(s.student_id) : undefined
@@ -372,14 +372,14 @@ function Journal({ data }: { data: Data }) {
                   return (
                     <tr key={s.id}>
                       <td data-label="Час">{formatDateTime(s.submitted_at)}</td>
-                      <td data-label="Як вказав(ла)">{s.submitted_full_name}, {formatDate(s.submitted_birth_date)}</td>
+                      <td data-label="Вказано">{s.submitted_full_name}, {formatDate(s.submitted_birth_date)}</td>
                       <td data-label="Поверх">{l?.floor ?? '—'}{l && linkState(l) !== 'active' ? ` (${linkState(l) === 'revoked' ? 'скасовано' : 'прострочено'})` : ''}</td>
                       <td data-label="Результат">
                         {s.status === 'unmatched' ? <span className="tag tag-unplaced">не зіставлено</span>
                           : s.status === 'dismissed' ? <span className="tag tag-left">відхилено</span>
                           : (RESULT_LABELS[s.match_method ?? ''] ?? 'зіставлено')}
                       </td>
-                      <td data-label="Учень у базі">{st ? <Link to={`/students/${st.id}`}>{fullName(st)}</Link> : '—'}</td>
+                      <td data-label="В базі">{st ? <Link to={`/students/${st.id}`}>{fullName(st)}</Link> : '—'}</td>
                       <td data-label="Анкета">{pv ? VERSION_LABELS[pv.status] ?? pv.status : '—'}</td>
                     </tr>
                   )

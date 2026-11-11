@@ -13,7 +13,7 @@ for (const [name, opts] of [['mobile', devices['iPhone 13']], ['desktop', { view
     await page.getByRole('heading', { level: 1 }).waitFor()
     await page.getByText('Контакти').first().waitFor()
     const text = await page.locator('main').innerText()
-    for (const t of ['Оновлення даних учнем', 'Історія кімнат', 'Версії анкети']) assert.ok(!text.includes(t), `${name}: немає «${t}»`)
+    for (const t of ['Активні посилання', 'Історія кімнат', 'Версії анкети']) assert.ok(!text.includes(t), `${name}: немає «${t}»`)
     assert.equal(await page.locator('details').count(), 0, `${name}: нічого не згортається`)
     const med = page.getByRole('heading', { name: 'Медична інформація' })
     assert.equal(await med.count(), hasMed ? 1 : 0, `${name}: медична інформація ${hasMed ? 'є' : 'прихована'}`)

@@ -33,7 +33,7 @@ export function ConfirmMoveDialog(props: {
         <dd>{to ? `кімната ${to.number} (${to.floor} поверх)` : 'Нерозподілені'}</dd>
       </dl>
       <label>
-        Причина (необов’язково)
+        Причина
         <input value={reason} maxLength={200} onChange={(e) => setReason(e.target.value)} />
       </label>
       {error && <p className="error" role="alert">{error}</p>}
