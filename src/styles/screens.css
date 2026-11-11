@@ -512,3 +512,14 @@ button.rm-pupil-name { font-size: 13.5px; }
 .prog-col ul.plain { gap: 0; }
 .prog-col li { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
 .prog-col li:last-child { border-bottom: 0; }
+
+.prog-empty { margin: 10px 0 4px; }
+/* журнал на білому тлі: компактна таблиця (шрифт як у списку студентів) */
+.journal-open { margin-top: 20px; }
+.journal-open > .panel { background: none; border: 0; box-shadow: none; padding: 0; margin: 0; border-radius: 0; }
+.journal-open > .panel > h2 { font-size: 18px; margin: 0 0 8px; letter-spacing: -.01em; }
+.journal-open .table-wrap { background: none; border: 0; padding: 0; }
+.journal-open table.data { font-size: 13px; }
+.journal-open table.data th, .journal-open table.data td { padding: 8px 10px; }
+.journal-open table.data thead th { font-size: 12px; }
+.journal-open table.data td:first-child { white-space: nowrap; }

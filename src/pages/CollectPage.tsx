@@ -96,8 +96,9 @@ export function SettingsTab() {
               <FloorLinks data={data} onChanged={reload} onError={setActionError} />
             </Fold>
             <Fold id="set-progress" title="Хто ще не заповнив" defaultOpen><Progress data={data} /></Fold>
-            <Fold id="set-journal" title="Хто заповнив (журнал)" defaultOpen><Journal data={data} /></Fold>
             {profile?.role === 'admin' && <Fold id="set-prof" title="Професії для анкети" defaultOpen><ProfessionsPanel /></Fold>}
+            {/* журнал — без сірої плашки, відкритий на білому тлі: таблиця потребує всієї ширини */}
+            <div className="journal-open"><Journal data={data} /></div>
           </>
         )}
       </ScrollArea>
@@ -328,19 +329,23 @@ function Progress({ data }: { data: Data }) {
         Заповнили: {active.length - left} з {active.length} активних учнів
         {since ? ` (з ${formatDate(since.toISOString())})` : ''}. Враховано будь-яку подану анкету, крім відхилених.
       </p>
-      {groups.length === 0 ? <p className="muted">Усі активні учні вже подали анкету.</p> : (
-        // поверхи в один ряд: угорі назва поверху, під нею — ті, хто ще не заповнив
-        <div className="prog-board">
-          {groups.map((g) => (
+      {/* усі чотири поверхи показуємо завжди (порожній — «усі заповнили»); «Без кімнати» — лише якщо є кому */}
+      <div className="prog-board">
+        {[2, 3, 4, 5, 'none'].map((k) => {
+          const g = groups.find((x) => x.key === String(k)) ?? { key: String(k), title: k === 'none' ? 'Без кімнати' : `${k} поверх`, students: [] as StudentRow[] }
+          if (k === 'none' && g.students.length === 0) return null
+          return (
             <section key={g.key} className="prog-col" aria-label={`${g.title}: ще не заповнили ${g.students.length}`}>
-              <header><strong>{g.title}</strong><span className="pill warn">{g.students.length}</span></header>
-              <ul className="plain">
-                {g.students.map((s) => <li key={s.id}><Link to={`/students/${s.id}`}>{fullName(s)}</Link>{s.room ? <span className="muted small"> · {s.room}</span> : null}</li>)}
-              </ul>
+              <header><strong>{g.title}</strong><span className={`pill ${g.students.length ? 'warn' : 'good'}`}>{g.students.length}</span></header>
+              {g.students.length === 0 ? <p className="muted small prog-empty">Усі заповнили</p> : (
+                <ul className="plain">
+                  {g.students.map((s) => <li key={s.id}><Link to={`/students/${s.id}`}>{fullName(s)}</Link>{s.room ? <span className="muted small"> · {s.room}</span> : null}</li>)}
+                </ul>
+              )}
             </section>
-          ))}
-        </div>
-      )}
+          )
+        })}
+      </div>
     </section>
   )
 }
