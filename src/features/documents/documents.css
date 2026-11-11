@@ -41,7 +41,9 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 .docx-viewer { background: #e9ebef; border-radius: 8px; padding: .5rem; overflow: auto; max-height: 75vh; }
 .docx-viewer .docx-wrapper { padding: .5rem 0; background: transparent !important; }
 .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 20, 35, .55); display: grid; place-items: center; z-index: 50; padding: .5rem; }
-.modal { background: var(--card); border-radius: 12px; width: min(62rem, 100%); max-height: 94vh; display: flex; flex-direction: column; }
+.modal { background: var(--card); border-radius: 12px; max-height: 94vh; display: flex; flex-direction: column; }
+/* ширина — лише для вікон розділу «Документи» (клас doc-modal), щоб не розтягувати діалоги інших розділів (.au-modal тощо) */
+.modal.doc-modal { width: min(62rem, 100%); }
 .modal-head { display: flex; justify-content: space-between; align-items: center; gap: .5rem; padding: .7rem 1rem; border-bottom: 1px solid var(--border); }
 .modal-body { padding: 0 1rem 1rem; overflow: auto; flex: 1; }
 .modal-foot { padding: .7rem 1rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
@@ -106,7 +108,7 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 .documents .pupil-list label input[type='checkbox'] { display: inline-grid; width: 22px; height: 22px; margin: 0; }
 .pupil-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .pupil-meta { white-space: nowrap; }
-.modal-wide { width: min(90rem, 100%); }
+.modal.modal-wide { width: min(90rem, 100%); }
 .modal-foot { gap: .5rem; }
 
 /* ---- Результат формування ---- */
@@ -122,7 +124,7 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 .filters button[aria-pressed='true'] { background: var(--muted); border-color: var(--text); }
 
 /* ---- Вікно «Додати шаблон» ---- */
-.modal-narrow { width: min(34rem, 100%); }
+.modal.modal-narrow { width: min(34rem, 100%); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; opacity: 0; }
 .file-field { display: grid; gap: .35rem; }
 .file-field-label { font-size: 14px; color: var(--text2); }

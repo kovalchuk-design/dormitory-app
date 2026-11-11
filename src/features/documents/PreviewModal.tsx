@@ -8,7 +8,7 @@ export function Modal({ title, onClose, children, footer, wide, narrow }: { titl
   }, [onClose])
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className={`modal${wide ? ' modal-wide' : ''}${narrow ? ' modal-narrow' : ''}`} role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
+      <div className={`modal doc-modal${wide ? ' modal-wide' : ''}${narrow ? ' modal-narrow' : ''}`} role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
         <header className="modal-head">
           <strong>{title}</strong>
           <button type="button" className="secondary" onClick={onClose} aria-label="Закрити">✕</button>
