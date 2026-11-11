@@ -13,7 +13,9 @@ import { fetchStudentRows } from '../lib/studentsApi'
 import type { StudentRow } from '../lib/studentsList'
 import { supabase } from '../lib/supabase'
 import { useLoad } from '../lib/useLoad'
+import { Fold } from '../components/ui/Fold'
 import { InfoTip } from '../components/ui/InfoTip'
+import { ScrollArea } from '../components/ui/ScrollArea'
 import { Select } from '../components/ui/Select'
 
 const FLOORS = [2, 3, 4, 5]
@@ -48,35 +50,57 @@ const VERSION_LABELS: Record<string, string> = {
   pending: 'очікує підтвердження', approved: 'підтверджено', superseded: 'застаріла', rejected: 'відхилено',
 }
 
-export function CollectPage() {
+/** Спільні дані вкладок «Не зіставлені» і «Налаштування»: завантаження + помилки дій. */
+function useCollect() {
   const { data, error, loading, reload } = useLoad(loadCollect, 'collect')
-  const { profile } = useAuth()
   const [actionError, setActionError] = useState<string | null>(null)
+  return { data, error, loading, reload, actionError, setActionError }
+}
 
+/** Вкладка «Не зіставлені»: одна біла плашка на висоту екрана, подання гортаються всередині (як на «Оновленні даних»). */
+export function UnmatchedTab() {
+  const { data, error, loading, reload, actionError, setActionError } = useCollect()
   const done = () => {
     notifyPendingChanged()
     reload()
   }
-
   return (
-    <section>
-      <h1>Збір анкет</h1>
-      <p className="muted">
-        Одне посилання на поверх: надішліть його в чат поверху, і кожен учень заповнить свою анкету. Анкета сама прикріпляється до учня в базі, якщо
-        ПІБ і дата народження збігаються точно; інакше потрапляє в «Не зіставлені». Підтверджує анкети завжди вихователь — на сторінці «Оновлення даних».
-      </p>
-      {loading && <p className="muted">Завантаження…</p>}
-      {error && <p className="error" role="alert">{error}</p>}
-      {actionError && <p className="error" role="alert">{actionError}</p>}
-      {data && (
-        <>
-          <FloorLinks data={data} onChanged={reload} onError={setActionError} />
-          <Unmatched data={data} onDone={done} onError={setActionError} />
-          <Progress data={data} />
-          {profile?.role === 'admin' && <ProfessionsPanel />}
-          <Journal data={data} />
-        </>
-      )}
+    <section className="fill-page st-page ap-page">
+      <ScrollArea className="st-scroll ap-scroll" body="ap-body">
+        {loading && <p className="muted">Завантаження…</p>}
+        {error && <p className="error" role="alert">{error}</p>}
+        {actionError && <p className="error" role="alert">{actionError}</p>}
+        {data && <Unmatched data={data} onDone={done} onError={setActionError} />}
+      </ScrollArea>
+    </section>
+  )
+}
+
+/** Вкладка «Налаштування»: посилання по поверхах (за замовчуванням згорнуті), статистика, журнал, професії. */
+export function SettingsTab() {
+  const { data, error, loading, reload, actionError, setActionError } = useCollect()
+  const { profile } = useAuth()
+  return (
+    <section className="fill-page st-page ap-page settings-tab">
+      <ScrollArea className="st-scroll ap-scroll" body="ap-body">
+        {loading && <p className="muted">Завантаження…</p>}
+        {error && <p className="error" role="alert">{error}</p>}
+        {actionError && <p className="error" role="alert">{actionError}</p>}
+        {data && (
+          <>
+            <Fold id="set-floors" title="Посилання по поверхах">
+              <p className="muted small">
+                Одне посилання на поверх: надішліть його в чат поверху, і кожен учень заповнить свою анкету. Анкета сама прикріпляється до учня в базі,
+                якщо ПІБ і дата народження збігаються точно; інакше потрапляє у вкладку «Не зіставлені». Підтверджує анкети завжди вихователь — на вкладці «Оновлення даних».
+              </p>
+              <FloorLinks data={data} onChanged={reload} onError={setActionError} />
+            </Fold>
+            <Fold id="set-progress" title="Хто ще не заповнив" defaultOpen><Progress data={data} /></Fold>
+            <Fold id="set-journal" title="Хто заповнив (журнал)" defaultOpen><Journal data={data} /></Fold>
+            {profile?.role === 'admin' && <Fold id="set-prof" title="Професії для анкети" defaultOpen><ProfessionsPanel /></Fold>}
+          </>
+        )}
+      </ScrollArea>
     </section>
   )
 }
@@ -185,20 +209,14 @@ function FloorLinks({ data, onChanged, onError }: { data: Data; onChanged: () =>
 
 function Unmatched({ data, onDone, onError }: { data: Data; onDone: () => void; onError: (m: string | null) => void }) {
   const queue = data.subs.filter((s) => s.status === 'unmatched').slice().reverse()
+  if (queue.length === 0) return <p className="muted">Усі подані анкети зіставлено.</p>
   return (
-    <section className="panel" aria-labelledby="unmatched-h">
-      <h2 id="unmatched-h">Не зіставлені ({queue.length})</h2>
-      {queue.length === 0 ? (
-        <p className="muted">Усі подані анкети зіставлено.</p>
-      ) : (
-        <>
-          <p className="muted small">Не вдалося точно знайти учня за ПІБ і датою народження (помилка в написанні, інша дата, є тезка, учня ще немає в базі).</p>
-          {queue.map((s) => (
-            <UnmatchedCard key={s.id} sub={s} students={data.students} onDone={onDone} onError={onError} />
-          ))}
-        </>
-      )}
-    </section>
+    <>
+      <p className="muted small unm-intro">Не вдалося точно знайти учня за ПІБ і датою народження (помилка в написанні, інша дата, є тезка, учня ще немає в базі).</p>
+      {queue.map((s) => (
+        <UnmatchedCard key={s.id} sub={s} students={data.students} onDone={onDone} onError={onError} />
+      ))}
+    </>
   )
 }
 
