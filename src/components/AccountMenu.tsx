@@ -64,8 +64,7 @@ export function AccountMenu({ variant }: { variant: 'rail' | 'tab' }) {
         onPointerEnter={hoverIn} onPointerLeave={hoverOut}
         onClick={() => { if (open && !hoverMode.current) setOpen(false); else { hoverMode.current = false; setOpen(true) } }}
       >
-        <Icon name="user" />
-        {variant === 'tab' && <span>Акаунт</span>}
+        <Icon name="user" size={variant === 'tab' ? 24 : undefined} />
       </button>
       {open && pos && createPortal(
         <div ref={pop} className="account-pop" role="menu" style={pos} onPointerEnter={hoverIn} onPointerLeave={hoverOut}>
