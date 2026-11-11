@@ -150,3 +150,6 @@ button.link { background: none; border: 0; color: var(--outInk); padding: 0; tex
 @media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
   .documents .tpl-row .tpl-icon[data-preview] { display: none; }
 }
+
+/* Форма «Новий учень» у попапі «Гуртожитку»: кнопки не липнуть до низу сторінки, а лежать в кінці форми */
+.modal .edit-form .form-actions { position: static; bottom: auto; padding: 16px 0 0; background: none; border: 0; box-shadow: none; border-radius: 0; }

@@ -19,8 +19,11 @@ interface FormState {
 }
 const EMPTY: FormState = { last_name: '', first_name: '', patronymic: '', birth_date: '', grade: '9', status: 'active' }
 
+/** Режим вікна (попап «Гуртожитку»): без заголовка сторінки; скасування закриває вікно, після створення — відкриваємо картку. */
+export interface EmbeddedEdit { onClose: () => void; onCreated: (id: string) => void }
+
 /** Створення (/students/new) і редагування (/students/:id/edit) базових даних учня. */
-export function StudentEditPage() {
+export function StudentEditPage({ embedded }: { embedded?: EmbeddedEdit }) {
   const { id } = useParams<{ id: string }>()
   const { profile } = useAuth()
   const canEdit = profile?.role === 'admin' || profile?.role === 'educator'
@@ -44,10 +47,10 @@ export function StudentEditPage() {
         grade: String(s.grade), status: isStudentStatus(s.status) ? s.status : 'active',
       }
     : EMPTY
-  return <EditForm key={id ?? 'new'} id={id} initial={initial} placed={existing.data?.placed ?? false} />
+  return <EditForm key={id ?? 'new'} id={id} initial={initial} placed={existing.data?.placed ?? false} embedded={embedded} />
 }
 
-function EditForm({ id, initial, placed }: { id?: string; initial: FormState; placed: boolean }) {
+function EditForm({ id, initial, placed, embedded }: { id?: string; initial: FormState; placed: boolean; embedded?: EmbeddedEdit }) {
   const navigate = useNavigate()
   const [f, setF] = useState<FormState>(initial)
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
@@ -103,7 +106,8 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
       }
       setSaving(false)
       if (partial) { setCreatedId(data.id); return setServerError(`Учня створено, але ${partial}`) }
-      navigate(`/students/${data.id}`)
+      if (embedded) embedded.onCreated(data.id)
+      else navigate(`/students/${data.id}`)
       return
     }
     const { error } = await supabase.from('students').update(base).eq('id', id)
@@ -150,10 +154,12 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
   )
   const actions = (
     <>
-      {serverError && <p className="error" role="alert">{serverError}{createdId && <> <Link to={`/students/${createdId}`}>Картка</Link></>}</p>}
+      {serverError && <p className="error" role="alert">{serverError}{createdId && (embedded ? <> <button type="button" className="secondary" onClick={() => embedded.onCreated(createdId)}>Відкрити картку</button></> : <> <Link to={`/students/${createdId}`}>Картка</Link></>)}</p>}
       <div className="row form-actions">
         <button type="submit" disabled={saving || !!createdId}>{saving ? 'Зберігаємо…' : 'Зберегти'}</button>
-        <Link className="btn secondary" to={id ? `/students/${id}` : '/students'}>Скасувати</Link>
+        {embedded
+          ? <button type="button" className="secondary" onClick={embedded.onClose}>Скасувати</button>
+          : <Link className="btn secondary" to={id ? `/students/${id}` : '/students'}>Скасувати</Link>}
       </div>
     </>
   )
@@ -171,7 +177,7 @@ function EditForm({ id, initial, placed }: { id?: string; initial: FormState; pl
   }
   return (
     <section>
-      <h1>Новий учень</h1>
+      {!embedded && <h1>Новий учень</h1>}
       <form className="form edit-form wide" onSubmit={(e) => void submit(e)} noValidate>
         <p className="muted small">Новий учень спочатку нерозподілений (без кімнати). Внесіть те, що відомо, — усі поля, крім прізвища, імені й класу, необов'язкові; решту учень заповнить за посиланням.</p>
         <div className="edit-grid">

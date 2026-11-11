@@ -300,3 +300,25 @@ function pupilsWord(n: number): string {
   if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'учні'
   return 'учнів'
 }
+
+/** «Нова кімната» з виду «Студенти»: діалог відкривається на місці, без переходу на «Кімнати». */
+export function NewRoomHost() {
+  const { creating } = useContext(HostelNewRoom)
+  return creating ? <NewRoomHostInner /> : null
+}
+
+function NewRoomHostInner() {
+  const { setCreating } = useContext(HostelNewRoom)
+  const { data, refresh } = useRoomsBoard()
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  async function add(v: { floor: number; number: string; capacity: number }) {
+    setBusy(true); setError(null)
+    const res = await createRoom(v)
+    setBusy(false)
+    if (res.error) return setError(describeError(res.error))
+    setCreating(false)
+    void refresh()
+  }
+  return <NewRoomDialog rooms={data?.rooms ?? []} busy={busy} error={error} onCreate={(v) => void add(v)} onCancel={() => setCreating(false)} />
+}

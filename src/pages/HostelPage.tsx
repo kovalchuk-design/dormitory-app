@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { Navigate, NavLink, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, NavLink, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import { ActionMenu, type ActionItem } from '../components/ui/ActionMenu'
 import { Drawer } from '../components/ui/Drawer'
-import { RoomsPage } from '../features/rooms/RoomsPage'
+import { Modal } from '../features/documents/PreviewModal'
+import { NewRoomHost, RoomsPage } from '../features/rooms/RoomsPage'
 import { HostelNewRoom, HostelStudentCard } from './hostelContext'
+import { StudentEditPage } from './StudentEditPage'
 import { StudentCardPage } from './StudentCardPage'
 import { StudentsPage } from './StudentsPage'
 import { useIsMobile } from '../features/students-list/logic'
@@ -13,16 +15,17 @@ import { useIsMobile } from '../features/students-list/logic'
 export function HostelPage() {
   const { view } = useParams<{ view: string }>()
   const { profile } = useAuth()
-  const navigate = useNavigate()
   const isMobile = useIsMobile()
   const canEdit = profile?.role === 'admin' || profile?.role === 'educator'
   const isAdmin = profile?.role === 'admin'
   const [creating, setCreating] = useState(false)
   const [openId, setOpenId] = useState<string | null>(null)
+  const [addingStudent, setAddingStudent] = useState(false)
+  const [reloadKey, setReloadKey] = useState(0)
 
   const addItems: ActionItem[] = [
-    ...(canEdit ? [{ label: 'Учня', to: '/students/new' }] : []),
-    ...(isAdmin ? [{ label: 'Кімнату', onClick: () => { setCreating(true); if (view !== 'rooms') navigate('/hostel/rooms') } }] : []),
+    ...(canEdit ? [{ label: 'Учня', onClick: () => setAddingStudent(true) }] : []),
+    ...(isAdmin ? [{ label: 'Кімнату', onClick: () => setCreating(true) }] : []),
   ]
 
   if (view !== 'students' && view !== 'rooms') return <Navigate to="/hostel/rooms" replace />
@@ -42,7 +45,13 @@ export function HostelPage() {
       </div>
         <HostelNewRoom.Provider value={{ creating, setCreating }}>
           <HostelStudentCard.Provider value={{ openId, open: setOpenId }}>
-            <div className="hostel-view">{view === 'rooms' ? <RoomsPage /> : <StudentsPage />}</div>
+            <div className="hostel-view" key={reloadKey}>{view === 'rooms' ? <RoomsPage /> : <StudentsPage />}</div>
+            {view === 'students' && <NewRoomHost />}
+            {addingStudent && (
+              <Modal title="Новий учень" onClose={() => setAddingStudent(false)}>
+                <StudentEditPage embedded={{ onClose: () => setAddingStudent(false), onCreated: (id) => { setAddingStudent(false); setReloadKey((k) => k + 1); setOpenId(id) } }} />
+              </Modal>
+            )}
             {openId && (
               <Drawer label="Картка учня" onClose={() => setOpenId(null)}>
                 <StudentCardPage studentId={openId} embedded />
