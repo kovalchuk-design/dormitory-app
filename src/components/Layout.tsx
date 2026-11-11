@@ -21,7 +21,7 @@ export function Layout() {
   // картка учня (/students/…) належить розділу «Гуртожиток»
   const navClass = (to: string, base: string) => ({ isActive }: { isActive: boolean }) =>
     `${base}${isActive || (to === '/hostel' && pathname.startsWith('/students')) ? ' active' : ''}`
-  const items = navItemsForRole(profile?.role)
+  const items = navItemsForRole(profile?.role).filter((i) => !i.inAccountMenu)
   const counts = useQueueCounts(profile?.role === 'admin')
 
 
