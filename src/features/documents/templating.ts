@@ -339,6 +339,14 @@ export async function renderDocxTemplate(buf: ArrayBuffer | Uint8Array, data: Re
   }
 }
 
+/** Чи є в .docx хоч якийсь текст (порожній результат означає, що шаблон і дані не збіглися, напр. стара версія сторінки). */
+export async function docxHasText(source: Blob | ArrayBuffer | Uint8Array): Promise<boolean> {
+  const buf = source instanceof Blob ? await source.arrayBuffer() : source
+  const zip = await loadZip(buf)
+  const xml = zip.file('word/document.xml')?.asText() ?? ''
+  return /<w:t(?: [^>]*)?>[^<]*\S[^<]*<\/w:t>/.test(xml)
+}
+
 /** Готовий до вставки у Word фрагмент для загального поля довідки. */
 export function placeholderSnippet(key: string): string {
   if (key === 'students') return '{{#students}}…{{/students}}'

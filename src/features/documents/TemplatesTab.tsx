@@ -16,7 +16,7 @@ import { Modal } from './PreviewModal'
 import { PreviewPane } from './PreviewPane'
 import { downloadName, validateUploadFile } from './filters'
 import { canEditTemplates } from './permissions'
-import { buildTemplateData, checkTemplate, fullName, renderDocxTemplate } from './templating'
+import { buildTemplateData, checkTemplate, docxHasText, fullName, renderDocxTemplate } from './templating'
 import type { TemplateRow } from './types'
 import { MultiSelect, type MultiOption } from '../../components/ui/MultiSelect'
 
@@ -339,6 +339,9 @@ function Autofill({ template, lib }: { template: TemplateRow; lib: Library }) {
         yearName: lib.years.find((y) => y.is_current)?.name ?? null,
       })
       const blob = await renderDocxTemplate(buf, data)
+      if (!(await docxHasText(blob))) {
+        throw new Error('Документ вийшов порожнім. Найімовірніше, відкрита стара версія сторінки: оновіть її (Ctrl+Shift+R) і сформуйте знову.')
+      }
       const chosenFloors = [...new Set(selected.map((p) => p.floor))]
       const suffix =
         selected.length === 1 ? fullName(selected[0]) : chosenFloors.length === 1 && chosenFloors[0] != null ? `${chosenFloors[0]} поверх, ${selected.length} учнів` : `${selected.length} учнів`

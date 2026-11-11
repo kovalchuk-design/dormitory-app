@@ -169,3 +169,13 @@ describe('groupByFloor (шаблон «на ніч»: сторінка = пов�
     expect(g[0].roomsRight.map((r) => r.room)).toEqual(['202'])
   })
 })
+
+describe('docxHasText', () => {
+  it('відрізняє порожній результат від документа з текстом', async () => {
+    const { docxHasText } = await import('./templating')
+    const filled = await renderDocxTemplate(buildDocx(p('{{#items}}Рядок {{n}}{{/items}}')), { items: [{ n: '1' }] })
+    expect(await docxHasText(filled)).toBe(true)
+    const empty = await renderDocxTemplate(buildDocx(p('{{#items}}Рядок {{n}}{{/items}}')), { items: [] })
+    expect(await docxHasText(empty)).toBe(false)
+  })
+})
