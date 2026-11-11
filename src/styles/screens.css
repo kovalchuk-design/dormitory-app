@@ -453,3 +453,33 @@ button.rm-pupil-name { font-size: 13.5px; }
 .forms.fill-page > .forms-view { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
 .forms-view > .fill-page { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
 .forms label.check.forms-aside { margin-left: auto; }
+
+/* ---- «Не зіставлені»: ліворуч коротка анкета учня, праворуч зіставлення та дії ---- */
+.unm { padding: 16px 20px; }
+.unm-head h3 { font-size: 17px; margin: 0 0 8px; letter-spacing: 0; }
+.unm-head .reason { margin: 0 0 12px; padding: 8px 14px; border-radius: 14px; font-size: 14px; }
+.unm-grid { display: grid; grid-template-columns: minmax(16rem, 5fr) 7fr; gap: 20px; align-items: start; }
+.unm-answers, .unm-actions { min-width: 0; background: var(--surface); border-radius: 20px; padding: 14px 16px; }
+.unm-answers h4, .unm-actions h4 { margin: 0 0 8px; font-size: 13px; color: var(--text2Hi); font-weight: 600; }
+.unm-answers dl.kv.compact { gap: 0; }
+.unm-answers dl.kv.compact > div { display: grid; grid-template-columns: minmax(6rem, 9rem) 1fr; gap: 4px 12px; padding: 7px 0; border-bottom: 1px solid var(--border); align-items: baseline; }
+.unm-answers dl.kv.compact > div:last-child { border-bottom: 0; }
+.unm-answers dl.kv.compact dt { font-size: 12px; }
+.unm-answers dl.kv.compact dd { font-size: 14px; }
+.unm-answers .link { margin-top: 6px; }
+.unm-actions > label { margin-bottom: 8px; }
+.unm-actions ul.plain { margin-bottom: 12px; }
+.candidate { align-items: center; flex-wrap: nowrap; gap: 12px; padding: 6px 8px 6px 12px; min-height: 52px; }
+.candidate-text { display: grid; gap: 0; min-width: 0; }
+.candidate-text strong { font-size: 14px; }
+.unm-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.unm-buttons .inline { margin-right: auto; }
+.unm-buttons button { min-height: 40px; font-size: 14px; }
+@media (max-width: 980px) { .unm-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) {
+  .unm { padding: 12px; }
+  .unm-answers dl.kv.compact > div { grid-template-columns: 1fr; gap: 0; }
+  .unm-answers, .unm-actions { padding: 12px; }
+  .candidate { flex-wrap: wrap; }
+  .candidate button { width: 100%; }
+}
