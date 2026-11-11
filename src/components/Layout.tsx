@@ -1,3 +1,4 @@
+import { BrandMark } from './BrandMark'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import { useQueueCounts } from '../lib/pending'
@@ -37,7 +38,7 @@ export function Layout() {
   return (
     <div className="app">
       <nav className="rail" aria-label="Головна навігація">
-        <span className="rail-logo" aria-hidden="true"><Icon name="bed" size={22} /></span>
+        <span className="rail-logo" aria-hidden="true"><BrandMark size={34} /></span>
         {items.map((i) => i.disabled ? (
           <span key={i.to} className="rail-btn is-disabled" role="link" aria-disabled="true" title={`${i.label} — ще не доступно`}>
             <Icon name={NAV_ICONS[i.to] ?? 'star'} />

@@ -4,7 +4,7 @@
   position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 8px;
   padding: 20px 0; background: var(--rail); border-right: 1px solid var(--railBorder); z-index: 20; overflow: visible;
 }
-.rail-logo { width: 44px; height: 44px; margin-bottom: 12px; display: grid; place-items: center; border-radius: 50%; background: var(--out); color: #fff; }
+.rail-logo { width: 44px; height: 44px; margin-bottom: 12px; display: grid; place-items: center; } /* знак з favicon без фону, прямо на чорній панелі */
 .rail-spacer { flex: 1; }
 .rail-btn {
   position: relative; padding: 0; min-height: 44px; border: 0; flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%;
