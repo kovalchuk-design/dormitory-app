@@ -22,7 +22,7 @@ const CELLS = [
   ['{{full_name}}'],
   ['{{birth_date}}'],
   ['{{room}}'],
-  ['{{group_number}}, «{{profession}}»'],
+  ['{{group_profession}}'],
   ['{{curators}}'],
   ['{{address}}', '{{phone_line}}'],
   ['{{parents}}'],
@@ -41,6 +41,17 @@ const sample = rows[1]
 const cells = sample.match(/<w:tc>[\s\S]*?<\/w:tc>/g) ?? []
 if (cells.length !== CELLS.length) throw new Error(`Очікувалось ${CELLS.length} колонок, у файлі ${cells.length}`)
 
+// Заголовок колонки «Куратор групи» → два рядки: «Куратор групи,» / «майстер групи» (як у сусідніх колонок з двома рядками).
+const headerCells = rows[0].match(/<w:tc>[\s\S]*?<\/w:tc>/g) ?? []
+const curatorHead = headerCells[5]
+let newHead = rows[0]
+if (curatorHead && curatorHead.includes('Куратор групи')) {
+  const para = /<w:p[ >][\s\S]*?<\/w:p>/.exec(curatorHead)[0]
+  const first = para.replace(/(<w:t[^>]*>)[^<]*(<\/w:t>)/, '$1Куратор групи,$2')
+  const second = para.replace(/(<w:t[^>]*>)[^<]*(<\/w:t>)/, '$1майстер групи$2')
+  newHead = rows[0].replace(curatorHead, curatorHead.replace(para, first + second))
+}
+
 const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
 const newCells = cells.map((cell, i) => {
@@ -58,7 +69,7 @@ const trOpen = /^<w:tr[^>]*>/.exec(sample)[0]
 const trPr = /<w:trPr>[\s\S]*?<\/w:trPr>/.exec(sample)?.[0] ?? ''
 const newRow = `${trOpen}${trPr}${newCells.join('')}</w:tr>`
 
-const newTable = rows.reduce((acc, r, idx) => (idx === 1 ? acc.replace(r, newRow) : idx > 1 ? acc.replace(r, '') : acc), table)
+const newTable = rows.reduce((acc, r, idx) => (idx === 0 ? acc.replace(r, newHead) : idx === 1 ? acc.replace(r, newRow) : acc.replace(r, '')), table)
 xml = xml.slice(0, tblStart) + newTable + xml.slice(tblEnd)
 zip.file('word/document.xml', xml)
 writeFileSync(output, zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' }))
