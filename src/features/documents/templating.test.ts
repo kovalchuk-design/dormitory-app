@@ -144,3 +144,15 @@ describe('groupByRoom (шаблон «на ніч»)', () => {
     expect(g[0].students.map((s) => s.index)).toEqual(['1', '2'])
   })
 })
+
+describe('splitRooms (2 колонки)', () => {
+  it('ліва колонка заповнюється по порядку, кімната не розривається', async () => {
+    const { groupByRoom, splitRooms } = await import('./templating')
+    const mk = (room: string, n: number) => Array.from({ length: n }, () => ({ room }))
+    const rooms = groupByRoom([...mk('500', 5), ...mk('501', 5), ...mk('502', 5)])
+    const { left, right } = splitRooms(rooms, 15) // кімната = 7 рядків; у 15 вміщуються дві
+    expect(left.map((r) => r.room)).toEqual(['500', '501'])
+    expect(right.map((r) => r.room)).toEqual(['502'])
+    expect(splitRooms(rooms, 3).left.map((r) => r.room)).toEqual(['500']) // завжди хоча б одна кімната
+  })
+})

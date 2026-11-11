@@ -16,6 +16,7 @@ if (!out) {
 }
 
 const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд']
+const DAYS_FULL = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П’ятниця', 'Субота', 'Неділя']
 const FONT = 'Times New Roman'
 const GRAY = 'E3E3E3'
 const PAGE = { w: 11906, h: 16838, top: 454, bottom: 454, left: 567, right: 567 }
@@ -59,44 +60,50 @@ const headRow = tr(
   { height: ROW_H },
 )
 const studentRow = tr(
-  tc(NAME_W, p('{{#students}}{{short_name}}', { keepNext: true })) +
+  tc(NAME_W, p('{{#students}}{{last_first}}', { keepNext: true })) +
     DAYS.map((_, i) => tc(DAY_W, p(i === 6 ? '{{/students}}' : '', { keepNext: true }))).join(''),
   { height: ROW_H },
 )
 const totalRow = tr(
-  tc(NAME_W, p('Разом', { bold: true }), { shd: GRAY }) + DAYS.map(() => tc(DAY_W, p(''), { shd: GRAY })).join(''),
+  tc(NAME_W, p(''), { shd: GRAY }) + DAYS.map(() => tc(DAY_W, p(''), { shd: GRAY })).join(''),
   { height: ROW_H },
 )
 const roomTable = `<w:tbl>${tblPr(COL_W)}${grid}${headRow}${studentRow}${totalRow}</w:tbl>`
 const spacer = p('', { sz: 6, line: 70 })
+// Колонка сторінки: цикл по кімнатах (таблиця + проміжок). Кімната — окрема вкладена таблиця, тому не розривається.
+const loop = (name) => p(`{{#${name}}}`, { sz: 2, line: 20 }) + roomTable + spacer + p(`{{/${name}}}`, { sz: 2, line: 20 })
+const noBorders = ['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map((x) => `<w:${x} w:val="nil"/>`).join('')
+const outerCell = (w, content) => `<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/><w:vAlign w:val="top"/></w:tcPr>${content}</w:tc>`
+const columnsTable =
+  `<w:tbl><w:tblPr><w:tblW w:w="${TEXT_W}" w:type="dxa"/><w:tblBorders>${noBorders}</w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar></w:tblPr>` +
+  `<w:tblGrid><w:gridCol w:w="${COL_W}"/><w:gridCol w:w="${GAP}"/><w:gridCol w:w="${COL_W}"/></w:tblGrid>` +
+  `<w:tr>${outerCell(COL_W, loop('roomsLeft'))}${outerCell(GAP, p(''))}${outerCell(COL_W, loop('roomsRight'))}</w:tr></w:tbl>`
 
-// ---- блок «Чергові на кухні» на всю ширину
+// ---- блок «Чергові на кухні» на всю ширину: на кожну добу — «Кімната» + «Прізвище та ім’я» чергового
+const KROOM_W = 420
 const KDAY_W = Math.floor(TEXT_W / 7)
-const kitchenGrid = `<w:tblGrid>${DAYS.map(() => `<w:gridCol w:w="${KDAY_W}"/>`).join('')}</w:tblGrid>`
-const kitchenHead = tr(DAYS.map((d) => tc(KDAY_W, p(d, { bold: true, jc: 'center', sz: 14 }), { shd: GRAY })).join(''), { height: 220 })
-const kitchenRow = tr(DAYS.map(() => tc(KDAY_W, p('', { sz: 14 }))).join(''), { height: 330 })
-const kitchenTable = `<w:tbl>${tblPr(KDAY_W * 7)}${kitchenGrid}${kitchenHead}${kitchenRow}${kitchenRow}${kitchenRow}</w:tbl>`
+const KNAME_W = KDAY_W - KROOM_W
+const kitchenGrid = `<w:tblGrid>${DAYS.map(() => `<w:gridCol w:w="${KROOM_W}"/><w:gridCol w:w="${KNAME_W}"/>`).join('')}</w:tblGrid>`
+const span2 = (w, content, shd) => `<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/><w:gridSpan w:val="2"/>${shd ? `<w:shd w:val="clear" w:color="auto" w:fill="${shd}"/>` : ''}<w:vAlign w:val="center"/></w:tcPr>${content}</w:tc>`
+const kitchenHead = tr(DAYS_FULL.map((d) => span2(KDAY_W, p(d, { bold: true, jc: 'center', sz: 14 }), GRAY)).join(''), { height: 220 })
+const kitchenSub = tr(DAYS.map(() => tc(KROOM_W, p('Кімн.', { sz: 12, jc: 'center' })) + tc(KNAME_W, p('Прізвище та ім’я', { sz: 12, jc: 'center' }))).join(''), { height: 200 })
+const kitchenRow = tr(DAYS.map(() => tc(KROOM_W, p('', { sz: 14 })) + tc(KNAME_W, p('', { sz: 14 }))).join(''), { height: 330 })
+const kitchenTable = `<w:tbl>${tblPr(KDAY_W * 7)}${kitchenGrid}${kitchenHead}${kitchenSub}${kitchenRow}${kitchenRow}${kitchenRow}</w:tbl>`
 
 const sect = (cols, type) =>
   `<w:sectPr>${type ? `<w:type w:val="${type}"/>` : ''}<w:pgSz w:w="${PAGE.w}" w:h="${PAGE.h}"/>` +
   `<w:pgMar w:top="${PAGE.top}" w:right="${PAGE.right}" w:bottom="${PAGE.bottom}" w:left="${PAGE.left}" w:header="227" w:footer="227" w:gutter="0"/>` +
   (cols === 2 ? `<w:cols w:num="2" w:space="${GAP}"/>` : '<w:cols w:space="708"/>') +
   `</w:sectPr>`
-const sectPara = (cols, type) => `<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="20" w:lineRule="exact"/>${sect(cols, type)}</w:pPr></w:p>`
 
 const body =
   p('СПИСОК учнів, які залишаються в гуртожитку на ніч', { sz: 24, bold: true, jc: 'center', after: 20 }) +
   p('{{floor}} поверх  ·  навчальний рік {{year}}  ·  тиждень з ____________ по ____________ 20___ р.', { sz: 18, jc: 'center', after: 60 }) +
-  sectPara(1) +
-  p('{{#rooms}}', { sz: 2, line: 20 }) +
-  roomTable +
-  spacer +
-  p('{{/rooms}}', { sz: 2, line: 20 }) +
-  sectPara(2, 'continuous') +
-  p('Чергові на кухні (записує вихователь від руки: ПІБ чергових учнів на кожну добу)', { sz: 14, bold: true, before: 60, after: 30, border: true, keepNext: true }) +
+  columnsTable +
+  p('Чергові на кухні (записує вихователь від руки: кімната та прізвище й ім’я чергового на кожну добу)', { sz: 14, bold: true, before: 60, after: 30, border: true, keepNext: true }) +
   kitchenTable +
   p('', { sz: 2, line: 20 }) +
-  sect(1, 'continuous')
+  sect(1)
 
 const NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
 const zip = new PizZip()

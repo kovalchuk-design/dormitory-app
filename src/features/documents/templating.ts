@@ -20,11 +20,14 @@ export const GLOBAL_PLACEHOLDERS: PlaceholderDoc[] = [
   { key: 'count', description: 'Кількість вибраних учнів', example: '24' },
   { key: 'student.*', description: 'Поля першого вибраного учня (див. нижче) — зручно для документа на одного учня', example: '{{student.full_name}}' },
   { key: 'rooms', description: 'Список кімнат з учнями — для циклу {{#rooms}}…{{/rooms}}; усередині: {{room}}, {{count}}, {{#students}}…{{/students}}', example: '' },
+  { key: 'roomsLeft', description: 'Кімнати лівої колонки сторінки (для макета в 2 колонки): {{#roomsLeft}}…{{/roomsLeft}}', example: '' },
+  { key: 'roomsRight', description: 'Кімнати правої колонки (продовження): {{#roomsRight}}…{{/roomsRight}}', example: '' },
   { key: 'students', description: 'Список усіх вибраних учнів — для циклу {{#students}}…{{/students}}', example: '' },
 ]
 
 export const STUDENT_PLACEHOLDERS: PlaceholderDoc[] = [
   { key: 'full_name', description: 'Прізвище Ім’я По батькові', example: 'Шевченко Тарас Григорович' },
+  { key: 'last_first', description: 'Прізвище Ім’я (без по батькові)', example: 'Шевченко Тарас' },
   { key: 'short_name', description: 'Прізвище І.П.', example: 'Шевченко Т.Г.' },
   { key: 'last_name', description: 'Прізвище', example: 'Шевченко' },
   { key: 'first_name', description: 'Ім’я', example: 'Тарас' },
@@ -110,6 +113,7 @@ export function buildStudentFields(s: StudentSource): Record<string, string> {
   return {
     full_name: fullName(s),
     short_name: shortName(s),
+    last_first: [s.last_name, s.first_name].filter(Boolean).join(' '),
     last_name: s.last_name,
     first_name: s.first_name,
     patronymic: s.patronymic ?? '',
@@ -162,6 +166,25 @@ export function groupByRoom(rows: Record<string, unknown>[]): { room: string; co
   return out
 }
 
+type RoomGroup = ReturnType<typeof groupByRoom>[number]
+
+/**
+ * Ділить кімнати на дві колонки сторінки: ліва заповнюється по порядку, доки вміщується `capacityRows` рядків
+ * (кімната = учні + 2 службові рядки), решта — праворуч. Кімната ніколи не розривається між колонками.
+ */
+export function splitRooms(rooms: RoomGroup[], capacityRows = 54): { left: RoomGroup[]; right: RoomGroup[] } {
+  const left: RoomGroup[] = []
+  let used = 0
+  let i = 0
+  for (; i < rooms.length; i++) {
+    const rows = rooms[i].students.length + 2
+    if (left.length > 0 && used + rows > capacityRows) break
+    left.push(rooms[i])
+    used += rows
+  }
+  return { left, right: rooms.slice(i) }
+}
+
 export function buildTemplateData(ctx: TemplateContext): Record<string, unknown> {
   // Список впорядковано за кімнатою (як у паперових формах), усередині кімнати — за алфавітом.
   const sorted = [...ctx.students].sort(
@@ -182,7 +205,11 @@ export function buildTemplateData(ctx: TemplateContext): Record<string, unknown>
     count: String(ctx.students.length),
     student: rows[0]?.student ?? buildStudentFields({ last_name: '', first_name: '', grade: 0 }),
     students: rows,
-    rooms: groupByRoom(rows),
+    ...(() => {
+      const rooms = groupByRoom(rows)
+      const cols = splitRooms(rooms)
+      return { rooms, roomsLeft: cols.left, roomsRight: cols.right }
+    })(),
   }
 }
 
