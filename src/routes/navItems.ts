@@ -7,6 +7,8 @@ export interface NavItem {
   roles?: Role[]
   /** Значок-лічильник біля пункту (дані дає Layout). */
   badge?: 'pending' | 'unmatched' | 'forms'
+  /** Пункт видно, але відкрити не можна (розділ ще не розпочато). */
+  disabled?: boolean
 }
 
 /**
@@ -17,8 +19,8 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/hostel', label: 'Гуртожиток' },
   { to: '/forms', label: 'Анкети', roles: ['admin'], badge: 'forms' }, // вкладки: «Збір анкет» і «Оновлення даних»
   { to: '/documents', label: 'Документи' },
-  { to: '/events', label: 'Івенти', roles: ['admin', 'staff_readonly'] },
-  { to: '/calendar', label: 'Календар', roles: ['admin', 'staff_readonly'] },
+  { to: '/events', label: 'Івенти', roles: ['admin', 'staff_readonly'], disabled: true },
+  { to: '/calendar', label: 'Календар', roles: ['admin', 'staff_readonly'], disabled: true },
   { to: '/admin', label: 'Адміністрування', roles: ['admin'] },
 ]
 
