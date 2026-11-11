@@ -1,13 +1,13 @@
 /* Мобільний список «Студенти»: компактні рядки без карток. Підключається лише разом із StudentsMobile. */
 .sl-bar { flex: none; display: grid; gap: 8px; padding: 10px 12px 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; }
 .sl-search { display: flex; gap: 8px; margin: 0; }
-.sl-search input[type='search'] { flex: 1 1 auto; min-width: 0; min-height: 44px; margin: 0; font-size: 16px; }
+.sl-search input[type='search'] { flex: 1 1 auto; min-width: 0; min-height: 48px; margin: 0; font-size: 16px; }
 .sl-filter-btn { flex: none; position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 14px; background: transparent; color: var(--text); border: 1px solid var(--fieldBorder); font-size: 14px; }
 @media (hover: hover) { .sl-filter-btn:hover:not(:disabled) { background: var(--muted); opacity: 1; } }
 .sl-filter-btn:active:not(:disabled) { background: var(--muted); }
-.sl-badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--text); color: var(--surface); font-size: 12px; font-weight: 700; line-height: 20px; text-align: center; }
+.sl-badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--text); color: var(--surface); font-size: 12px; font-weight: 600; line-height: 20px; text-align: center; }
 .sl-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 2px; }
-.sl-chips::-webkit-scrollbar { display: none; }
+.sl-chips::-webkit-scrollbar, .sl-scroll::-webkit-scrollbar { display: none; }
 .sl-chip { flex: none; min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 999px; background: transparent; color: var(--text); border: 1px solid var(--fieldBorder); font-size: 14px; font-weight: 600; }
 /* ховер — лише для миші: на дотик він «залипав» і світлий фон при білому тексті робив вибраний чіп нечитабельним */
 @media (hover: hover) { .sl-chip:not(.on):hover:not(:disabled) { background: var(--muted); opacity: 1; } }
@@ -15,7 +15,7 @@
 .sl-count { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; font-size: 13px; color: var(--text2Hi); }
 .sl-reset { min-height: 44px; margin: -8px -6px; padding: 0 10px; background: none; border: 0; color: var(--outInk); font-size: 14px; font-weight: 600; }
 
-.sl-scroll { flex: 1 1 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.sl-scroll { flex: 1 1 0; min-height: 0; overflow-y: auto; scrollbar-width: none; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .sl-list { list-style: none; margin: 0; padding: 0; }
 .sl-list li { content-visibility: auto; contain-intrinsic-size: auto 57px; border-bottom: 1px solid var(--border); }
 .sl-row { display: flex; flex-direction: column; justify-content: center; gap: 1px; min-height: 56px; padding: 7px 4px; color: var(--text); text-decoration: none; -webkit-tap-highlight-color: transparent; }
@@ -28,7 +28,7 @@
 
 .sl-scrim { position: fixed; inset: 0; z-index: 150; display: flex; align-items: flex-end; background: var(--scrim); }
 .sl-sheet { width: 100%; max-height: 85dvh; display: flex; flex-direction: column; background: var(--surface); border-radius: 24px 24px 0 0; box-shadow: var(--shadowPop); outline: none; }
-.sl-sheet-head { flex: none; display: flex; align-items: center; justify-content: space-between; padding: 12px 12px 4px 20px; font-size: 18px; }
+.sl-sheet-head { flex: none; display: flex; align-items: center; justify-content: space-between; padding: 12px 12px 4px 20px; font-size: 20px; }
 .sl-sheet-body { flex: 1 1 auto; overflow-y: auto; padding: 4px 20px 12px; display: grid; gap: 16px; align-content: start; }
 .sl-sheet-body fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .sl-sheet-body legend { padding: 0; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text2Hi); }

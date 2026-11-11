@@ -4,7 +4,7 @@ export function NotFoundPage() {
   return (
     <section>
       <h1>Сторінку не знайдено</h1>
-      <Link to="/">На головну</Link>
+      <Link to="/" className="btn">На головну</Link>
     </section>
   )
 }
