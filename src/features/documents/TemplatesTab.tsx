@@ -105,11 +105,11 @@ export function TemplatesTab({ lib }: { lib: Library }) {
             ) : shownTemplates.length === 0 ? (
               <p className="muted">Нічого не знайдено.</p>
             ) : (
-              <ul className="tpl-list" role="radiogroup" aria-label="Шаблон для формування документа">
+              <ul className="tpl-list" role="group" aria-label="Шаблон для формування документа (можна вибрати один)">
                 {shownTemplates.map((t) => (
                   <li key={t.id} className={`tpl-row${t.id === selectedId ? ' selected' : ''}`}>
-                    <button type="button" role="radio" aria-checked={t.id === selectedId} className="tpl-pick" title={t.id === selectedId ? 'Зняти вибір' : 'Вибрати шаблон'} onClick={() => toggleUse(t)}>
-                      <span className="tpl-radio" aria-hidden="true" />
+                    <button type="button" role="checkbox" aria-checked={t.id === selectedId} className="tpl-pick" title={t.id === selectedId ? 'Зняти вибір' : 'Вибрати шаблон'} onClick={() => toggleUse(t)}>
+                      <span className="tpl-check" aria-hidden="true" />
                       <span className="tpl-title">{t.title}</span>
                     </button>
                     <button type="button" className="tpl-icon" aria-label={`Перегляд шаблону «${t.title}»`} title="Перегляд шаблону" onClick={() => setPreviewId(t.id)}>
