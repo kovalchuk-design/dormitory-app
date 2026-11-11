@@ -169,20 +169,26 @@ export function groupByRoom(rows: Record<string, unknown>[]): { room: string; co
 type RoomGroup = ReturnType<typeof groupByRoom>[number]
 
 /**
- * Ділить кімнати на дві колонки сторінки: ліва заповнюється по порядку, доки вміщується `capacityRows` рядків
- * (кімната = учні + 2 службові рядки), решта — праворуч. Кімната ніколи не розривається між колонками.
+ * Ділить кімнати на дві колонки сторінки по порядку: ліва — перші кімнати, права — продовження.
+ * Місце розриву підбирається так, щоб колонки були якомога рівнішими за висотою (кімната = учні + 2 службові рядки);
+ * кімната ніколи не розривається між колонками.
  */
-export function splitRooms(rooms: RoomGroup[], capacityRows = 54): { left: RoomGroup[]; right: RoomGroup[] } {
-  const left: RoomGroup[] = []
-  let used = 0
-  let i = 0
-  for (; i < rooms.length; i++) {
-    const rows = rooms[i].students.length + 2
-    if (left.length > 0 && used + rows > capacityRows) break
-    left.push(rooms[i])
-    used += rows
+export function splitRooms(rooms: RoomGroup[]): { left: RoomGroup[]; right: RoomGroup[] } {
+  const rows = rooms.map((r) => r.students.length + 2)
+  const total = rows.reduce((a, b) => a + b, 0)
+  let best = rooms.length
+  let bestMax = Infinity
+  let acc = 0
+  for (let k = 0; k <= rooms.length; k++) {
+    const max = Math.max(acc, total - acc)
+    if (max < bestMax || (max === bestMax && k > best)) {
+      best = k
+      bestMax = max
+    }
+    if (k < rooms.length) acc += rows[k]
   }
-  return { left, right: rooms.slice(i) }
+  if (best === 0 && rooms.length > 0) best = 1
+  return { left: rooms.slice(0, best), right: rooms.slice(best) }
 }
 
 export function buildTemplateData(ctx: TemplateContext): Record<string, unknown> {
