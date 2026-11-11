@@ -328,14 +328,19 @@ function Progress({ data }: { data: Data }) {
         Заповнили: {active.length - left} з {active.length} активних учнів
         {since ? ` (з ${formatDate(since.toISOString())})` : ''}. Враховано будь-яку подану анкету, крім відхилених.
       </p>
-      {groups.length === 0 ? <p className="muted">Усі активні учні вже подали анкету.</p> : groups.map((g) => (
-        <details key={g.key}>
-          <summary>{g.title} — {g.students.length}</summary>
-          <ul className="plain">
-            {g.students.map((s) => <li key={s.id}><Link to={`/students/${s.id}`}>{fullName(s)}</Link>, {s.grade} кл.{s.room ? ` · кімн. ${s.room}` : ''}</li>)}
-          </ul>
-        </details>
-      ))}
+      {groups.length === 0 ? <p className="muted">Усі активні учні вже подали анкету.</p> : (
+        // поверхи в один ряд: угорі назва поверху, під нею — ті, хто ще не заповнив
+        <div className="prog-board">
+          {groups.map((g) => (
+            <section key={g.key} className="prog-col" aria-label={`${g.title}: ще не заповнили ${g.students.length}`}>
+              <header><strong>{g.title}</strong><span className="pill warn">{g.students.length}</span></header>
+              <ul className="plain">
+                {g.students.map((s) => <li key={s.id}><Link to={`/students/${s.id}`}>{fullName(s)}</Link>{s.room ? <span className="muted small"> · {s.room}</span> : null}</li>)}
+              </ul>
+            </section>
+          ))}
+        </div>
+      )}
     </section>
   )
 }
