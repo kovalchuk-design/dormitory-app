@@ -5,8 +5,8 @@ import { TemplatesTab } from './TemplatesTab'
 import './documents.css'
 
 type Tab = 'templates' | 'archive'
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'templates', label: 'Шаблони й автозаповнення' },
+const TABS: { id: Tab; label: string; more?: string }[] = [
+  { id: 'templates', label: 'Шаблони', more: ' й автозаповнення' },
   { id: 'archive', label: 'Архів' },
 ]
 
@@ -36,20 +36,23 @@ export function DocumentsPage() {
 
   return (
     <section className="documents">
-      <h1>Документи</h1>
-      <div className="tabs" role="tablist">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.id}
-            className={`tab${tab === t.id ? ' active' : ''}`}
-            onClick={() => setTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="hostel-head">
+        <h1>Документи</h1>
+        <div className="view-switch" role="tablist" aria-label="Розділи документів">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={tab === t.id}
+              className={tab === t.id ? 'active' : undefined}
+              onClick={() => setTab(t.id)}
+            >
+              {t.label}
+              {t.more && <span className="ph-hide">{t.more}</span>}
+            </button>
+          ))}
+        </div>
       </div>
       {error && <p className="error">{error}</p>}
       {!lib && !error && <p className="muted">Завантаження…</p>}

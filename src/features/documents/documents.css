@@ -52,6 +52,18 @@ button.link { background: none; color: var(--accent); padding: 0; text-decoratio
 .help code { background: #eef1f6; padding: .05rem .3rem; border-radius: 4px; }
 .copy-btn { padding: .2rem .6rem; font-size: .78rem; white-space: nowrap; }
 
+/* ---- Заголовок і перемикач розділів — як у «Гуртожитку» та «Анкетах» (.hostel-head + .view-switch) ---- */
+.documents { display: grid; gap: 16px; align-content: start; }
+.documents .view-switch button { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 18px; margin: 0; border: 0; border-radius: 10px; background: transparent; box-shadow: none; font-size: 13px; font-weight: 600; color: var(--text2Hi); transition: background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease); }
+.documents .view-switch button:hover { color: var(--text); opacity: 1; }
+.documents .view-switch button.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .documents .hostel-head { flex-wrap: wrap; }
+  .documents .view-switch { flex: 1 1 100%; }
+  .documents .view-switch button { flex: 1; padding: 0 12px; white-space: nowrap; }
+  .documents .view-switch .ph-hide { display: none; } /* на телефоні «Шаблони й автозаповнення» → «Шаблони» */
+}
+
 /* ---- Шаблони: дві колонки ---- */
 .tpl-layout { display: grid; grid-template-columns: minmax(0, 24rem) minmax(0, 1fr); gap: 1rem; align-items: start; }
 @media (max-width: 52rem) { .tpl-layout { grid-template-columns: minmax(0, 1fr); } }
