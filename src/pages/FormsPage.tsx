@@ -19,7 +19,7 @@ export function FormsPage() {
       <div className="hostel-head">
         <h1>Анкети</h1>
         <nav className="view-switch" aria-label="Вкладки">
-          <NavLink to="/forms/updates" replace>Оновлення даних{count(counts.pending, 'очікують підтвердження')}</NavLink>
+          <NavLink to="/forms/updates" replace>Оновлення<span className="ph-hide"> даних</span>{count(counts.pending, 'очікують підтвердження')}</NavLink>
           <NavLink to="/forms/unmatched" replace>Не зіставлені{count(counts.unmatched, 'не зіставлено з учнем')}</NavLink>
           <NavLink to="/forms/settings" replace>Налаштування</NavLink>
         </nav>

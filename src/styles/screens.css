@@ -523,3 +523,13 @@ button.rm-pupil-name { font-size: 13.5px; }
 .journal-open table.data th, .journal-open table.data td { padding: 8px 10px; }
 .journal-open table.data thead th { font-size: 12px; }
 .journal-open table.data td:first-child { white-space: nowrap; }
+
+/* вкладки «Анкети» на телефоні: три вкладки з лічильниками не вміщаються — стискаємо відступи й дозволяємо горизонтальну прокрутку (без смуги) */
+@media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
+  .forms .view-switch { overflow-x: auto; scrollbar-width: none; max-width: 100%; box-sizing: border-box; scroll-snap-type: x proximity; }
+  .forms .view-switch::-webkit-scrollbar { display: none; }
+  .forms .view-switch { gap: 2px; padding: 3px; }
+  .forms .view-switch a { flex: 0 0 auto; padding: 0 7px; font-size: 13px; scroll-snap-align: start; }
+  .forms .view-switch .count { margin-left: 6px; }
+  .forms .view-switch .ph-hide { display: none; } /* на телефоні «Оновлення даних» → «Оновлення», щоб усі вкладки з лічильниками вміщались */
+}
