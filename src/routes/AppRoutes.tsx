@@ -31,7 +31,7 @@ export function AppRoutes() {
           <Route path="students/new" element={<StudentEditPage />} />
           <Route path="students/:id" element={<StudentCardPage />} />
           <Route path="students/:id/edit" element={<StudentEditPage />} />
-          <Route path="forms" element={<Navigate to="/forms/collect" replace />} />
+          <Route path="forms" element={<Navigate to="/forms/unmatched" replace />} />
           <Route
             path="forms/:view"
             element={
@@ -41,7 +41,7 @@ export function AppRoutes() {
             }
           />
           <Route path="updates" element={<Navigate to="/forms/updates" replace />} />
-          <Route path="collect" element={<Navigate to="/forms/collect" replace />} />
+          <Route path="collect" element={<Navigate to="/forms/unmatched" replace />} />
           <Route path="rooms" element={<Navigate to="/hostel/rooms" replace />} />
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="password" element={<Navigate to="/hostel/rooms" replace />} />

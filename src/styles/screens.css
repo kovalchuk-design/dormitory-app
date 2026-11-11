@@ -485,3 +485,17 @@ button.rm-pupil-name { font-size: 13.5px; }
 }
 
 .st-body table.data td.cell-date { white-space: nowrap; font-size: 14px; }
+
+/* ---- «Анкети»: усі три вкладки — біла плашка на висоту екрана з прокруткою всередині ---- */
+.unm-intro { margin: 8px 0 12px; }
+.ap-body .unm { background: var(--muted); margin-bottom: 12px; }
+.settings-tab .ap-body > .fold-sec { border-top: 1px solid var(--border); }
+.settings-tab .ap-body > .fold-sec:first-child { border-top: 0; }
+.fold-sec > summary { list-style: none; display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0; font-size: 18px; font-weight: 600; letter-spacing: -.01em; cursor: pointer; }
+.fold-sec > summary::-webkit-details-marker { display: none; }
+.fold-sec > summary::after { content: ''; width: 10px; height: 10px; border: solid var(--text2); border-width: 0 2px 2px 0; transform: rotate(45deg); transition: transform var(--t-fast) var(--ease); margin-right: 6px; }
+.fold-sec[open] > summary::after { transform: rotate(-135deg); }
+.fold-body { padding: 0 0 20px; }
+/* вкладені розділи (колишні панелі) — без власної картки й дублювання заголовка */
+.fold-body .panel { background: none; border: 0; box-shadow: none; padding: 0; margin: 0; border-radius: 0; }
+.fold-body .panel > h2:first-child { display: none; }
