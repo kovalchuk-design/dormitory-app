@@ -95,8 +95,8 @@ export function SettingsTab() {
               </p>
               <FloorLinks data={data} onChanged={reload} onError={setActionError} />
             </Fold>
-            <Fold id="set-progress" title="Хто ще не заповнив" defaultOpen><Progress data={data} /></Fold>
-            {profile?.role === 'admin' && <Fold id="set-prof" title="Професії для анкети" defaultOpen><ProfessionsPanel /></Fold>}
+            {profile?.role === 'admin' && <Fold id="set-prof" title="Професії для анкети"><ProfessionsPanel /></Fold>}
+            <Fold id="set-progress" title="Хто ще не заповнив" always><Progress data={data} /></Fold>
             {/* журнал — без сірої плашки, відкритий на білому тлі: таблиця потребує всієї ширини */}
             <div className="journal-open"><Journal data={data} /></div>
           </>

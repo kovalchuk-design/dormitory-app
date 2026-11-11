@@ -533,3 +533,11 @@ button.rm-pupil-name { font-size: 13.5px; }
   .forms .view-switch .count { margin-left: 6px; }
   .forms .view-switch .ph-hide { display: none; } /* на телефоні «Оновлення даних» → «Оновлення», щоб усі вкладки з лічильниками вміщались */
 }
+
+/* налаштування: однакові відступи зверху й з боків; стрілка по центру плашки; завжди відкритий розділ без стрілки */
+.settings-tab .ap-scroll > .scrollrows { padding: 24px; }
+.fold-sec > summary::after { transform: translateY(-3px) rotate(45deg); }
+.fold-sec[open] > summary::after { transform: translateY(3px) rotate(-135deg); }
+.drawer .fold > summary::after { transform: translateY(-3px) rotate(45deg); }
+.drawer .fold[open] > summary::after { transform: translateY(3px) rotate(-135deg); }
+.fold-static > .fold-title { display: flex; align-items: center; min-height: 60px; margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
