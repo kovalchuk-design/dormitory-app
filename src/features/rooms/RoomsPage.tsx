@@ -1,5 +1,6 @@
 import { useContext, useEffect, useMemo, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { HostelNewRoom } from '../../pages/hostelContext'
+import { useAlarmMode } from '../../lib/mode'
 import { useAuth } from '../../auth/useAuth'
 import { Icon } from '../../components/ui/icons'
 import { ScrollArea } from '../../components/ui/ScrollArea'
@@ -72,8 +73,9 @@ function Pool({ pupils, lastRoom, canEdit, hint, isOver, draggingId, onDragStart
 export function RoomsPage() {
   const { profile } = useAuth()
   const role = profile?.role
-  const canEdit = role === 'admin' || role === 'educator'
-  const isAdmin = role === 'admin'
+  const { alarm } = useAlarmMode()
+  const canEdit = !alarm && (role === 'admin' || role === 'educator')
+  const isAdmin = !alarm && role === 'admin'
 
   const { data, error, loading, refresh } = useRoomsBoard()
   const [floorTab, setFloorTab] = useState<number>(profile?.floor ?? FLOORS[0])
@@ -190,7 +192,7 @@ export function RoomsPage() {
 
   return (
     <section className="rm-page fill-page">
-      {!canEdit && <p className="muted small">Режим перегляду: переміщення недоступні.</p>}
+      {!canEdit && !alarm && <p className="muted small">Режим перегляду: переміщення недоступні.</p>}
       {error && <p className="error" role="alert">{error}</p>}
       {notice && (
         <p className={notice.kind === 'error' ? 'error rm-notice' : 'rm-notice ok'} role="status" data-testid="notice">
@@ -199,7 +201,7 @@ export function RoomsPage() {
       )}
 
       <>
-        <Pool
+        {!alarm && <Pool
           pupils={data?.unplaced ?? []}
           lastRoom={data?.lastRoom ?? {}}
           canEdit={canEdit}
@@ -208,7 +210,7 @@ export function RoomsPage() {
           draggingId={dragging?.pupil.id ?? null}
           onDragStart={onDragStart}
           onMove={startPick}
-        />
+        />}
 
         <div className="rm-tabs" role="tablist" aria-label="Поверхи">
           {FLOORS.map((f) => (
@@ -239,6 +241,7 @@ export function RoomsPage() {
                     hint={hintFor({ kind: 'room', roomId: r.id })}
                     onMove={startPick}
                     onEdit={(room) => { setDialogError(null); setEditing(room) }}
+                    alarm={alarm}
                   />
                 ))}
                 {(byFloor.get(f) ?? []).length === 0 && <p className="muted small">Кімнат немає.</p>}

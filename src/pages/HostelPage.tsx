@@ -4,8 +4,6 @@ import { useAuth } from '../auth/useAuth'
 import { ActionMenu, type ActionItem } from '../components/ui/ActionMenu'
 import { Drawer } from '../components/ui/Drawer'
 import { Modal } from '../features/documents/PreviewModal'
-import { AlarmRooms } from '../features/rooms/AlarmRooms'
-import '../features/rooms/alarm.css'
 import { useAlarmMode } from '../lib/mode'
 import { NewRoomHost, RoomsPage } from '../features/rooms/RoomsPage'
 import { HostelNewRoom, HostelStudentCard } from './hostelContext'
@@ -34,25 +32,16 @@ export function HostelPage() {
 
   if (view !== 'students' && view !== 'rooms') return <Navigate to="/hostel/rooms" replace />
   if (alarm && view !== 'rooms') return <Navigate to="/hostel/rooms" replace />
-  if (alarm) {
-    return (
-      <section className="fill-page hostel">
-        <div className="hostel-head"><h1 className="hostel-title">Кімнати</h1></div>
-        <div className="hostel-view"><AlarmRooms /></div>
-      </section>
-    )
-  }
-
   return (
     <section className="fill-page hostel">
       <div className="hostel-head">
         <h1 className="hostel-title">Гуртожиток</h1>
-        <nav className="view-switch" aria-label="Вигляд">
+        {!alarm && <nav className="view-switch" aria-label="Вигляд">
           <NavLink to="/hostel/rooms" replace>Кімнати</NavLink>
           <NavLink to="/hostel/students" replace>Студенти</NavLink>
-        </nav>
+        </nav>}
         {/* На телефоні кнопку «+ Додати» прибрано (рішення власника): додавання учнів/кімнат — з десктопної версії */}
-        {!isMobile && <div className="hostel-actions">
+        {!isMobile && !alarm && <div className="hostel-actions">
           <ActionMenu label="+ Додати" items={addItems} />
         </div>}
       </div>

@@ -73,7 +73,7 @@ export function AccountMenu({ variant }: { variant: 'rail' | 'tab' }) {
           {profile && <div className="account-who"><strong>{profile.full_name}</strong><span className="muted small">{ROLE_LABELS[profile.role]}</span></div>}
           {adminItem && <Link role="menuitem" className="action-item" to={adminItem.to} onClick={() => setOpen(false)}><Icon name="gear" size={18} />{adminItem.label}</Link>}
           <button type="button" role="menuitem" className="action-item" onClick={cycle}><Icon name={THEME_ICONS[pref]} size={18} />{THEME_LABELS[pref]}</button>
-          <button type="button" role="menuitem" className="action-item" aria-pressed={alarm} onClick={() => { toggleAlarm(); setOpen(false) }}><Icon name="alarm" size={18} />{alarm ? 'Вимкнути режим «Тривога»' : 'Увімкнути режим «Тривога»'}</button>
+          <button type="button" role="menuitem" className="action-item" aria-pressed={alarm} onClick={() => { toggleAlarm(); setOpen(false) }}><Icon name="alarm" size={18} />{alarm ? 'Тривога викл' : 'Тривога вкл'}</button>
           {canElevate && <button type="button" role="menuitem" className="action-item" onClick={() => { setOpen(false); setElevate(true) }}><Icon name="settings" size={18} />Права адміністратора</button>}
           {canChangePassword && <button type="button" role="menuitem" className="action-item" onClick={() => { setOpen(false); setChangePw(true) }}><Icon name="link" size={18} />Змінити пароль</button>}
           <button type="button" role="menuitem" className="action-item" onClick={() => { setOpen(false); void signOut() }}><Icon name="logout" size={18} />Вийти</button>

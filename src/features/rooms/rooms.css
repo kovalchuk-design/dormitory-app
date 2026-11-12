@@ -64,3 +64,9 @@ body.rm-dragging, body.rm-dragging * { cursor: grabbing !important; user-select:
 .rm-floor h2.rm-floor-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .rm-floor-count { font-size: 13px; font-weight: 500; color: var(--text2Hi, inherit); white-space: nowrap; }
 @media (max-width: 760px), (pointer: coarse) and (max-height: 500px) { .rm-floor h2.rm-floor-head { display: none; } }
+
+/* Режим «Тривога»: згорнуті картки, шапка клікабельна, шеврон повертається */
+.rm-room.alarm > header { cursor: pointer; min-height: 40px; }
+.rm-room.alarm > header:focus-visible { outline: 2px solid var(--out); outline-offset: 2px; border-radius: 8px; }
+.rm-room.alarm .rm-chev { display: inline-flex; color: var(--text2); transition: transform var(--t-fast) var(--ease); }
+.rm-room.alarm.open .rm-chev { transform: rotate(180deg); }
