@@ -37,14 +37,10 @@ export function HostelPage() {
   const Wrap = round ? RoundProvider : Fragment
   return (
     <section className="fill-page hostel">
-      <div className="hostel-head">
+      {/* «Обхід»: перемикач Кімнати/Звіт — у нижньому меню (Layout); на телефоні шапки немає взагалі, щоб одразу бачити кімнати */}
+      {!(round && isMobile) && <div className="hostel-head">
         <h1 className="hostel-title">Гуртожиток</h1>
-        {round ? (
-          <nav className="view-switch" aria-label="Вигляд">
-            <NavLink to="/hostel/rooms" replace>Кімнати</NavLink>
-            <NavLink to="/hostel/report" replace>Звіт</NavLink>
-          </nav>
-        ) : (
+        {!round && (
           <nav className="view-switch" aria-label="Вигляд">
             <NavLink to="/hostel/rooms" replace>Кімнати</NavLink>
             <NavLink to="/hostel/students" replace>Студенти</NavLink>
@@ -54,7 +50,7 @@ export function HostelPage() {
         {!isMobile && !round && <div className="hostel-actions">
           <ActionMenu label="+ Додати" items={addItems} />
         </div>}
-      </div>
+      </div>}
       <Wrap>
         <HostelNewRoom.Provider value={{ creating, setCreating }}>
           <HostelStudentCard.Provider value={{ openId, open: setOpenId }}>

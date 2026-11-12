@@ -9,6 +9,8 @@ import { AccountMenu } from './AccountMenu'
 
 const NAV_ICONS: Record<string, IconName> = {
   '/hostel': 'bed',
+  '/hostel/rooms': 'bed',
+  '/hostel/report': 'file',
   '/forms': 'link',
   '/documents': 'file',
   '/events': 'star',
@@ -24,7 +26,9 @@ export function Layout() {
   const navClass = (to: string, base: string) => ({ isActive }: { isActive: boolean }) =>
     `${base}${isActive || (to === '/hostel' && pathname.startsWith('/students')) ? ' active' : ''}`
   const { round } = useRoundMode()
-  const items = navItemsForRole(profile?.role).filter((i) => !i.inAccountMenu && (!round || i.to === '/hostel'))
+  // «Обхід»: у нижньому меню / рейці лише «Кімнати» і «Звіт» (замість перемикача вгорі сторінки)
+  const ROUND_ITEMS: NavItem[] = [{ to: '/hostel/rooms', label: 'Кімнати' }, { to: '/hostel/report', label: 'Звіт' }]
+  const items = round ? ROUND_ITEMS : navItemsForRole(profile?.role).filter((i) => !i.inAccountMenu)
   const counts = useQueueCounts(profile?.role === 'admin')
 
 
