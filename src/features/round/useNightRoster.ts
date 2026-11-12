@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import { clearRoster, fetchRoster, setDuty, setPresent, type RosterRow } from './api'
+import { clearRoster, fetchRoster, purgeOldNights, setDuty, setPresent, type RosterRow } from './api'
 import { nightDate } from './night'
 
 export type Roster = Map<string, RosterRow>
@@ -26,6 +26,8 @@ export function useNightRoster() {
   }, [])
 
   useEffect(() => { void refresh() }, [night, refresh])
+  // дані перезаписуються: щойно настав новий вечір, попередні відмітки видаляємо
+  useEffect(() => { void purgeOldNights(night) }, [night])
   useEffect(() => {
     if (!error) return
     const t = setTimeout(() => setError(null), 4000)

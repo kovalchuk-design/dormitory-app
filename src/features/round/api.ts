@@ -36,3 +36,8 @@ export async function clearRoster(night: string): Promise<string | null> {
   const { error } = await supabase.from('night_roster').delete().eq('night_date', night)
   return error ? error.message : null
 }
+
+/** Історію вечорів не ведемо (звіт передають на папері): старі вечори стираються, лишається лише поточний. Помилки (наприклад, немає прав) ігноруємо. */
+export async function purgeOldNights(night: string): Promise<void> {
+  await supabase.from('night_roster').delete().lt('night_date', night)
+}
