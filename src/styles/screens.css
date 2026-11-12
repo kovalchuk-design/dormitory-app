@@ -543,3 +543,5 @@ button.rm-pupil-name { font-size: 14px; }
 .ap-item table.diff.merge .merge-result textarea { border-radius: 10px; }
 /* «не вибрана» стара відповідь у злитті: приглушена кольором, але читається (контраст ≥ 4.5:1), без opacity */
 .pick.off span, .ap-item .pick.off span { color: var(--text2Hi); opacity: 1; font-weight: 400; }
+/* Шапка «Гуртожитку» завжди висотою перемикача (48), щоб вміст у звичайному режимі й у «Тривозі» починався на одному рівні */
+.hostel-head { min-height: 48px; }

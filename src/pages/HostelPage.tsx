@@ -34,7 +34,8 @@ export function HostelPage() {
   if (alarm && view !== 'rooms') return <Navigate to="/hostel/rooms" replace />
   return (
     <section className="fill-page hostel">
-      <div className="hostel-head">
+      {/* «Тривога» на телефоні: шапка порожня (заголовка й перемикача немає) — не рендеримо, щоб вміст починався на тому ж рівні, що й перемикач у звичайному режимі */}
+      {!(alarm && isMobile) && <div className="hostel-head">
         <h1 className="hostel-title">Гуртожиток</h1>
         {!alarm && <nav className="view-switch" aria-label="Вигляд">
           <NavLink to="/hostel/rooms" replace>Кімнати</NavLink>
@@ -44,7 +45,7 @@ export function HostelPage() {
         {!isMobile && !alarm && <div className="hostel-actions">
           <ActionMenu label="+ Додати" items={addItems} />
         </div>}
-      </div>
+      </div>}
         <HostelNewRoom.Provider value={{ creating, setCreating }}>
           <HostelStudentCard.Provider value={{ openId, open: setOpenId }}>
             <div className="hostel-view" key={reloadKey}>{view === 'rooms' ? <RoomsPage /> : <StudentsPage />}</div>
