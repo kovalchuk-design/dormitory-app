@@ -23,7 +23,8 @@ export function RoundReport() {
         const pupils = data.placed.filter((p) => p.roomId === room.id && roster.has(p.pupil.id)).map((p) => p.pupil).sort(comparePupils)
         return { room, pupils }
       }).filter((r) => r.pupils.length > 0)
-      const duty = [...roster.values()].filter((r) => r.isDuty).map((r) => pupilById.get(r.studentId)).filter((x): x is { pupil: Pupil; roomId: string } => !!x && roomById.get(x.roomId)?.floor === f).map((x) => x.pupil).sort(comparePupils)
+      const duty = [...roster.values()].filter((r) => r.isDuty).map((r) => pupilById.get(r.studentId)).filter((x): x is { pupil: Pupil; roomId: string } => !!x && roomById.get(x.roomId)?.floor === f)
+        .map((x) => ({ pupil: x.pupil, room: roomById.get(x.roomId)?.number ?? '' })).sort((a, b) => a.room.localeCompare(b.room, 'uk', { numeric: true }) || comparePupils(a.pupil, b.pupil))
       return { floor: f, rooms, duty, count: rooms.reduce((n, r) => n + r.pupils.length, 0) }
     })
     return { floors, total: floors.reduce((n, f) => n + f.count, 0) }
@@ -46,7 +47,10 @@ export function RoundReport() {
             </div>
           ))}
           {f.rooms.length === 0 && <p className="muted rd-none">Нікого</p>}
-          <p className="rd-duty"><strong>Чергові на кухні:</strong> {f.duty.length ? f.duty.map(pupilName).join(', ') : '—'}</p>
+          <div className="rd-duty">
+            <strong>Чергові на кухні</strong>
+            {f.duty.length ? <ul>{f.duty.map((d) => <li key={d.pupil.id}><span className="rd-duty-room">Кімната {d.room}</span> {pupilName(d.pupil)}</li>)}</ul> : <span className="muted"> —</span>}
+          </div>
         </section>
       ))}
       <p className="rd-total"><strong>Усього залишається на ніч:</strong> {model.total} {word(model.total)}</p>

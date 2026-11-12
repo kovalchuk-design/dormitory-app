@@ -25,5 +25,7 @@
 .rd-room h3 { font-size: 16px; margin: 0; }
 .rd-room ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: 15px; }
 .rd-none { margin: 0; }
-.rd-duty { margin: 0; padding-top: 12px; border-top: 1px solid var(--border); font-size: 15px; }
+.rd-duty { margin: 0; padding-top: 12px; border-top: 1px solid var(--border); font-size: 15px; display: grid; gap: 4px; }
+.rd-duty ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.rd-duty-room { display: inline-block; min-width: 96px; color: var(--text2Hi); }
 .rd-total { margin: 0; font-size: 16px; }
