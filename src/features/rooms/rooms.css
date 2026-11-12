@@ -80,3 +80,5 @@ body.rm-dragging, body.rm-dragging * { cursor: grabbing !important; user-select:
   .rm-floor .rm-floor-scroll > .scrollrows { padding: 12px 12px 16px 12px; }
   .rm-pool .rm-pool-scroll > .scrollrows { padding: 6px; }
 }
+/* «Обхід»: кімната неактивна (приглушена), доки в ній не відмічено жодного учня; перший тумблер робить її активною */
+.rm-room.round.idle { opacity: .6; }

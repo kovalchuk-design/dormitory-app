@@ -26,7 +26,8 @@ export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggin
   const [open, setOpen] = useState(false)
   const nightRound = useRound()
   const state = roomState(room)
-  const cls = ['rm-room', `is-${state}`, hint === 'ok' && 'hint-ok', hint === 'blocked' && 'hint-blocked', isOver && 'over', round && 'round', round && open && 'open']
+  const presentCount = round && nightRound ? pupils.filter((p) => nightRound.roster.has(p.id)).length : 0
+  const cls = ['rm-room', `is-${state}`, hint === 'ok' && 'hint-ok', hint === 'blocked' && 'hint-blocked', isOver && 'over', round && 'round', round && open && 'open', round && nightRound && presentCount === 0 && 'idle']
     .filter(Boolean)
     .join(' ')
   return (
@@ -37,8 +38,8 @@ export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggin
         <strong>{room.number}</strong>
         {round && nightRound ? (
           // «Обхід»: скільки учнів залишається на ніч / скільки записано в кімнаті
-          <span className="rm-badge" data-testid={`occ-${room.number}`} title="Залишається на ніч / записано в кімнаті">
-            {pupils.filter((p) => nightRound.roster.has(p.id)).length}/{pupils.length}
+          <span className={`rm-badge${presentCount > 0 ? ' free' : ''}`} data-testid={`occ-${room.number}`} title="Залишається на ніч / записано в кімнаті">
+            {presentCount}/{pupils.length}
           </span>
         ) : (
           <span className={`rm-badge ${state}`} data-testid={`occ-${room.number}`}>
