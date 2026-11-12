@@ -70,9 +70,12 @@ export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggin
                       onChange={(e) => void nightRound.togglePresent(p.id, room.id, e.target.checked)} />
                     <span className="rm-pupil-name">{pupilName(p)}</span>
                   </label>
-                  <button type="button" role="switch" className="rd-switch duty" aria-checked={!!row?.isDuty} disabled={!on}
-                    aria-label={`Черговий: ${pupilName(p)}`} title="Черговий"
-                    onClick={() => void nightRound.toggleDuty(p.id, !row?.isDuty)} />
+                  {/* перемикач «черговий» з'являється лише в учня, який залишається на ніч */}
+                  {on && (
+                    <button type="button" role="switch" className="rd-switch duty" aria-checked={!!row?.isDuty}
+                      aria-label={`Черговий: ${pupilName(p)}`} title="Черговий"
+                      onClick={() => void nightRound.toggleDuty(p.id, !row?.isDuty)} />
+                  )}
                 </li>
               )
             })
