@@ -70,3 +70,6 @@ body.rm-dragging, body.rm-dragging * { cursor: grabbing !important; user-select:
 .rm-room.alarm > header:focus-visible { outline: 2px solid var(--out); outline-offset: 2px; border-radius: 8px; }
 .rm-room.alarm .rm-chev { display: inline-flex; color: var(--text2); transition: transform var(--t-fast) var(--ease); }
 .rm-room.alarm.open .rm-chev { transform: rotate(180deg); }
+/* «Тривога»: відступи картки на крок нижче за шкалою §4 (8→6, 6→4, 4→2); висота шапки 40 — хіт-зона */
+.rm-room.alarm { padding: 6px 10px 4px; }
+.rm-room.alarm > header { margin-bottom: 2px; }
