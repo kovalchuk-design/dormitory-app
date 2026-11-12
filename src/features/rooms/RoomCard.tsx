@@ -35,9 +35,16 @@ export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggin
         {...(round ? { role: 'button', tabIndex: 0, 'aria-expanded': open, onClick: () => setOpen((o) => !o), onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen((o) => !o) } } } : {})}
       >
         <strong>{room.number}</strong>
-        <span className={`rm-badge ${state}`} data-testid={`occ-${room.number}`}>
-          {state === 'inactive' ? 'неактивна' : `${room.occupied}/${room.capacity}`}
-        </span>
+        {round && nightRound ? (
+          // «Обхід»: скільки учнів залишається на ніч / скільки записано в кімнаті
+          <span className="rm-badge" data-testid={`occ-${room.number}`} title="Залишається на ніч / записано в кімнаті">
+            {pupils.filter((p) => nightRound.roster.has(p.id)).length}/{pupils.length}
+          </span>
+        ) : (
+          <span className={`rm-badge ${state}`} data-testid={`occ-${room.number}`}>
+            {state === 'inactive' ? 'неактивна' : `${room.occupied}/${room.capacity}`}
+          </span>
+        )}
         <span className="rm-actions">
           {round && <span className="rm-chev" aria-hidden="true"><Icon name="chevron" size={16} /></span>}
           {isAdmin && !round && (
