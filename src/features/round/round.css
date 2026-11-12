@@ -37,3 +37,5 @@
 
 /* Позначка «черговий» на згорнутій картці кімнати: видно, де чергові, не розкриваючи кімнату */
 .rd-duty-tag { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px; background: var(--out-bg); color: var(--outInk); font-size: 12px; font-weight: 600; white-space: nowrap; }
+
+.rd-reset { width: 100%; }

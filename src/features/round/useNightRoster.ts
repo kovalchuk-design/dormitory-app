@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import { fetchRoster, setDuty, setPresent, type RosterRow } from './api'
+import { clearRoster, fetchRoster, setDuty, setPresent, type RosterRow } from './api'
 import { nightDate } from './night'
 
 export type Roster = Map<string, RosterRow>
@@ -61,5 +61,14 @@ export function useNightRoster() {
     if (err) { setRoster(before); setError(err) } else setError(null)
   }, [night, roster])
 
-  return { night, roster, error, loading, togglePresent, toggleDuty, refresh }
+  /** Скинути звіт поточного вечора. Повертає текст помилки або null. */
+  const reset = useCallback(async () => {
+    const err = await clearRoster(night)
+    if (err) { setError(err); return err }
+    setRoster(new Map())
+    setError(null)
+    return null
+  }, [night])
+
+  return { night, roster, error, loading, togglePresent, toggleDuty, reset, refresh }
 }

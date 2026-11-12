@@ -1,6 +1,7 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { ScrollArea } from '../../components/ui/ScrollArea'
 import { useRoomsBoard } from '../rooms/useRoomsBoard'
+import { Dialog } from '../rooms/Dialog'
 import { compareRooms, comparePupils, FLOORS, pupilName, type Pupil } from '../rooms/logic'
 import { nightLabel } from './night'
 import { useRound } from './roundState'
@@ -12,6 +13,9 @@ const word = (n: number) => (n % 10 === 1 && n % 100 !== 11 ? 'учень' : [2,
 export function RoundReport() {
   const round = useRound()
   const { data, loading, error } = useRoomsBoard()
+  const [confirming, setConfirming] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [resetError, setResetError] = useState<string | null>(null)
 
   const model = useMemo(() => {
     const roster = round?.roster
@@ -54,6 +58,22 @@ export function RoundReport() {
         </section>
       ))}
       <p className="rd-total"><strong>Усього залишається на ніч:</strong> {model.total} {word(model.total)}</p>
+      <button type="button" className="secondary rd-reset" onClick={() => { setResetError(null); setConfirming(true) }}>Почати новий звіт</button>
+      {confirming && (
+        <Dialog title="Почати новий звіт?" onClose={() => !busy && setConfirming(false)}>
+          <p>Усі відмітки «залишається на ніч» і чергові за цей вечір буде очищено. Скасувати це неможливо.</p>
+          {resetError && <p className="error" role="alert">{resetError}</p>}
+          <div className="rm-buttons">
+            <button type="button" className="secondary" autoFocus disabled={busy} onClick={() => setConfirming(false)}>Скасувати</button>
+            <button type="button" className="btn-danger" disabled={busy} onClick={async () => {
+              setBusy(true)
+              const err = await round.reset()
+              setBusy(false)
+              if (err) setResetError(err); else setConfirming(false)
+            }}>{busy ? 'Зачекайте…' : 'Так, скинути'}</button>
+          </div>
+        </Dialog>
+      )}
     </ScrollArea>
   )
 }

@@ -30,3 +30,9 @@ export async function setDuty(night: string, studentId: string, duty: boolean): 
   if (!error) return null
   return error.message.includes('DUTY_LIMIT') ? 'На поверсі вже двоє чергових' : error.message
 }
+
+/** Примусове скидання звіту: видаляє всі відмітки й чергових поточного вечора (старі вечори не чіпає). */
+export async function clearRoster(night: string): Promise<string | null> {
+  const { error } = await supabase.from('night_roster').delete().eq('night_date', night)
+  return error ? error.message : null
+}
