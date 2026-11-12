@@ -167,11 +167,11 @@ a.phone:hover { text-decoration: underline; }
 .seg, .documents .tabs { display: flex; gap: 4px; padding: 4px; background: var(--muted); border: 0; border-radius: 14px; overflow: visible; width: fit-content; max-width: 100%; margin: 0 0 16px; }
 .seg { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
 .seg-opt { min-height: 40px; border-radius: 10px; background: transparent; color: var(--text2Hi); font-size: 13px; font-weight: 600; padding: 0 12px; margin: 0; transition: background-color var(--t-fast) var(--ease); }
-.seg-opt.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.seg-opt.on { background: var(--surface); color: var(--text); box-shadow: var(--shadowSeg); }
 .seg-opt:focus-within { outline: none; box-shadow: var(--ring); }
 .documents .tab { min-height: 36px; border-radius: 10px; background: transparent; color: var(--text2Hi); border: 0; padding: 0 14px; font-size: 13px; font-weight: 600; }
 .documents .tab:hover:not(:disabled) { opacity: 1; color: var(--text); }
-.documents .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.documents .tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadowSeg); }
 .documents .tabs { flex-wrap: wrap; }
 .documents .sel-trigger, .documents input[type='search'], .documents input[type='file'] { background-color: var(--field); border: 1.5px solid var(--fieldBorder); border-radius: 16px; min-height: 48px; width: auto; }
 .documents label input, .documents label select { width: 100%; }
@@ -253,5 +253,5 @@ button.sel-trigger[aria-invalid='true'] { border-color: var(--danger); }
 .sr-thumb { position: absolute; width: 6px; border-radius: 3px; background: var(--text2); opacity: 0; transition: opacity .15s; cursor: grab; touch-action: none; }
 .sr-area:hover .sr-thumb, .sr-area:focus-within .sr-thumb, .sel-pop:hover .sr-thumb { opacity: .5; }
 .sr-thumb:hover, .sr-area.dragging .sr-thumb, .sel-pop.dragging .sr-thumb { opacity: .85; cursor: grabbing; }
-/* Дотик: повзунок видно лише під час прокручування (+1 с), див. lib/scrollHint.ts */
-@media (hover: none) { .sr-thumb { opacity: 0; transition: opacity .3s; } .scrollrows[data-scrolling] ~ .sr-thumb { opacity: .4; } .sr-area.dragging .sr-thumb { opacity: .85; } }
+/* Дотик (телефон, планшет): повзунка немає — прокрутка й так зрозуміла; смуга під нього теж не резервується (docs/style.md §10) */
+@media (hover: none) { .sr-thumb { display: none; } }

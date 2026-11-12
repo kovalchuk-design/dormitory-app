@@ -44,7 +44,7 @@ button.link { background: none; border: 0; color: var(--outInk); padding: 0; tex
 .documents { display: grid; gap: 16px; align-content: start; }
 .documents .view-switch button { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 18px; margin: 0; border: 0; border-radius: 10px; background: transparent; box-shadow: none; font-size: 13px; font-weight: 600; color: var(--text2Hi); transition: background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease); }
 .documents .view-switch button:hover { color: var(--text); opacity: 1; }
-.documents .view-switch button.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.documents .view-switch button.active { background: var(--surface); color: var(--text); box-shadow: var(--shadowSeg); }
 @media (max-width: 760px), (pointer: coarse) and (max-height: 500px) {
   .documents .hostel-head { flex-wrap: wrap; }
   .documents .view-switch { flex: 1 1 100%; }
@@ -153,3 +153,6 @@ button.link { background: none; border: 0; color: var(--outInk); padding: 0; tex
 
 /* Форма «Новий учень» у попапі «Гуртожитку»: кнопки не липнуть до низу сторінки, а лежать в кінці форми */
 .modal .edit-form .form-actions { position: static; bottom: auto; padding: 16px 0 0; background: none; border: 0; box-shadow: none; border-radius: 0; }
+
+/* Дотик: без повзунка поля списку в рамці симетричні */
+@media (hover: none) { .pupil-box { padding: 6px; } }

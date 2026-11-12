@@ -29,6 +29,7 @@
   /* elevation */
   --shadow:0 8px 32px rgba(0,0,0,.06); --shadowHover:0 12px 40px rgba(0,0,0,.10);
   --shadowPop:0 24px 64px rgba(0,0,0,.16); --shadowTip:0 8px 24px rgba(0,0,0,.2);
+  --shadowSeg:0 1px 3px rgba(0,0,0,.08); /* активний сегмент усередині сірої доріжки: малий, щоб не обрізався краєм контейнера */
   /* helpers */
   --axisFs:11px; --inMeta:var(--text2); --outMeta:var(--text2);
   --offBg:var(--text); --offFg:var(--surface); --offBorder:transparent; --offOp:.35;
@@ -55,7 +56,7 @@
   --danger-bg:color-mix(in oklch, var(--danger) 14%, var(--surface));
   --zG:rgba(111,211,138,.7); --zA:rgba(230,180,80,.7); --zR:rgba(240,120,120,.7);
   --tip:#F2F5F7; --tipText:#111111;
-  --shadow:none; --shadowHover:none; --shadowPop:0 24px 64px rgba(0,0,0,.5);
+  --shadow:none; --shadowSeg:none; --shadowHover:none; --shadowPop:0 24px 64px rgba(0,0,0,.5);
   --axisFs:12px; --inMeta:#A8C4B3; --outMeta:#A5BFD2;
   --offBg:#232B35; --offFg:#6B7480; --offBorder:rgba(255,255,255,.08); --offOp:1;
   color-scheme:dark;
