@@ -64,11 +64,12 @@ export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggin
               const on = !!row
               return (
                 <li key={p.id} className={`rd-pupil${on ? '' : ' off'}`}>
+                  {/* усе ліворуч від перемикача — одна зона натискання: чекбокс + ім'я */}
                   <label className="rd-check">
                     <input type="checkbox" checked={on} aria-label={`Залишається на ніч: ${pupilName(p)}`}
                       onChange={(e) => void nightRound.togglePresent(p.id, room.id, e.target.checked)} />
+                    <span className="rm-pupil-name">{pupilName(p)}</span>
                   </label>
-                  <span className="rm-pupil-name">{pupilName(p)}</span>
                   <button type="button" role="switch" className="rd-switch duty" aria-checked={!!row?.isDuty} disabled={!on}
                     aria-label={`Черговий: ${pupilName(p)}`} title="Черговий"
                     onClick={() => void nightRound.toggleDuty(p.id, !row?.isDuty)} />

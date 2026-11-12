@@ -10,9 +10,10 @@
 
 .rd-pupil { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 4px 0; }
 .rd-pupil .rm-pupil-name { flex: 1 1 auto; text-align: left; min-width: 0; }
+.rd-check .rm-pupil-name { cursor: pointer; font-size: inherit; font-weight: inherit; line-height: 1.25; }
 .rd-pupil.off .rm-pupil-name, .rd-pupil.off .rd-switch { opacity: .45; }
 /* чекбокс «залишається на ніч» ліворуч (хіт-зона 40), перемикач «черговий» праворуч */
-.rd-check { flex: none; display: grid; place-items: center; width: 40px; height: 40px; margin: -4px -6px -4px -11px; cursor: pointer; }
+.rd-check { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 12px; min-height: 48px; margin: -4px 0; cursor: pointer; color: var(--text); font-size: 16px; font-weight: 500; -webkit-tap-highlight-color: transparent; }
 .rd-switch.duty[aria-checked='true'] { background: var(--out); }
 .rd-switch:disabled { cursor: default; background: var(--muted); }
 
