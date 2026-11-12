@@ -26,6 +26,7 @@ export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggin
   const [open, setOpen] = useState(false)
   const nightRound = useRound()
   const state = roomState(room)
+  const dutyCount = round && nightRound ? pupils.filter((p) => nightRound.roster.get(p.id)?.isDuty).length : 0
   const presentCount = round && nightRound ? pupils.filter((p) => nightRound.roster.has(p.id)).length : 0
   const cls = ['rm-room', `is-${state}`, hint === 'ok' && 'hint-ok', hint === 'blocked' && 'hint-blocked', isOver && 'over', round && 'round', round && open && 'open', round && nightRound && presentCount === 0 && 'idle']
     .filter(Boolean)
@@ -46,6 +47,7 @@ export function RoomCard({ room, pupils, canEdit, isAdmin, hint, isOver, draggin
             {state === 'inactive' ? 'неактивна' : `${room.occupied}/${room.capacity}`}
           </span>
         )}
+        {dutyCount > 0 && <span className="rd-duty-tag" title="У цій кімнаті є чергові на кухні">{dutyCount > 1 ? `Чергові · ${dutyCount}` : 'Черговий'}</span>}
         <span className="rm-actions">
           {round && <span className="rm-chev" aria-hidden="true"><Icon name="chevron" size={16} /></span>}
           {isAdmin && !round && (
