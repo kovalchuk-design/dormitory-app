@@ -42,14 +42,14 @@ export function RoundReport() {
           <h2>{f.floor} поверх <span className="rd-count">{f.count} {word(f.count)}</span></h2>
           {f.rooms.map(({ room, pupils }) => (
             <div key={room.id} className="rd-room">
-              <h3>Кімната {room.number}</h3>
               <ul>{pupils.map((p) => <li key={p.id}>{pupilName(p)}</li>)}</ul>
+              <span className="rd-room-tag" aria-label={`Кімната ${room.number}`}>{room.number}</span>
             </div>
           ))}
           {f.rooms.length === 0 && <p className="muted rd-none">Нікого</p>}
           <div className="rd-duty">
             <strong>Чергові на кухні</strong>
-            {f.duty.length ? <ul>{f.duty.map((d) => <li key={d.pupil.id}><span className="rd-duty-room">Кімната {d.room}</span> {pupilName(d.pupil)}</li>)}</ul> : <span className="muted"> —</span>}
+            {f.duty.length ? <ul>{f.duty.map((d) => <li key={d.pupil.id}><span>{pupilName(d.pupil)}</span><span className="rd-room-tag" aria-label={`Кімната ${d.room}`}>{d.room}</span></li>)}</ul> : <span className="muted"> —</span>}
           </div>
         </section>
       ))}

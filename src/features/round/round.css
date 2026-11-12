@@ -21,13 +21,15 @@
 .rd-floor { display: grid; gap: 12px; }
 .rd-floor h2 { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 24px; margin: 0; }
 .rd-count { font-size: 14px; font-weight: 500; color: var(--text2Hi); }
-.rd-room { display: grid; gap: 4px; padding-top: 12px; border-top: 1px solid var(--border); }
-.rd-room h3 { font-size: 16px; margin: 0; }
-.rd-room ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: 15px; }
+.rd-room { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.rd-room ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: 15px; min-width: 0; }
+.rd-room li, .rd-duty li { line-height: 24px; }
+/* номер кімнати — залита плашка-тег праворуч, у рядку першого учня */
+.rd-room-tag { flex: none; display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px; background: var(--muted); color: var(--text); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .rd-none { margin: 0; }
 .rd-duty { margin: 0; padding-top: 12px; border-top: 1px solid var(--border); font-size: 15px; display: grid; gap: 4px; }
 .rd-duty ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
-.rd-duty-room { display: inline-block; min-width: 96px; color: var(--text2Hi); }
+.rd-duty li { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .rd-total { margin: 0; font-size: 16px; }
 
 /* Позначка «черговий» на згорнутій картці кімнати: видно, де чергові, не розкриваючи кімнату */
