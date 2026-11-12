@@ -10,8 +10,11 @@
 
 .rd-pupil { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 4px 0; }
 .rd-pupil .rm-pupil-name { flex: 1 1 auto; text-align: left; min-width: 0; }
-.rd-pupil.off { opacity: .45; }
-.rd-duty-box { flex: none; }
+.rd-pupil.off .rm-pupil-name, .rd-pupil.off .rd-switch { opacity: .45; }
+/* чекбокс «залишається на ніч» ліворуч (хіт-зона 40), перемикач «черговий» праворуч */
+.rd-check { flex: none; display: grid; place-items: center; width: 40px; height: 40px; margin: -4px -6px -4px -11px; cursor: pointer; }
+.rd-switch.duty[aria-checked='true'] { background: var(--out); }
+.rd-switch:disabled { cursor: default; background: var(--muted); }
 
 .rd-scroll { position: relative; flex: 1 1 0; min-height: 0; }
 .rd-scroll > .scrollrows { position: absolute; inset: 0; } /* без цього блок росте за вмістом і сторінка не прокручується */
