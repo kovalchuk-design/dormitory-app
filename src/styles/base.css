@@ -253,4 +253,5 @@ button.sel-trigger[aria-invalid='true'] { border-color: var(--danger); }
 .sr-thumb { position: absolute; width: 6px; border-radius: 3px; background: var(--text2); opacity: 0; transition: opacity .15s; cursor: grab; touch-action: none; }
 .sr-area:hover .sr-thumb, .sr-area:focus-within .sr-thumb, .sel-pop:hover .sr-thumb { opacity: .5; }
 .sr-thumb:hover, .sr-area.dragging .sr-thumb, .sel-pop.dragging .sr-thumb { opacity: .85; cursor: grabbing; }
-@media (hover: none) { .sr-thumb { opacity: .4; } }
+/* Дотик: повзунок видно лише під час прокручування (+1 с), див. lib/scrollHint.ts */
+@media (hover: none) { .sr-thumb { opacity: 0; transition: opacity .3s; } .scrollrows[data-scrolling] ~ .sr-thumb { opacity: .4; } .sr-area.dragging .sr-thumb { opacity: .85; } }
