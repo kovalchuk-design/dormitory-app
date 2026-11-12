@@ -1,0 +1,28 @@
+/* Режим «Обхід»: тумблер учня і сторінка «Звіт». Тільки токени, px зі шкали §4 */
+.rd-switch { position: relative; flex: none; width: 44px; height: 28px; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 999px; background: var(--muted); cursor: pointer; transition: background var(--t-fast) var(--ease); }
+.rd-switch::after { content: ''; position: absolute; top: 4px; left: 4px; width: 20px; height: 20px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadowSeg); transition: transform var(--t-fast) var(--ease); }
+.rd-switch[aria-checked='true'] { background: var(--in); }
+.rd-switch[aria-checked='true']::after { transform: translateX(16px); }
+.rd-switch { outline-offset: 2px; }
+.rd-switch:focus-visible { outline: 2px solid var(--out); }
+/* хіт-зона 40: невидимий поле навколо тумблера */
+.rd-switch::before { content: ''; position: absolute; inset: -8px -6px; }
+
+.rd-pupil { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 4px 0; }
+.rd-pupil .rm-pupil-name { flex: 1 1 auto; text-align: left; min-width: 0; }
+.rd-pupil.off { opacity: .45; }
+.rd-duty-box { flex: none; }
+
+.rd-scroll { flex: 1 1 0; min-height: 0; }
+.rd-body { padding: 0 18px 24px 0; display: grid; gap: 24px; align-content: start; }
+@media (hover: none) { .rd-body { padding-right: 0; } }
+.rd-night { margin: 0; }
+.rd-floor { display: grid; gap: 12px; }
+.rd-floor h2 { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 24px; margin: 0; }
+.rd-count { font-size: 14px; font-weight: 500; color: var(--text2Hi); }
+.rd-room { display: grid; gap: 4px; padding-top: 12px; border-top: 1px solid var(--border); }
+.rd-room h3 { font-size: 16px; margin: 0; }
+.rd-room ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: 15px; }
+.rd-none { margin: 0; }
+.rd-duty { margin: 0; padding-top: 12px; border-top: 1px solid var(--border); font-size: 15px; }
+.rd-total { margin: 0; font-size: 16px; }

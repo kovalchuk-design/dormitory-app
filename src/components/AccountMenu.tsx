@@ -7,7 +7,7 @@ import { ChangePasswordDialog } from '../features/admin-users'
 import { ElevateDialog } from '../features/pin-login'
 import { navItemsForRole } from '../routes/navItems'
 import { useTheme } from '../lib/theme'
-import { useAlarmMode } from '../lib/mode'
+import { useRoundMode } from '../lib/mode'
 import { Icon } from './ui/icons'
 
 const THEME_LABELS = { system: 'Тема: як у системі', light: 'Тема: світла', dark: 'Тема: темна' } as const
@@ -21,7 +21,7 @@ const THEME_ICONS = { system: 'auto', light: 'sun', dark: 'moon' } as const
 export function AccountMenu({ variant }: { variant: 'rail' | 'tab' }) {
   const { profile, signOut } = useAuth()
   const { pref, cycle } = useTheme()
-  const { alarm, toggle: toggleAlarm } = useAlarmMode()
+  const { round, toggle: toggleRound } = useRoundMode()
   const [open, setOpen] = useState(false)
   const [elevate, setElevate] = useState(false)
   const [changePw, setChangePw] = useState(false)
@@ -51,7 +51,7 @@ export function AccountMenu({ variant }: { variant: 'rail' | 'tab' }) {
   useEffect(() => () => clearTimeout(timer.current), [])
 
   // Адміністрування — у меню акаунта; пароль адміністратора змінюється там само (керування користувачами), тож «Змінити пароль» йому не потрібен.
-  const adminItem = alarm ? undefined : navItemsForRole(profile?.role).find((i) => i.inAccountMenu)
+  const adminItem = round ? undefined : navItemsForRole(profile?.role).find((i) => i.inAccountMenu)
   const canChangePassword = !!profile && !profile.pinSession && profile.role !== 'admin'
   const canElevate = !!profile?.pinSession && !!profile.adminAccount
   const label = profile ? `Акаунт: ${profile.full_name} · ${ROLE_LABELS[profile.role]}` : 'Акаунт'
@@ -73,7 +73,7 @@ export function AccountMenu({ variant }: { variant: 'rail' | 'tab' }) {
           {profile && <div className="account-who"><strong>{profile.full_name}</strong><span className="muted small">{ROLE_LABELS[profile.role]}</span></div>}
           {adminItem && <Link role="menuitem" className="action-item" to={adminItem.to} onClick={() => setOpen(false)}><Icon name="gear" size={18} />{adminItem.label}</Link>}
           <button type="button" role="menuitem" className="action-item" onClick={cycle}><Icon name={THEME_ICONS[pref]} size={18} />{THEME_LABELS[pref]}</button>
-          <button type="button" role="menuitem" className="action-item" aria-pressed={alarm} onClick={() => { toggleAlarm(); setOpen(false) }}><Icon name="alarm" size={18} />{alarm ? 'Тривога викл' : 'Тривога вкл'}</button>
+          <button type="button" role="menuitem" className="action-item" aria-pressed={round} onClick={() => { toggleRound(); setOpen(false) }}><Icon name="alarm" size={18} />{round ? 'Обхід викл' : 'Обхід вкл'}</button>
           {canElevate && <button type="button" role="menuitem" className="action-item" onClick={() => { setOpen(false); setElevate(true) }}><Icon name="settings" size={18} />Права адміністратора</button>}
           {canChangePassword && <button type="button" role="menuitem" className="action-item" onClick={() => { setOpen(false); setChangePw(true) }}><Icon name="link" size={18} />Змінити пароль</button>}
           <button type="button" role="menuitem" className="action-item" onClick={() => { setOpen(false); void signOut() }}><Icon name="logout" size={18} />Вийти</button>

@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Navigate, NavLink, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import { ActionMenu, type ActionItem } from '../components/ui/ActionMenu'
 import { Drawer } from '../components/ui/Drawer'
 import { Modal } from '../features/documents/PreviewModal'
-import { useAlarmMode } from '../lib/mode'
+import { useRoundMode } from '../lib/mode'
+import { RoundProvider } from '../features/round/RoundContext'
+import { RoundReport } from '../features/round/RoundReport'
 import { NewRoomHost, RoomsPage } from '../features/rooms/RoomsPage'
 import { HostelNewRoom, HostelStudentCard } from './hostelContext'
 import { StudentEditPage } from './StudentEditPage'
@@ -17,7 +19,7 @@ export function HostelPage() {
   const { view } = useParams<{ view: string }>()
   const { profile } = useAuth()
   const isMobile = useIsMobile()
-  const { alarm } = useAlarmMode()
+  const { round } = useRoundMode()
   const canEdit = profile?.role === 'admin' || profile?.role === 'educator'
   const isAdmin = profile?.role === 'admin'
   const [creating, setCreating] = useState(false)
@@ -30,25 +32,33 @@ export function HostelPage() {
     ...(isAdmin ? [{ label: 'Кімнату', onClick: () => setCreating(true) }] : []),
   ]
 
-  if (view !== 'students' && view !== 'rooms') return <Navigate to="/hostel/rooms" replace />
-  if (alarm && view !== 'rooms') return <Navigate to="/hostel/rooms" replace />
+  const allowed = round ? ['rooms', 'report'] : ['rooms', 'students']
+  if (!view || !allowed.includes(view)) return <Navigate to="/hostel/rooms" replace />
+  const Wrap = round ? RoundProvider : Fragment
   return (
     <section className="fill-page hostel">
-      {/* «Тривога» на телефоні: шапка порожня (заголовка й перемикача немає) — не рендеримо, щоб вміст починався на тому ж рівні, що й перемикач у звичайному режимі */}
-      {!(alarm && isMobile) && <div className="hostel-head">
+      <div className="hostel-head">
         <h1 className="hostel-title">Гуртожиток</h1>
-        {!alarm && <nav className="view-switch" aria-label="Вигляд">
-          <NavLink to="/hostel/rooms" replace>Кімнати</NavLink>
-          <NavLink to="/hostel/students" replace>Студенти</NavLink>
-        </nav>}
+        {round ? (
+          <nav className="view-switch" aria-label="Вигляд">
+            <NavLink to="/hostel/rooms" replace>Кімнати</NavLink>
+            <NavLink to="/hostel/report" replace>Звіт</NavLink>
+          </nav>
+        ) : (
+          <nav className="view-switch" aria-label="Вигляд">
+            <NavLink to="/hostel/rooms" replace>Кімнати</NavLink>
+            <NavLink to="/hostel/students" replace>Студенти</NavLink>
+          </nav>
+        )}
         {/* На телефоні кнопку «+ Додати» прибрано (рішення власника): додавання учнів/кімнат — з десктопної версії */}
-        {!isMobile && !alarm && <div className="hostel-actions">
+        {!isMobile && !round && <div className="hostel-actions">
           <ActionMenu label="+ Додати" items={addItems} />
         </div>}
-      </div>}
+      </div>
+      <Wrap>
         <HostelNewRoom.Provider value={{ creating, setCreating }}>
           <HostelStudentCard.Provider value={{ openId, open: setOpenId }}>
-            <div className="hostel-view" key={reloadKey}>{view === 'rooms' ? <RoomsPage /> : <StudentsPage />}</div>
+            <div className="hostel-view" key={reloadKey}>{view === 'rooms' ? <RoomsPage /> : view === 'report' ? <RoundReport /> : <StudentsPage />}</div>
             {view === 'students' && <NewRoomHost />}
             {addingStudent && (
               <Modal title="Новий учень" onClose={() => setAddingStudent(false)}>
@@ -62,6 +72,7 @@ export function HostelPage() {
             )}
           </HostelStudentCard.Provider>
         </HostelNewRoom.Provider>
+      </Wrap>
     </section>
   )
 }

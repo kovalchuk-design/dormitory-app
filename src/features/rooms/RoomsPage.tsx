@@ -1,6 +1,7 @@
 import { useContext, useEffect, useMemo, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { HostelNewRoom } from '../../pages/hostelContext'
-import { useAlarmMode } from '../../lib/mode'
+import { useRoundMode } from '../../lib/mode'
+import { useRound } from '../round/roundState'
 import { useAuth } from '../../auth/useAuth'
 import { Icon } from '../../components/ui/icons'
 import { ScrollArea } from '../../components/ui/ScrollArea'
@@ -73,9 +74,10 @@ function Pool({ pupils, lastRoom, canEdit, hint, isOver, draggingId, onDragStart
 export function RoomsPage() {
   const { profile } = useAuth()
   const role = profile?.role
-  const { alarm } = useAlarmMode()
-  const canEdit = !alarm && (role === 'admin' || role === 'educator')
-  const isAdmin = !alarm && role === 'admin'
+  const { round } = useRoundMode()
+  const nightRound = useRound()
+  const canEdit = !round && (role === 'admin' || role === 'educator')
+  const isAdmin = !round && role === 'admin'
 
   const { data, error, loading, refresh } = useRoomsBoard()
   const [floorTab, setFloorTab] = useState<number>(profile?.floor ?? FLOORS[0])
@@ -192,8 +194,9 @@ export function RoomsPage() {
 
   return (
     <section className="rm-page fill-page">
-      {!canEdit && !alarm && <p className="muted small">Режим перегляду: переміщення недоступні.</p>}
+      {!canEdit && !round && <p className="muted small">Режим перегляду: переміщення недоступні.</p>}
       {error && <p className="error" role="alert">{error}</p>}
+      {round && nightRound?.error && <p className="error rm-notice" role="alert">{nightRound.error}</p>}
       {notice && (
         <p className={notice.kind === 'error' ? 'error rm-notice' : 'rm-notice ok'} role="status" data-testid="notice">
           {notice.text}
@@ -201,7 +204,7 @@ export function RoomsPage() {
       )}
 
       <>
-        {!alarm && <Pool
+        {!round && <Pool
           pupils={data?.unplaced ?? []}
           lastRoom={data?.lastRoom ?? {}}
           canEdit={canEdit}
@@ -241,7 +244,7 @@ export function RoomsPage() {
                     hint={hintFor({ kind: 'room', roomId: r.id })}
                     onMove={startPick}
                     onEdit={(room) => { setDialogError(null); setEditing(room) }}
-                    alarm={alarm}
+                    round={round}
                   />
                 ))}
                 {(byFloor.get(f) ?? []).length === 0 && <p className="muted small">Кімнат немає.</p>}
