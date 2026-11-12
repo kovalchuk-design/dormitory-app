@@ -1,0 +1,9 @@
+/* Режим «Тривога»: біла плашка на кімнату, список в одну колонку */
+.alarm-scroll { flex: 1 1 0; min-height: 0; }
+.alarm-list { list-style: none; margin: 0; padding: 0 16px 0 0; display: flex; flex-direction: column; gap: 8px; }
+.alarm-room { display: flex; align-items: center; gap: 16px; min-height: 56px; padding: 8px 20px; background: var(--surface); border-radius: 16px; font-size: 16px; }
+.alarm-num { font-size: 20px; font-weight: 600; min-width: 56px; }
+.alarm-floor { color: var(--text2Hi); font-size: 14px; }
+.alarm-occ { margin-left: auto; font-size: 20px; font-weight: 600; }
+.alarm-room.off { color: var(--text2Hi); }
+.alarm-room.off .alarm-occ { font-size: 14px; font-weight: 500; }

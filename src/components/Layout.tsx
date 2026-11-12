@@ -1,5 +1,6 @@
 import { BrandMark } from './BrandMark'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Navigate, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useAlarmMode } from '../lib/mode'
 import { useAuth } from '../auth/useAuth'
 import { useQueueCounts } from '../lib/pending'
 import { navItemsForRole, type NavItem } from '../routes/navItems'
@@ -22,7 +23,8 @@ export function Layout() {
   // картка учня (/students/…) належить розділу «Гуртожиток»
   const navClass = (to: string, base: string) => ({ isActive }: { isActive: boolean }) =>
     `${base}${isActive || (to === '/hostel' && pathname.startsWith('/students')) ? ' active' : ''}`
-  const items = navItemsForRole(profile?.role).filter((i) => !i.inAccountMenu)
+  const { alarm } = useAlarmMode()
+  const items = navItemsForRole(profile?.role).filter((i) => !i.inAccountMenu && (!alarm || i.to === '/hostel'))
   const counts = useQueueCounts(profile?.role === 'admin')
 
 
@@ -34,6 +36,9 @@ export function Layout() {
         <span className="sr-only"> анкет потребують уваги</span>
       </span>
     ) : null
+
+  // «Тривога»: доступний лише «Гуртожиток → Кімнати»
+  if (alarm && !pathname.startsWith('/hostel')) return <Navigate to="/hostel/rooms" replace />
 
   return (
     <div className="app">

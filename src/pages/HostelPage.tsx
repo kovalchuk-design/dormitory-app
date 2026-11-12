@@ -4,6 +4,9 @@ import { useAuth } from '../auth/useAuth'
 import { ActionMenu, type ActionItem } from '../components/ui/ActionMenu'
 import { Drawer } from '../components/ui/Drawer'
 import { Modal } from '../features/documents/PreviewModal'
+import { AlarmRooms } from '../features/rooms/AlarmRooms'
+import '../features/rooms/alarm.css'
+import { useAlarmMode } from '../lib/mode'
 import { NewRoomHost, RoomsPage } from '../features/rooms/RoomsPage'
 import { HostelNewRoom, HostelStudentCard } from './hostelContext'
 import { StudentEditPage } from './StudentEditPage'
@@ -16,6 +19,7 @@ export function HostelPage() {
   const { view } = useParams<{ view: string }>()
   const { profile } = useAuth()
   const isMobile = useIsMobile()
+  const { alarm } = useAlarmMode()
   const canEdit = profile?.role === 'admin' || profile?.role === 'educator'
   const isAdmin = profile?.role === 'admin'
   const [creating, setCreating] = useState(false)
@@ -29,6 +33,15 @@ export function HostelPage() {
   ]
 
   if (view !== 'students' && view !== 'rooms') return <Navigate to="/hostel/rooms" replace />
+  if (alarm && view !== 'rooms') return <Navigate to="/hostel/rooms" replace />
+  if (alarm) {
+    return (
+      <section className="fill-page hostel">
+        <div className="hostel-head"><h1 className="hostel-title">Кімнати</h1></div>
+        <div className="hostel-view"><AlarmRooms /></div>
+      </section>
+    )
+  }
 
   return (
     <section className="fill-page hostel">
