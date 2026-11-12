@@ -190,6 +190,9 @@ export function RoomsPage() {
 
   if (loading) return <p className="muted">Завантаження…</p>
 
+  // «Обхід»: скільки учнів поверху залишається на ніч
+  const floorPresent = (f: number) => (byFloor.get(f) ?? []).reduce((n, r) => n + (pupilsByRoom.get(r.id) ?? []).filter((p) => nightRound?.roster.has(p.id)).length, 0)
+  const floorLabel = (f: number) => (round && nightRound ? `${floorPresent(f)}/${floorCount(f)}` : String(floorCount(f)))
   const floorCount = (f: number) => (byFloor.get(f) ?? []).reduce((n, r) => n + (pupilsByRoom.get(r.id)?.length ?? 0), 0)
 
   return (
@@ -218,7 +221,7 @@ export function RoomsPage() {
         <div className="rm-tabs" role="tablist" aria-label="Поверхи">
           {FLOORS.map((f) => (
             <button key={f} type="button" role="tab" aria-selected={floorTab === f} className={floorTab === f ? 'active' : ''} onClick={() => setFloorTab(f)}>
-              {f} поверх · {floorCount(f)}
+              {f} поверх · {floorLabel(f)}
             </button>
           ))}
         </div>
@@ -228,7 +231,7 @@ export function RoomsPage() {
             <div key={f} className={`rm-floor${floorTab === f ? ' current' : ''}`} data-testid={`floor-${f}`}>
               <h2 className="rm-floor-head">
                 <span>{f} поверх</span>
-                <span className="rm-floor-count" title="Кількість учнів, які проживають на поверсі">{floorCount(f)} {pupilsWord(floorCount(f))}</span>
+                <span className="rm-floor-count" title={round ? 'Залишається на ніч / проживає на поверсі' : 'Кількість учнів, які проживають на поверсі'}>{floorLabel(f)} {pupilsWord(floorCount(f))}</span>
               </h2>
               <ScrollArea className="rm-floor-scroll" body="rm-rooms">
                 {(byFloor.get(f) ?? []).map((r) => (
