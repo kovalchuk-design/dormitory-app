@@ -43,7 +43,7 @@ export function RoundReport() {
       <p className="rd-night muted small">Вечір {nightLabel(round.night)}</p>
       {model.floors.map((f) => (
         <section key={f.floor} className="rd-floor" aria-label={`${f.floor} поверх`}>
-          <h2>{f.floor} поверх <span className="rd-count">{f.count} {word(f.count)}</span></h2>
+          <h2>{f.floor} поверх <span className={`rm-badge rd-count${f.count > 0 ? ' free' : ''}`}>{f.count} {word(f.count)}</span></h2>
           {f.rooms.map(({ room, pupils }) => (
             <div key={room.id} className="rd-room">
               <ul>{pupils.map((p) => <li key={p.id}>{pupilName(p)}</li>)}</ul>
