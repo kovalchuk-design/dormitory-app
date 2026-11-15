@@ -57,7 +57,7 @@ export function RoundReport() {
           </div>
         </section>
       ))}
-      <p className="rd-total"><strong>Усього залишається на ніч:</strong> {model.total} {word(model.total)}</p>
+      <p className="rd-total"><strong>Усього залишається на ніч</strong><span className={`rm-badge rd-count${model.total > 0 ? ' free' : ''}`}>{model.total} {word(model.total)}</span></p>
       <button type="button" className="secondary rd-reset" onClick={() => { setResetError(null); setConfirming(true) }}>Почати новий звіт</button>
       {confirming && (
         <Dialog title="Почати новий звіт?" onClose={() => !busy && setConfirming(false)}>
