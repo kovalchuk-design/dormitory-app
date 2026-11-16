@@ -3,6 +3,7 @@ import { ScrollArea } from '../../components/ui/ScrollArea'
 import { useRoomsBoard } from '../rooms/useRoomsBoard'
 import { Dialog } from '../rooms/Dialog'
 import { compareRooms, comparePupils, FLOORS, pupilName, type Pupil } from '../rooms/logic'
+import { ContactsModal } from './ContactsModal'
 import { nightLabel } from './night'
 import { useRound } from './roundState'
 import './round.css'
@@ -16,6 +17,8 @@ export function RoundReport() {
   const [confirming, setConfirming] = useState(false)
   const [busy, setBusy] = useState(false)
   const [resetError, setResetError] = useState<string | null>(null)
+  const [query, setQuery] = useState('')
+  const [contact, setContact] = useState<{ pupil: Pupil; room: string } | null>(null)
 
   const model = useMemo(() => {
     const roster = round?.roster
@@ -34,27 +37,40 @@ export function RoundReport() {
     return { floors, total: floors.reduce((n, f) => n + f.count, 0) }
   }, [data, round?.roster])
 
+  // пошук: усі слова запиту мають зустрітись у «прізвище ім'я» або в номері кімнати
+  const tokens = query.toLowerCase().split(/\s+/).filter(Boolean)
+  const searching = tokens.length > 0
+  const matches = (p: Pupil, room: string) => { const hay = `${p.lastName} ${p.firstName} ${room}`.toLowerCase(); return tokens.every((t) => hay.includes(t)) }
+  const shownFloors = !model ? [] : model.floors.map((f) => ({
+    ...f,
+    rooms: searching ? f.rooms.map((r) => ({ room: r.room, pupils: r.pupils.filter((p) => matches(p, r.room.number)) })).filter((r) => r.pupils.length > 0) : f.rooms,
+  })).filter((f) => !searching || f.rooms.length > 0)
+
   if (!round || loading || round.loading) return <p className="muted">Завантаження…</p>
   if (error || round.error) return <p className="error" role="alert">{error ?? round.error}</p>
   if (!model) return null
 
   return (
+    <>
+    <input type="search" className="rd-search" value={query} onChange={(e) => setQuery(e.target.value)}
+      placeholder="Пошук учня або кімнати" aria-label="Пошук учня або кімнати" autoComplete="off" enterKeyHint="search" />
     <ScrollArea className="rd-scroll" body="rd-body" inset={8}>
       <p className="rd-night muted small">Вечір {nightLabel(round.night)}</p>
-      {model.floors.map((f) => (
+      {searching && shownFloors.length === 0 && <p className="muted">Нікого не знайдено.</p>}
+      {shownFloors.map((f) => (
         <section key={f.floor} className="rd-floor" aria-label={`${f.floor} поверх`}>
           <h2>{f.floor} поверх <span className={`rm-badge rd-count${f.count > 0 ? ' free' : ''}`}>{f.count} {word(f.count)}</span></h2>
           {f.rooms.map(({ room, pupils }) => (
             <div key={room.id} className="rd-room">
-              <ul>{pupils.map((p) => <li key={p.id}>{pupilName(p)}</li>)}</ul>
+              <ul>{pupils.map((p) => <li key={p.id}><button type="button" className="rd-name" onClick={() => setContact({ pupil: p, room: room.number })}>{pupilName(p)}</button></li>)}</ul>
               <span className="rd-room-tag" aria-label={`Кімната ${room.number}`}>{room.number}</span>
             </div>
           ))}
-          {f.rooms.length === 0 && <p className="muted rd-none">Нікого</p>}
-          <div className="rd-duty">
+          {f.rooms.length === 0 && !searching && <p className="muted rd-none">Нікого</p>}
+          {!searching && <div className="rd-duty">
             <strong>Чергові на кухні</strong>
-            {f.duty.length ? <ul>{f.duty.map((d) => <li key={d.pupil.id}><span>{pupilName(d.pupil)}</span><span className="rd-room-tag" aria-label={`Кімната ${d.room}`}>{d.room}</span></li>)}</ul> : <span className="muted"> —</span>}
-          </div>
+            {f.duty.length ? <ul>{f.duty.map((d) => <li key={d.pupil.id}><button type="button" className="rd-name" onClick={() => setContact({ pupil: d.pupil, room: d.room })}>{pupilName(d.pupil)}</button><span className="rd-room-tag" aria-label={`Кімната ${d.room}`}>{d.room}</span></li>)}</ul> : <span className="muted"> —</span>}
+          </div>}
         </section>
       ))}
       <p className="rd-total"><strong>Усього залишається на ніч</strong><span className={`rm-badge rd-count${model.total > 0 ? ' free' : ''}`}>{model.total} {word(model.total)}</span></p>
@@ -75,5 +91,7 @@ export function RoundReport() {
         </Dialog>
       )}
     </ScrollArea>
+    {contact && <ContactsModal pupil={contact.pupil} room={contact.room} onClose={() => setContact(null)} />}
+    </>
   )
 }

@@ -41,3 +41,23 @@ export async function clearRoster(night: string): Promise<string | null> {
 export async function purgeOldNights(night: string): Promise<void> {
   await supabase.from('night_roster').delete().lt('night_date', night)
 }
+
+export interface ContactRow { label: string; name: string | null; phone: string | null }
+
+/** Контакти з останньої затвердженої анкети: учень, мама, тато, опікун (як у картці учня). */
+export async function fetchContacts(studentId: string): Promise<{ rows: ContactRow[] | null; error: string | null }> {
+  const { data, error } = await supabase
+    .from('student_profiles')
+    .select('student_phone,mother_name,mother_phone,father_name,father_phone,guardian_name,guardian_phone,guardian_relation')
+    .eq('student_id', studentId).eq('status', 'approved').order('version_no', { ascending: false }).limit(1)
+  if (error) return { rows: null, error: error.message }
+  const c = data?.[0]
+  if (!c) return { rows: null, error: null }
+  const rows: ContactRow[] = [
+    { label: 'Учень', name: null, phone: c.student_phone ?? null },
+    { label: 'Мама', name: c.mother_name ?? null, phone: c.mother_phone ?? null },
+    { label: 'Тато', name: c.father_name ?? null, phone: c.father_phone ?? null },
+    { label: c.guardian_relation ? `Опікун (${c.guardian_relation})` : 'Опікун', name: c.guardian_name ?? null, phone: c.guardian_phone ?? null },
+  ].filter((r) => r.phone || (r.label !== 'Учень' && r.name))
+  return { rows, error: null }
+}
