@@ -79,7 +79,7 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, { regular, bold }: Pick<P
       const h2 = 2 * rowH
       rect(x0, y, ROOM_W, h2, GRAY)
       const size = Math.min(11, ROOM_W - 5), w = bold.widthOfTextAtSize(r.room, size)
-      page.drawText(r.room, { x: x0 + ROOM_W / 2 + size * 0.35, y: y - h2 / 2 - w / 2, size, font: bold, color: BLACK, rotate: degrees(90) })
+      page.drawText(r.room, { x: x0 + ROOM_W / 2 + size * 0.325, y: y - h2 / 2 - w / 2, size, font: bold, color: BLACK, rotate: degrees(90) })
       for (const s of r.students) {
         rect(x0 + ROOM_W, y, NAME_W, rowH)
         text(s.last_first, x0 + ROOM_W, y, rowH, FS)

@@ -51,8 +51,8 @@ function p(text, { sz = 16, bold = false, jc, keepNext = false, pageBreakBefore 
 const NIL = { top: 'nil', left: 'nil', bottom: 'nil', right: 'nil' }
 const borders = (b) => `<w:tcBorders>${Object.entries(b).map(([k, v]) => `<w:${k} w:val="${v}"${v === 'nil' ? '' : ' w:sz="4" w:space="0" w:color="000000"'}/>`).join('')}</w:tcBorders>`
 
-function tc(width, paragraphs, { shd, vAlign = 'center', vMerge, gridSpan, textDir, b } = {}) {
-  return `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/>${gridSpan ? `<w:gridSpan w:val="${gridSpan}"/>` : ''}${vMerge ? `<w:vMerge${vMerge === 'restart' ? ' w:val="restart"' : ''}/>` : ''}${b ? borders(b) : ''}${shd ? `<w:shd w:val="clear" w:color="auto" w:fill="${shd}"/>` : ''}${textDir ? `<w:textDirection w:val="${textDir}"/>` : ''}<w:vAlign w:val="${vAlign}"/></w:tcPr>${paragraphs}</w:tc>`
+function tc(width, paragraphs, { shd, vAlign = 'center', vMerge, gridSpan, textDir, b, mar } = {}) {
+  return `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/>${gridSpan ? `<w:gridSpan w:val="${gridSpan}"/>` : ''}${vMerge ? `<w:vMerge${vMerge === 'restart' ? ' w:val="restart"' : ''}/>` : ''}${b ? borders(b) : ''}${shd ? `<w:shd w:val="clear" w:color="auto" w:fill="${shd}"/>` : ''}${mar ? `<w:tcMar><w:left w:w="${mar.left}" w:type="dxa"/><w:right w:w="${mar.right}" w:type="dxa"/></w:tcMar>` : ''}${textDir ? `<w:textDirection w:val="${textDir}"/>` : ''}<w:vAlign w:val="${vAlign}"/></w:tcPr>${paragraphs}</w:tc>`
 }
 // Висоти рядків ТОЧНІ (hRule=exact): Word додає до «мінімальної» висоти товщину ліній (~10 twips на рядок) і вміст росте, через що
 // 5-й поверх переносився на другу сторінку; з точною висотою Word і LibreOffice дають однакову сторінку.
@@ -75,8 +75,10 @@ const headTable = `<w:tbl>${tblPr(COL_W)}${grid}${tr(
 )}</w:tbl>`
 
 // ---- кімната: клітинка номера (на 90°, об'єднана рівно на два перші рядки) + прізвища + дні
-const roomCell = tc(ROOM_W, p('{{room}}', { sz: 22, bold: true, jc: 'center', keepNext: true }), { vMerge: 'restart', shd: GRAY, textDir: 'btLr' })
-const contCell = (marker) => tc(ROOM_W, p(marker, { keepNext: true }), { vMerge: 'continue', shd: GRAY, textDir: 'btLr' })
+// Word зміщує повернутий текст вправо відносно центру клітинки (виміряно ≈ 1,7 pt) — компенсуємо несиметричними полями клітинки
+const ROOM_MAR = { left: 6, right: 74 }
+const roomCell = tc(ROOM_W, p('{{room}}', { sz: 22, bold: true, jc: 'center', keepNext: true }), { vMerge: 'restart', shd: GRAY, textDir: 'btLr', mar: ROOM_MAR })
+const contCell = (marker) => tc(ROOM_W, p(marker, { keepNext: true }), { vMerge: 'continue', shd: GRAY, textDir: 'btLr', mar: ROOM_MAR })
 const blankCell = (marker) => tc(ROOM_W, p(marker, { keepNext: true }), { b: NIL })
 const nameCell = (txt, opts = {}) => tc(NAME_W, p(txt, { sz: NAME_SZ, keepNext: true }), opts)
 const row1 = tr(roomCell + nameCell('{{n1}}') + dayCells(), { height: ROW_H })
