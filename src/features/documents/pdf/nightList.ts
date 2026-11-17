@@ -7,16 +7,16 @@ import type { PdfFloor, PdfFonts, PdfRoom } from './types'
  * Розміри ті самі, що в шаблоні .docx (scripts/make-night-list-template.mjs), у пунктах.
  */
 const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд']
-const M = { top: tw(454), bottom: tw(454), left: tw(567), right: tw(567) }
+const M = { top: tw(420), bottom: tw(420), left: tw(567), right: tw(567) }
 const TEXT_W = A4.w - M.left - M.right
 const GAP = tw(284)
 const COL_W = (TEXT_W - GAP) / 2
 const DAY_W = tw(405)
 const NAME_W = COL_W - DAY_W * 7
 const FS = 8
-const NAME_FS = 9.5 // прізвища учнів (як у шаблоні .docx: NAME_SZ = 19 напівпунктів)
-const BASE_ROW = tw(220)
-const ROOM_GAP = tw(40)
+const NAME_FS = 10 // прізвища учнів (як у шаблоні .docx: NAME_SZ = 20 напівпунктів)
+const BASE_ROW = tw(230)
+const ROOM_GAP = tw(30)
 const SUM_AFTER = 1 // службовий проміжок під підсумком колонки
 const GRAY = rgb(0.89, 0.89, 0.89)
 const DARK_GRAY = rgb(0.81, 0.81, 0.81)
@@ -24,13 +24,12 @@ const BLACK = rgb(0, 0, 0)
 const LINE = 0.5
 
 // фіксовані блоки під колонками
-const TITLE_SIZE = 12
-const TITLE_BLOCK = TITLE_SIZE * 1.15 + 3
+const TITLE_BLOCK = 0 // заголовка немає: звільнену висоту віддано під більший шрифт; номер поверху — у підписі «Усього за добу»
 const BETWEEN = 3
 const GRAND_H = 15
 const KITCHEN_LABEL_H = 3 // тонкий проміжок над блоком (підпис «Чергові на кухні» тепер у шапці таблиці)
 const KITCHEN_HEAD_H = 12
-const KITCHEN_ROW_H = tw(255)
+const KITCHEN_ROW_H = tw(240)
 const KITCHEN_ROWS = 8
 const KITCHEN_H = KITCHEN_LABEL_H + KITCHEN_HEAD_H + KITCHEN_ROWS * KITCHEN_ROW_H
 
@@ -78,10 +77,6 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
     })
   }
 
-  // заголовок
-  const title = `СПИСОК учнів, які залишаються в гуртожитку на ніч — ${floor.floor} поверх`
-  const tw0 = bold.widthOfTextAtSize(title, TITLE_SIZE)
-  page.drawText(title, { x: (A4.w - tw0) / 2, y: A4.h - M.top - TITLE_SIZE * 0.95, size: TITLE_SIZE, font: bold, color: BLACK })
   const colTop = A4.h - M.top - TITLE_BLOCK
 
   // дві колонки кімнат
@@ -108,11 +103,11 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
   let y = Math.min(yLeft, yRight) - BETWEEN
 
   // «Усього за добу»
-  const LABEL_W = tw(1900)
+  const LABEL_W = tw(2500)
   const DAYBLOCK = (TEXT_W - LABEL_W) / 7
   const DAYNAME_W = tw(380)
   rect(M.left, y, LABEL_W, GRAND_H, DARK_GRAY)
-  text('Усього за добу', M.left, y, GRAND_H, FS, { bold: true })
+  text(`${floor.floor} поверх · усього за добу`, M.left, y, GRAND_H, FS, { bold: true })
   DAYS.forEach((d, i) => {
     const x = M.left + LABEL_W + i * DAYBLOCK
     rect(x, y, DAYNAME_W, GRAND_H, DARK_GRAY)

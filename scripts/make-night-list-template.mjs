@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Створює шаблон «Список учнів, які залишаються на ніч» (тиждень, A4 книжкова, 2 колонки):
- * заголовок → кімнати таблицями (кімната не розривається) у 2 колонки → знизу блок «Чергові на кухні».
+ * (без заголовка) кімнати таблицями (кімната не розривається) у 2 колонки → знизу блок «Чергові на кухні».
  * Реальних даних немає, лише мітки {{…}}.
  *
  *   node scripts/make-night-list-template.mjs <шаблон.docx>
@@ -20,18 +20,18 @@ const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд']
 const DAYS_FULL = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П’ятниця', 'Субота', 'Неділя']
 const FONT = 'Times New Roman'
 const GRAY = 'E3E3E3'
-const PAGE = { w: 11906, h: 16838, top: Number(process.env.MARGIN_V ?? 454), bottom: Number(process.env.MARGIN_V ?? 454), left: 567, right: 567 }
+const PAGE = { w: 11906, h: 16838, top: Number(process.env.MARGIN_V ?? 420), bottom: Number(process.env.MARGIN_V ?? 420), left: 567, right: 567 }
 const TEXT_W = PAGE.w - PAGE.left - PAGE.right // 10772
 const GAP = 284
 const COL_W = Math.floor((TEXT_W - GAP) / 2) // 5244
 const DAY_W = 405
 const NAME_W = COL_W - DAY_W * 7 // 2409
-const KITCHEN_ROW_H = Number(process.env.KITCHEN_ROW_H ?? 255) // висота рядка для запису від руки
+const KITCHEN_ROW_H = Number(process.env.KITCHEN_ROW_H ?? 240) // висота рядка для запису від руки
 // Розмір шрифта прізвищ учнів (напівпункти: 19 = 9,5 pt; було 8 pt) і мінімальна висота рядка кімнати (twips).
 // Рядок ≈ 1,15 × кегль; підібрано так, щоб найбільший поверх (≈ 54 рядки в колонці) вміщався на одну сторінку A4 із запасом ≈ 245 twips (10 pt вже не вміщається без скорочення блоку кухні).
-const NAME_SZ = Number(process.env.NAME_SZ ?? 19)
-const ROW_H = Number(process.env.ROW_H ?? 220)
-const ROOM_GAP = Number(process.env.ROOM_GAP ?? 40) // проміжок між кімнатами (twips)
+const NAME_SZ = Number(process.env.NAME_SZ ?? 20)
+const ROW_H = Number(process.env.ROW_H ?? 230)
+const ROOM_GAP = Number(process.env.ROOM_GAP ?? 30) // проміжок між кімнатами (twips)
 
 const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
@@ -95,12 +95,12 @@ const columnsTable =
   `<w:tr>${outerCell(COL_W, loop('roomsLeft'))}${outerCell(GAP, p(''))}${outerCell(COL_W, loop('roomsRight'))}</w:tr></w:tbl>`
 
 // ---- «Усього за добу»: сума обох колонок по кожному дню (записує вихователь)
-const TOT_LABEL_W = 1900
+const TOT_LABEL_W = 2500
 const TOT_DAY_W = Math.floor((TEXT_W - TOT_LABEL_W) / 7)
 const TOT_DAYNAME_W = 380
 const totalGrid = `<w:tblGrid><w:gridCol w:w="${TOT_LABEL_W}"/>${DAYS.map(() => `<w:gridCol w:w="${TOT_DAYNAME_W}"/><w:gridCol w:w="${TOT_DAY_W - TOT_DAYNAME_W}"/>`).join('')}</w:tblGrid>`
 const grandRow = tr(
-  tc(TOT_LABEL_W, p('Усього за добу', { bold: true }), { shd: SUM_GRAY }) +
+  tc(TOT_LABEL_W, p('{{floor}} поверх · усього за добу', { bold: true }), { shd: SUM_GRAY }) +
     DAYS.map((d) => tc(TOT_DAYNAME_W, p(d, { bold: true, jc: 'center' }), { shd: SUM_GRAY }) + tc(TOT_DAY_W - TOT_DAYNAME_W, p(''))).join(''),
   { height: 300 },
 )
@@ -125,16 +125,12 @@ const sect = (cols, type) =>
   (cols === 2 ? `<w:cols w:num="2" w:space="${GAP}"/>` : '<w:cols w:space="708"/>') +
   `</w:sectPr>`
 
-const TITLE = 'СПИСОК учнів, які залишаються в гуртожитку на ніч — {{floor}} поверх'
-// Один поверх = одна сторінка: усе, що нижче, повторюється по {{#floors}}; заголовок кожного поверху починається з нової сторінки.
+// Один поверх = одна сторінка: усе, що нижче, повторюється по {{#floors}}. Заголовка «СПИСОК учнів…» немає (звільняє висоту під більший шрифт);
+// номер поверху стоїть у підписі «Усього за добу». Розрив сторінки між поверхами несе крихітний абзац (лише для не першого поверху).
 const body =
   p('{{#floors}}', { sz: 2, line: 20 }) +
-  // Заголовок першого поверху — без розриву сторінки, решти — з розривом (умовні блоки за полем `first`).
-  p('{{#first}}', { sz: 2, line: 20 }) +
-  p(TITLE, { sz: 24, bold: true, jc: 'center', after: 60 }) +
-  p('{{/first}}', { sz: 2, line: 20 }) +
   p('{{^first}}', { sz: 2, line: 20 }) +
-  p(TITLE, { sz: 24, bold: true, jc: 'center', after: 60, pageBreakBefore: true }) +
+  p('', { sz: 2, line: 20, pageBreakBefore: true }) +
   p('{{/first}}', { sz: 2, line: 20 }) +
   columnsTable +
   p('', { sz: 2, line: 60 }) +
