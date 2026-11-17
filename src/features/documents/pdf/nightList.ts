@@ -67,8 +67,14 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
     const tx = o.center && o.w != null ? x + (o.w - width) / 2 : x + 2
     page.drawText(s, { x: tx, y: yTop - h / 2 - size * 0.33, size, font, color: BLACK })
   }
-  const row = (x: number, yTop: number, h: number, nameText: string, o: { fill?: ReturnType<typeof rgb>; nameFill?: ReturnType<typeof rgb> | null; boldName?: boolean; days?: boolean; nameSize?: number } = {}) => {
-    rect(x, yTop, NAME_W, h, o.nameFill === undefined ? o.fill : (o.nameFill ?? undefined))
+  const line = (x1: number, y1: number, x2: number, y2: number) => page.drawLine({ start: { x: x1, y: y1 }, end: { x: x2, y: y2 }, thickness: LINE, color: BLACK })
+  const row = (x: number, yTop: number, h: number, nameText: string, o: { fill?: ReturnType<typeof rgb>; nameFill?: ReturnType<typeof rgb> | null; noBottom?: boolean; boldName?: boolean; days?: boolean; nameSize?: number } = {}) => {
+    if (o.noBottom) {
+      // клітинка з прізвищами без нижньої лінії: лише верх, ліво, право
+      line(x, yTop, x + NAME_W, yTop)
+      line(x, yTop, x, yTop - h)
+      line(x + NAME_W, yTop, x + NAME_W, yTop - h)
+    } else rect(x, yTop, NAME_W, h, o.nameFill === undefined ? o.fill : (o.nameFill ?? undefined))
     text(nameText, x, yTop, h, o.nameSize ?? FS, { bold: o.boldName })
     DAYS.forEach((d, i) => {
       const dx = x + NAME_W + i * DAY_W
@@ -89,7 +95,7 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
         row(x0, y, rowH, s.last_first, { nameSize: NAME_FS })
         y -= rowH
       }
-      row(x0, y, rowH, '', { fill: GRAY, nameFill: null }) // підсумковий рядок: заливка лише в клітинках днів
+      row(x0, y, rowH, '', { fill: GRAY, nameFill: null, noBottom: true }) // підсумковий рядок: заливка лише в клітинках днів
       y -= rowH + ROOM_GAP
     }
     // підсумок колонки

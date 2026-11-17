@@ -48,8 +48,8 @@ function p(text, { sz = 16, bold = false, jc, keepNext = false, pageBreakBefore 
   return `<w:p><w:pPr>${ppr}</w:pPr>${run}</w:p>`
 }
 
-function tc(width, paragraphs, { shd, vAlign = 'center' } = {}) {
-  return `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/>${shd ? `<w:shd w:val="clear" w:color="auto" w:fill="${shd}"/>` : ''}<w:vAlign w:val="${vAlign}"/></w:tcPr>${paragraphs}</w:tc>`
+function tc(width, paragraphs, { shd, vAlign = 'center', noBottom = false } = {}) {
+  return `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/>${noBottom ? '<w:tcBorders><w:bottom w:val="nil"/></w:tcBorders>' : ''}${shd ? `<w:shd w:val="clear" w:color="auto" w:fill="${shd}"/>` : ''}<w:vAlign w:val="${vAlign}"/></w:tcPr>${paragraphs}</w:tc>`
 }
 
 const tr = (cells, { height, exact = false } = {}) =>
@@ -73,7 +73,7 @@ const studentRow = tr(
   { height: ROW_H },
 )
 const totalRow = tr(
-  tc(NAME_W, p('')) + DAYS.map(() => tc(DAY_W, p(''), { shd: GRAY })).join(''), // підсумковий рядок: заливка лише в клітинках днів
+  tc(NAME_W, p(''), { noBottom: true }) + DAYS.map(() => tc(DAY_W, p(''), { shd: GRAY })).join(''), // підсумковий рядок: заливка лише в днях, а клітинка під прізвищами — без нижньої лінії
   { height: ROW_H },
 )
 const roomTable = `<w:tbl>${tblPr(COL_W)}${grid}${headRow}${studentRow}${totalRow}</w:tbl>`
