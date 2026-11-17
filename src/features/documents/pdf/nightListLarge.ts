@@ -17,7 +17,8 @@ const ROOM_W = tw(340) // перша колонка: номер кімнати �
 const DAY_W = tw(350)
 const NAME_W = COL_W - ROOM_W - DAY_W * 7
 const ROOM_GAP = tw(30)
-const FS_MAX = 12
+const BASE_ROW = tw(258) // ФІКСОВАНА висота рядка з прізвищем (як у шаблоні .docx); лишається такою на всіх поверхах
+const FS_NAME = 11 // кегль прізвищ (як у шаблоні .docx)
 const FS_SMALL = 8
 const GRAY = rgb(0.89, 0.89, 0.89)
 const DARK_GRAY = rgb(0.81, 0.81, 0.81)
@@ -42,8 +43,11 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, { regular, bold }: Pick<P
   const maxRooms = Math.max(floor.roomsLeft.length, floor.roomsRight.length)
   const kitchenMin = KITCHEN_HEAD_H + KITCHEN_ROWS * KITCHEN_ROW_H
   const available = A4.h - M.top - M.bottom - BETWEEN - GRAND_H - 3 - kitchenMin
-  const rowH = (available - maxRooms * ROOM_GAP - 1) / maxRows
-  const FS = Math.min(FS_MAX, Math.floor((rowH / 1.16) * 4) / 4)
+  // Висота рядка фіксована й не підлаштовується під сторінку (менш заселений поверх не розтягуємо). Стискаємо лише тоді,
+  // коли поверх інакше не вмістився б на одну сторінку.
+  const fit = (available - maxRooms * ROOM_GAP - 1) / maxRows
+  const rowH = Math.min(BASE_ROW, fit)
+  const FS = Math.min(FS_NAME, Math.floor((rowH / 1.16) * 4) / 4)
 
   const rect = (x: number, yTop: number, w: number, h: number, fill?: ReturnType<typeof rgb>) =>
     page.drawRectangle({ x, y: yTop - h, width: w, height: h, color: fill, borderColor: BLACK, borderWidth: LINE })
