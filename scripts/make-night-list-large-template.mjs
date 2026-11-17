@@ -27,8 +27,8 @@ const COL_W = Math.floor((TEXT_W - GAP) / 2) // 5244
 const ROOM_W = 340 // перша колонка: номер кімнати боком
 const DAY_W = 350
 const NAME_W = COL_W - ROOM_W - DAY_W * 7 // 2454
-const NAME_SZ = Number(process.env.NAME_SZ ?? 23) // напівпункти: 23 = 11,5 pt (у «Списку на ніч» — 10 pt)
-const ROW_H = Number(process.env.ROW_H ?? 264) // мінімальна висота рядка, twips (≈ 1,17 × кегль)
+const NAME_SZ = Number(process.env.NAME_SZ ?? 22) // напівпункти: 22 = 11 pt (у «Списку на ніч» — 10 pt)
+const ROW_H = Number(process.env.ROW_H ?? 258) // висота рядка, twips (рядок Times 11 pt ≈ 253 twips + запас)
 const ROOM_GAP = Number(process.env.ROOM_GAP ?? 30)
 const KITCHEN_ROW_H = Number(process.env.KITCHEN_ROW_H ?? 250) // висота рядка для запису від руки
 const KITCHEN_ROWS = Number(process.env.KITCHEN_ROWS ?? 8)
@@ -54,7 +54,9 @@ const borders = (b) => `<w:tcBorders>${Object.entries(b).map(([k, v]) => `<w:${k
 function tc(width, paragraphs, { shd, vAlign = 'center', vMerge, gridSpan, textDir, b } = {}) {
   return `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/>${gridSpan ? `<w:gridSpan w:val="${gridSpan}"/>` : ''}${vMerge ? `<w:vMerge${vMerge === 'restart' ? ' w:val="restart"' : ''}/>` : ''}${b ? borders(b) : ''}${shd ? `<w:shd w:val="clear" w:color="auto" w:fill="${shd}"/>` : ''}${textDir ? `<w:textDirection w:val="${textDir}"/>` : ''}<w:vAlign w:val="${vAlign}"/></w:tcPr>${paragraphs}</w:tc>`
 }
-const tr = (cells, { height } = {}) => `<w:tr><w:trPr><w:cantSplit/>${height ? `<w:trHeight w:val="${height}"/>` : ''}</w:trPr>${cells}</w:tr>`
+// Висоти рядків ТОЧНІ (hRule=exact): Word додає до «мінімальної» висоти товщину ліній (~10 twips на рядок) і вміст росте, через що
+// 5-й поверх переносився на другу сторінку; з точною висотою Word і LibreOffice дають однакову сторінку.
+const tr = (cells, { height } = {}) => `<w:tr><w:trPr><w:cantSplit/>${height ? `<w:trHeight w:val="${height}" w:hRule="exact"/>` : ''}</w:trPr>${cells}</w:tr>`
 const tblPr = (width) =>
   `<w:tblPr><w:tblW w:w="${width}" w:type="dxa"/><w:tblBorders>` +
   ['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map((s) => `<w:${s} w:val="single" w:sz="4" w:space="0" w:color="000000"/>`).join('') +
