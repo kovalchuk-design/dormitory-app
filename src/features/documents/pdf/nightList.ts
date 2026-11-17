@@ -29,7 +29,7 @@ const BETWEEN = 3
 const GRAND_H = 15
 const KITCHEN_LABEL_H = 3 // тонкий проміжок над блоком (підпис «Чергові на кухні» тепер у шапці таблиці)
 const KITCHEN_HEAD_H = 12
-const KITCHEN_ROW_H = tw(250) // ФІКСОВАНА висота рядка для рукопису (як у шаблоні .docx); не підлаштовується під вільне місце на сторінці
+const KITCHEN_ROW_H = tw(240) // ФІКСОВАНА висота рядка для рукопису (як у шаблоні .docx); не підлаштовується під вільне місце на сторінці
 const KITCHEN_ROWS = 8
 const KITCHEN_H = KITCHEN_LABEL_H + KITCHEN_HEAD_H + KITCHEN_ROWS * KITCHEN_ROW_H
 

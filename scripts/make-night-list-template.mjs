@@ -26,7 +26,7 @@ const GAP = 284
 const COL_W = Math.floor((TEXT_W - GAP) / 2) // 5244
 const DAY_W = 405
 const NAME_W = COL_W - DAY_W * 7 // 2409
-const KITCHEN_ROW_H = Number(process.env.KITCHEN_ROW_H ?? 250) // висота рядка для запису від руки
+const KITCHEN_ROW_H = Number(process.env.KITCHEN_ROW_H ?? 240) // ФІКСОВАНА висота рядка для запису від руки (12 pt); запас сторінки найзаселенішого поверху ≈ 640 twips
 // Розмір шрифта прізвищ учнів (напівпункти: 19 = 9,5 pt; було 8 pt) і мінімальна висота рядка кімнати (twips).
 // Рядок ≈ 1,15 × кегль; підібрано так, щоб найбільший поверх (≈ 54 рядки в колонці) вміщався на одну сторінку A4 із запасом ≈ 245 twips (10 pt вже не вміщається без скорочення блоку кухні).
 const NAME_SZ = Number(process.env.NAME_SZ ?? 20)
@@ -52,7 +52,9 @@ function tc(width, paragraphs, { shd, vAlign = 'center', noBottom = false } = {}
   return `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/>${noBottom ? '<w:tcBorders><w:left w:val="nil"/><w:bottom w:val="nil"/></w:tcBorders>' : ''}${shd ? `<w:shd w:val="clear" w:color="auto" w:fill="${shd}"/>` : ''}<w:vAlign w:val="${vAlign}"/></w:tcPr>${paragraphs}</w:tc>`
 }
 
-const tr = (cells, { height, exact = false } = {}) =>
+// Висоти рядків ТОЧНІ за замовчуванням: Word додає до «мінімальної» висоти товщину ліній (~10 twips на рядок), і сторінка 5-го поверху
+// переповнювалась (останній рядок кухні переходив на другу сторінку); з точною висотою Word і LibreOffice дають однакову сторінку.
+const tr = (cells, { height, exact = true } = {}) =>
   `<w:tr><w:trPr><w:cantSplit/>${height ? `<w:trHeight w:val="${height}"${exact ? ' w:hRule="exact"' : ''}/>` : ''}</w:trPr>${cells}</w:tr>`
 
 const tblPr = (width) =>
