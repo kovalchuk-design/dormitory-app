@@ -15,6 +15,27 @@ function alignParagraphsInCells(container: HTMLElement) {
   }
 }
 
+/**
+ * Вертикальний текст у клітинці (w:textDirection, напр. номер кімнати боком). docx-preview ставить `writing-mode` і `transform: rotate(180deg)`
+ * на саму клітинку <td>; Safari не підтримує `writing-mode` на клітинках таблиці, тому залишається лише поворот на 180° —
+ * горизонтальний текст «догори дриґом». Переносимо вертикальний режим і поворот на внутрішній <div>, де це працює в усіх браузерах.
+ */
+function fixVerticalCells(container: HTMLElement) {
+  for (const td of container.querySelectorAll<HTMLElement>('section.docx td, section.docx th')) {
+    const style = td.getAttribute('style') ?? ''
+    if (!/writing-mode:\s*vertical/.test(style)) continue
+    const flip = /rotate\(180deg\)/.test(style)
+    td.style.removeProperty('writing-mode')
+    td.style.removeProperty('transform')
+    td.style.textAlign = 'center'
+    const box = document.createElement('div')
+    box.className = 'docx-vertical'
+    box.style.cssText = `display:inline-block;writing-mode:vertical-rl;${flip ? 'transform:rotate(180deg);' : ''}`
+    while (td.firstChild) box.appendChild(td.firstChild)
+    td.appendChild(box)
+  }
+}
+
 /** docx-preview ігнорує від’ємний відступ таблиці (w:tblInd), через що широка таблиця виходить за сторінку. Повертаємо його вручну. */
 async function applyTableIndents(source: Blob | ArrayBuffer, container: HTMLElement) {
   const buf = source instanceof Blob ? await source.arrayBuffer() : source
@@ -72,6 +93,7 @@ export function DocxViewer({ source, onError }: { source: Blob | ArrayBuffer; on
         })
         await applyTableIndents(source, bodyRef.current).catch(() => undefined)
         alignParagraphsInCells(bodyRef.current)
+        fixVerticalCells(bodyRef.current)
         if (!cancelled) {
           fit()
           setState('ready')
