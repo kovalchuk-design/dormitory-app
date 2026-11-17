@@ -20,14 +20,18 @@ const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд']
 const DAYS_FULL = ['Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П’ятниця', 'Субота', 'Неділя']
 const FONT = 'Times New Roman'
 const GRAY = 'E3E3E3'
-const PAGE = { w: 11906, h: 16838, top: 454, bottom: 454, left: 567, right: 567 }
+const PAGE = { w: 11906, h: 16838, top: Number(process.env.MARGIN_V ?? 454), bottom: Number(process.env.MARGIN_V ?? 454), left: 567, right: 567 }
 const TEXT_W = PAGE.w - PAGE.left - PAGE.right // 10772
 const GAP = 284
 const COL_W = Math.floor((TEXT_W - GAP) / 2) // 5244
 const DAY_W = 405
 const NAME_W = COL_W - DAY_W * 7 // 2409
-const KITCHEN_ROW_H = 255 // висота рядка для запису від руки
-const ROW_H = 210 // мінімальна висота рядка кімнати (twips)
+const KITCHEN_ROW_H = Number(process.env.KITCHEN_ROW_H ?? 255) // висота рядка для запису від руки
+// Розмір шрифта прізвищ учнів (напівпункти: 19 = 9,5 pt; було 8 pt) і мінімальна висота рядка кімнати (twips).
+// Рядок ≈ 1,15 × кегль; підібрано так, щоб найбільший поверх (≈ 54 рядки в колонці) вміщався на одну сторінку A4 із запасом ≈ 245 twips (10 pt вже не вміщається без скорочення блоку кухні).
+const NAME_SZ = Number(process.env.NAME_SZ ?? 19)
+const ROW_H = Number(process.env.ROW_H ?? 220)
+const ROOM_GAP = Number(process.env.ROOM_GAP ?? 40) // проміжок між кімнатами (twips)
 
 const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
@@ -64,7 +68,7 @@ const headRow = tr(
   { height: ROW_H },
 )
 const studentRow = tr(
-  tc(NAME_W, p('{{#students}}{{last_first}}', { keepNext: true })) +
+  tc(NAME_W, p('{{#students}}{{last_first}}', { sz: NAME_SZ, keepNext: true })) +
     DAYS.map((_, i) => tc(DAY_W, p(i === 6 ? '{{/students}}' : '', { keepNext: true }))).join(''),
   { height: ROW_H },
 )
@@ -73,7 +77,7 @@ const totalRow = tr(
   { height: ROW_H },
 )
 const roomTable = `<w:tbl>${tblPr(COL_W)}${grid}${headRow}${studentRow}${totalRow}</w:tbl>`
-const spacer = p('', { sz: 6, line: 70 })
+const spacer = p('', { sz: 6, line: ROOM_GAP })
 // Колонка сторінки: цикл по кімнатах (таблиця + проміжок). Кімната — окрема вкладена таблиця, тому не розривається.
 // Підсумок колонки: рядок «Разом» з клітинками на кожен день — вихователь вписує суму по кімнатах колонки.
 const SUM_GRAY = 'CFCFCF'
@@ -104,14 +108,14 @@ const totalTable = `<w:tbl>${tblPr(TEXT_W)}${totalGrid}${grandRow}</w:tbl>`
 
 // ---- блок «Чергові на кухні» на всю ширину: дві однакові половини (за шириною — як колонки кімнат),
 // у кожній «Кімн.» + «Прізвище, ім’я, по батькові» (довга колонка під почерк), по KITCHEN_ROWS рядків від руки.
-const KITCHEN_ROWS = 8
+const KITCHEN_ROWS = Number(process.env.KITCHEN_ROWS ?? 8)
 const KROOM_W = 600
 const KNAME_W = COL_W - KROOM_W
 const kitchenGrid = `<w:tblGrid><w:gridCol w:w="${KROOM_W}"/><w:gridCol w:w="${KNAME_W}"/><w:gridCol w:w="${GAP}"/><w:gridCol w:w="${KROOM_W}"/><w:gridCol w:w="${KNAME_W}"/></w:tblGrid>`
 const gapCell = `<w:tc><w:tcPr><w:tcW w:w="${GAP}" w:type="dxa"/><w:tcBorders>${['top', 'left', 'bottom', 'right'].map((x) => `<w:${x} w:val="nil"/>`).join('')}</w:tcBorders><w:vAlign w:val="center"/></w:tcPr>${p('', { sz: 14 })}</w:tc>`
-const kHead = (text) => tc(KROOM_W, p('Кімн.', { sz: 14, bold: true, jc: 'center' }), { shd: GRAY }) + tc(KNAME_W, p(text, { sz: 14, bold: true, jc: 'center' }), { shd: GRAY })
+const kHead = (text) => tc(KROOM_W, p('Кімн.', { sz: 14, bold: true, jc: 'center' }), { shd: GRAY }) + tc(KNAME_W, p(text, { sz: 16, bold: true, jc: 'center' }), { shd: GRAY })
 const kCells = () => tc(KROOM_W, p('', { sz: 14 })) + tc(KNAME_W, p('', { sz: 14 }))
-const kitchenHead = tr(kHead('Прізвище, ім’я, по батькові') + gapCell + kHead('Прізвище, ім’я, по батькові'), { height: 220 })
+const kitchenHead = tr(kHead('Чергові на кухні') + gapCell + kHead('Чергові на кухні'), { height: 240 })
 const kitchenRow = tr(kCells() + gapCell + kCells(), { height: KITCHEN_ROW_H })
 const kitchenTable = `<w:tbl>${tblPr(TEXT_W)}${kitchenGrid}${kitchenHead}${Array.from({ length: KITCHEN_ROWS }, () => kitchenRow).join('')}</w:tbl>`
 
@@ -135,9 +139,9 @@ const body =
   columnsTable +
   p('', { sz: 2, line: 60 }) +
   totalTable +
-  p('Чергові на кухні', { sz: 16, bold: true, before: 60, after: 30, border: true, keepNext: true }) +
+  p('', { sz: 2, line: 60 }) +
   kitchenTable +
-  p('', { sz: 2, line: 20 }) +
+  p('', { sz: 2, line: Number(process.env.EXTRA ?? 20) }) + // EXTRA — лише для заміру запасу висоти
   p('{{/floors}}', { sz: 2, line: 20 }) +
   sect(1)
 

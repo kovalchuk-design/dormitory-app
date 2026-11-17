@@ -14,8 +14,9 @@ const COL_W = (TEXT_W - GAP) / 2
 const DAY_W = tw(405)
 const NAME_W = COL_W - DAY_W * 7
 const FS = 8
-const BASE_ROW = tw(210)
-const ROOM_GAP = tw(70)
+const NAME_FS = 9.5 // прізвища учнів (як у шаблоні .docx: NAME_SZ = 19 напівпунктів)
+const BASE_ROW = tw(220)
+const ROOM_GAP = tw(40)
 const SUM_AFTER = 1 // службовий проміжок під підсумком колонки
 const GRAY = rgb(0.89, 0.89, 0.89)
 const DARK_GRAY = rgb(0.81, 0.81, 0.81)
@@ -27,8 +28,8 @@ const TITLE_SIZE = 12
 const TITLE_BLOCK = TITLE_SIZE * 1.15 + 3
 const BETWEEN = 3
 const GRAND_H = 15
-const KITCHEN_LABEL_H = 3 + FS * 1.15 + 5.5
-const KITCHEN_HEAD_H = 11
+const KITCHEN_LABEL_H = 3 // тонкий проміжок над блоком (підпис «Чергові на кухні» тепер у шапці таблиці)
+const KITCHEN_HEAD_H = 12
 const KITCHEN_ROW_H = tw(255)
 const KITCHEN_ROWS = 8
 const KITCHEN_H = KITCHEN_LABEL_H + KITCHEN_HEAD_H + KITCHEN_ROWS * KITCHEN_ROW_H
@@ -67,9 +68,9 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
     const tx = o.center && o.w != null ? x + (o.w - width) / 2 : x + 2
     page.drawText(s, { x: tx, y: yTop - h / 2 - size * 0.33, size, font, color: BLACK })
   }
-  const row = (x: number, yTop: number, h: number, nameText: string, o: { fill?: ReturnType<typeof rgb>; boldName?: boolean; days?: boolean } = {}) => {
+  const row = (x: number, yTop: number, h: number, nameText: string, o: { fill?: ReturnType<typeof rgb>; boldName?: boolean; days?: boolean; nameSize?: number } = {}) => {
     rect(x, yTop, NAME_W, h, o.fill)
-    text(nameText, x, yTop, h, FS, { bold: o.boldName })
+    text(nameText, x, yTop, h, o.nameSize ?? FS, { bold: o.boldName })
     DAYS.forEach((d, i) => {
       const dx = x + NAME_W + i * DAY_W
       rect(dx, yTop, DAY_W, h, o.fill)
@@ -90,7 +91,7 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
       row(x0, y, rowH, `Кімната ${r.room}`, { boldName: true, days: true })
       y -= rowH
       for (const s of r.students) {
-        row(x0, y, rowH, s.last_first)
+        row(x0, y, rowH, s.last_first, { nameSize: NAME_FS })
         y -= rowH
       }
       row(x0, y, rowH, '', { fill: GRAY })
@@ -121,8 +122,6 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
   y -= GRAND_H
 
   // «Чергові на кухні»
-  page.drawLine({ start: { x: M.left, y: y - 3 }, end: { x: M.left + TEXT_W, y: y - 3 }, thickness: 0.75, color: rgb(0.5, 0.5, 0.5) })
-  page.drawText('Чергові на кухні', { x: M.left, y: y - 3 - 4 - FS * 0.9, size: FS, font: bold, color: BLACK })
   y -= KITCHEN_LABEL_H
   const KROOM = 30
   const KNAME = COL_W - KROOM
@@ -130,7 +129,7 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
     rect(x0, y, KROOM, KITCHEN_HEAD_H, GRAY)
     text('Кімн.', x0, y, KITCHEN_HEAD_H, 7, { bold: true, center: true, w: KROOM })
     rect(x0 + KROOM, y, KNAME, KITCHEN_HEAD_H, GRAY)
-    text('Прізвище, ім’я, по батькові', x0 + KROOM, y, KITCHEN_HEAD_H, 7, { bold: true, center: true, w: KNAME })
+    text('Чергові на кухні', x0 + KROOM, y, KITCHEN_HEAD_H, 8, { bold: true, center: true, w: KNAME })
     for (let i = 0; i < KITCHEN_ROWS; i++) {
       const ry = y - KITCHEN_HEAD_H - i * KITCHEN_ROW_H
       rect(x0, ry, KROOM, KITCHEN_ROW_H)
