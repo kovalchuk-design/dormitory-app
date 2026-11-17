@@ -27,12 +27,17 @@ function fixVerticalCells(container: HTMLElement) {
     const flip = /rotate\(180deg\)/.test(style)
     td.style.removeProperty('writing-mode')
     td.style.removeProperty('transform')
-    td.style.textAlign = 'center'
+    // Вміст виносимо в абсолютний шар на всю клітинку й центруємо по обох осях (flex): висоту рядків це не змінює,
+    // а текст стоїть точно по центру клітинки (в inline-block він зсувався вгору через базову лінію рядка).
+    td.style.position = 'relative'
+    const holder = document.createElement('div')
+    holder.style.cssText = 'position:absolute;top:0;right:0;bottom:0;left:0;display:flex;align-items:center;justify-content:center;overflow:hidden;'
     const box = document.createElement('div')
     box.className = 'docx-vertical'
-    box.style.cssText = `display:inline-block;writing-mode:vertical-rl;${flip ? 'transform:rotate(180deg);' : ''}`
+    box.style.cssText = `writing-mode:vertical-rl;white-space:nowrap;${flip ? 'transform:rotate(180deg);' : ''}`
     while (td.firstChild) box.appendChild(td.firstChild)
-    td.appendChild(box)
+    holder.appendChild(box)
+    td.appendChild(holder)
   }
 }
 
