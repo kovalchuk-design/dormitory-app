@@ -70,9 +70,8 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
   const line = (x1: number, y1: number, x2: number, y2: number) => page.drawLine({ start: { x: x1, y: y1 }, end: { x: x2, y: y2 }, thickness: LINE, color: BLACK })
   const row = (x: number, yTop: number, h: number, nameText: string, o: { fill?: ReturnType<typeof rgb>; nameFill?: ReturnType<typeof rgb> | null; noBottom?: boolean; boldName?: boolean; days?: boolean; nameSize?: number } = {}) => {
     if (o.noBottom) {
-      // клітинка з прізвищами без нижньої лінії: лише верх, ліво, право
+      // порожня клітинка під прізвищами без нижньої й лівої ліній: лишаються верх і право (межа з клітинкою днів)
       line(x, yTop, x + NAME_W, yTop)
-      line(x, yTop, x, yTop - h)
       line(x + NAME_W, yTop, x + NAME_W, yTop - h)
     } else rect(x, yTop, NAME_W, h, o.nameFill === undefined ? o.fill : (o.nameFill ?? undefined))
     text(nameText, x, yTop, h, o.nameSize ?? FS, { bold: o.boldName })
