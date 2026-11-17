@@ -67,8 +67,8 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
     const tx = o.center && o.w != null ? x + (o.w - width) / 2 : x + 2
     page.drawText(s, { x: tx, y: yTop - h / 2 - size * 0.33, size, font, color: BLACK })
   }
-  const row = (x: number, yTop: number, h: number, nameText: string, o: { fill?: ReturnType<typeof rgb>; boldName?: boolean; days?: boolean; nameSize?: number } = {}) => {
-    rect(x, yTop, NAME_W, h, o.fill)
+  const row = (x: number, yTop: number, h: number, nameText: string, o: { fill?: ReturnType<typeof rgb>; nameFill?: ReturnType<typeof rgb> | null; boldName?: boolean; days?: boolean; nameSize?: number } = {}) => {
+    rect(x, yTop, NAME_W, h, o.nameFill === undefined ? o.fill : (o.nameFill ?? undefined))
     text(nameText, x, yTop, h, o.nameSize ?? FS, { bold: o.boldName })
     DAYS.forEach((d, i) => {
       const dx = x + NAME_W + i * DAY_W
@@ -83,13 +83,13 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
   const drawColumn = (x0: number, rooms: PdfRoom[]): number => {
     let y = colTop
     for (const r of rooms) {
-      row(x0, y, rowH, `Кімната ${r.room}`, { boldName: true, days: true })
+      row(x0, y, rowH, `Кімната ${r.room}`, { boldName: true, days: true, nameFill: GRAY }) // сірим залита лише клітинка з номером кімнати
       y -= rowH
       for (const s of r.students) {
         row(x0, y, rowH, s.last_first, { nameSize: NAME_FS })
         y -= rowH
       }
-      row(x0, y, rowH, '', { fill: GRAY })
+      row(x0, y, rowH, '', { fill: GRAY, nameFill: null }) // підсумковий рядок: заливка лише в клітинках днів
       y -= rowH + ROOM_GAP
     }
     // підсумок колонки

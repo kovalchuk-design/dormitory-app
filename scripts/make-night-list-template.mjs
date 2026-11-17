@@ -63,7 +63,7 @@ const tblPr = (width) =>
 // ---- таблиця кімнати: заголовок (№ кімнати + дні) / рядки учнів / сірий підсумковий рядок
 const grid = `<w:tblGrid><w:gridCol w:w="${NAME_W}"/>${DAYS.map(() => `<w:gridCol w:w="${DAY_W}"/>`).join('')}</w:tblGrid>`
 const headRow = tr(
-  tc(NAME_W, p('Кімната {{room}}', { bold: true, keepNext: true })) +
+  tc(NAME_W, p('Кімната {{room}}', { bold: true, keepNext: true }), { shd: GRAY }) + // клітинка з номером кімнати залита сірим
     DAYS.map((d) => tc(DAY_W, p(d, { bold: true, jc: 'center', keepNext: true }))).join(''),
   { height: ROW_H },
 )
@@ -73,7 +73,7 @@ const studentRow = tr(
   { height: ROW_H },
 )
 const totalRow = tr(
-  tc(NAME_W, p(''), { shd: GRAY }) + DAYS.map(() => tc(DAY_W, p(''), { shd: GRAY })).join(''),
+  tc(NAME_W, p('')) + DAYS.map(() => tc(DAY_W, p(''), { shd: GRAY })).join(''), // підсумковий рядок: заливка лише в клітинках днів
   { height: ROW_H },
 )
 const roomTable = `<w:tbl>${tblPr(COL_W)}${grid}${headRow}${studentRow}${totalRow}</w:tbl>`
