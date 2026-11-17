@@ -6,7 +6,7 @@ export interface PdfFonts {
 }
 
 /** Які шаблони вміють PDF (за службовими полями шаблону). */
-export type PdfKind = 'night' | 'floorList'
+export type PdfKind = 'night' | 'nightLarge' | 'floorList'
 
 export interface PdfRoom {
   room: string

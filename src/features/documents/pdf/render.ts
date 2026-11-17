@@ -1,6 +1,7 @@
 import { PDFDocument } from 'pdf-lib'
 import fontkit from '@pdf-lib/fontkit'
 import { renderNightList } from './nightList'
+import { renderNightListLarge } from './nightListLarge'
 import { renderFloorList } from './floorList'
 import type { PdfFloor, PdfFonts, PdfKind } from './types'
 import { A4 } from './layout'
@@ -19,6 +20,7 @@ export async function renderPdf(kind: PdfKind, data: Record<string, unknown>, fo
     bold: await doc.embedFont(fontBytes.bold, { subset: true }),
   }
   if (kind === 'night') await renderNightList((data.floors as PdfFloor[]) ?? [], fonts, doc)
+  else if (kind === 'nightLarge') await renderNightListLarge((data.floors as PdfFloor[]) ?? [], fonts, doc)
   else await renderFloorList((data.students as Record<string, string>[]) ?? [], fonts, doc)
   if (doc.getPageCount() === 0) doc.addPage([A4.w, A4.h])
   return doc.save()

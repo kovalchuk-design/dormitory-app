@@ -23,6 +23,10 @@ export const GLOBAL_PLACEHOLDERS: PlaceholderDoc[] = [
   { key: 'floors', description: 'Поверхи (кожен — окрема сторінка): {{#floors}}…{{/floors}}; усередині: {{floor}}, {{count}}, {{roomsLeft}}, {{roomsRight}}', example: '' },
   { key: 'roomsLeft', description: 'Кімнати лівої колонки сторінки (для макета в 2 колонки): {{#roomsLeft}}…{{/roomsLeft}}', example: '' },
   { key: 'roomsRight', description: 'Кімнати правої колонки (продовження): {{#roomsRight}}…{{/roomsRight}}', example: '' },
+  { key: 'n1', description: 'Макет «збільшений»: прізвище й ім’я першого учня кімнати (у циклі кімнат)', example: 'Шевченко Тарас' },
+  { key: 'n2', description: 'Макет «збільшений»: другого учня кімнати (порожньо, якщо учень один)', example: 'Коваль Іван' },
+  { key: 'hasN2', description: 'Макет «збільшений»: умова {{#hasN2}}…{{/hasN2}} — у кімнаті більше одного учня', example: '' },
+  { key: 'rest', description: 'Макет «збільшений»: решта учнів кімнати (з третього) — цикл {{#rest}}…{{/rest}}', example: '' },
   { key: 'students', description: 'Список усіх вибраних учнів — для циклу {{#students}}…{{/students}}', example: '' },
 ]
 
@@ -154,15 +158,32 @@ const common = (vals: (string | number | null | undefined)[]): string => {
   return set.size === 1 ? [...set][0] : ''
 }
 
+export interface RoomGroupRow {
+  room: string
+  count: string
+  students: Record<string, unknown>[]
+  /** Для макета «збільшений»: перші двоє учнів кімнати окремо (під клітинку з номером на два рядки), решта — списком `rest`. */
+  n1: string
+  n2: string
+  hasN2: boolean
+  rest: Record<string, unknown>[]
+}
+
 /** Групує вже впорядкований список учнів за кімнатами (для шаблонів «кімната — список учнів»). */
-export function groupByRoom(rows: Record<string, unknown>[]): { room: string; count: string; students: Record<string, unknown>[] }[] {
-  const out: { room: string; count: string; students: Record<string, unknown>[] }[] = []
+export function groupByRoom(rows: Record<string, unknown>[]): RoomGroupRow[] {
+  const out: RoomGroupRow[] = []
   for (const r of rows) {
     const room = String(r.room ?? '')
     let g = out.find((x) => x.room === room)
-    if (!g) out.push((g = { room, count: '0', students: [] }))
+    if (!g) out.push((g = { room, count: '0', students: [], n1: '', n2: '', hasN2: false, rest: [] }))
     g.students.push({ ...r, index: String(g.students.length + 1) })
     g.count = String(g.students.length)
+  }
+  for (const g of out) {
+    g.n1 = String(g.students[0]?.last_first ?? '')
+    g.n2 = String(g.students[1]?.last_first ?? '')
+    g.hasN2 = g.students.length > 1
+    g.rest = g.students.slice(2)
   }
   return out
 }

@@ -30,6 +30,7 @@ const pages = async (bytes: Uint8Array) => (await PDFDocument.load(bytes)).getPa
 describe('PDF: визначення типу за полями шаблону', () => {
   it('розпізнає шаблони, що мають PDF-вигляд', () => {
     expect(detectPdfKind(['floors', 'first', 'floor', 'roomsLeft', 'roomsRight', 'room', 'students', 'last_first'])).toBe('night')
+    expect(detectPdfKind(['floors', 'first', 'floor', 'roomsLeft', 'roomsRight', 'room', 'n1', 'n2', 'hasN2', 'rest', 'last_first'])).toBe('nightLarge')
     expect(detectPdfKind(['index', 'full_name', 'curators', 'students'])).toBe('floorList')
     expect(detectPdfKind(['full_name'])).toBeNull()
   })
@@ -64,5 +65,13 @@ describe('wrapText: без переносів слів', () => {
   })
   it('надто довге слово ріжеться посимвольно', () => {
     expect(wrapText('ААААААААААААА', font, 10, 30).length).toBeGreaterThan(1)
+  })
+})
+
+describe('PDF: «Список на ніч (збільшений)» — один поверх = одна сторінка', () => {
+  it('найбільший поверх (16 кімнат) вміщається на одну сторінку, кімната з одним учнем теж', async () => {
+    const data = fake({ 3: [5, 5, 4, 5, 4, 5, 5, 5], 5: [5, 4, 5, 3, 4, 5, 6, 5, 6, 4, 5, 5, 5, 5, 3, 1] })
+    const bytes = await renderPdf('nightLarge', data, fonts)
+    expect(await pages(bytes)).toBe(2)
   })
 })

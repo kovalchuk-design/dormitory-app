@@ -143,6 +143,16 @@ describe('groupByRoom (шаблон «на ніч»)', () => {
     expect(g.map((x) => [x.room, x.count])).toEqual([['500', '2'], ['502', '1']])
     expect(g[0].students.map((s) => s.index)).toEqual(['1', '2'])
   })
+
+  it('макет «збільшений»: перші двоє учнів окремо, решта — списком', async () => {
+    const { groupByRoom } = await import('./templating')
+    const g = groupByRoom([
+      { room: '500', last_first: 'А' }, { room: '500', last_first: 'Б' }, { room: '500', last_first: 'В' }, { room: '500', last_first: 'Г' },
+      { room: '502', last_first: 'Д' },
+    ])
+    expect([g[0].n1, g[0].n2, g[0].hasN2, g[0].rest.map((x) => x.last_first)]).toEqual(['А', 'Б', true, ['В', 'Г']])
+    expect([g[1].n1, g[1].n2, g[1].hasN2, g[1].rest]).toEqual(['Д', '', false, []])
+  })
 })
 
 describe('splitRooms (2 колонки)', () => {
