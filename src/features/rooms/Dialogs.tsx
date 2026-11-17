@@ -6,7 +6,7 @@ import {
 } from './logic'
 import { useEffect } from 'react'
 import { fetchHistory, type HistoryStay } from './api'
-import { describeError } from './logic'
+import { compareRooms, describeError } from './logic'
 import { Select } from '../../components/ui/Select'
 
 // ------------------------------------------------------------------ підтвердження
@@ -69,7 +69,7 @@ export function PickRoomDialog(props: {
           {props.fromRoomId !== null && <option value="pool">Нерозподілені</option>}
           {FLOORS.map((f) => (
             <optgroup key={f} label={`${f} поверх`}>
-              {props.rooms.filter((r) => r.floor === f).map((r) => {
+              {props.rooms.filter((r) => r.floor === f).sort(compareRooms).map((r) => {
                 const st = roomState(r)
                 const unavailable = r.id === props.fromRoomId || st !== 'free'
                 return (
