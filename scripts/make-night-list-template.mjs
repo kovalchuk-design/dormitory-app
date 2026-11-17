@@ -26,7 +26,7 @@ const GAP = 284
 const COL_W = Math.floor((TEXT_W - GAP) / 2) // 5244
 const DAY_W = 405
 const NAME_W = COL_W - DAY_W * 7 // 2409
-const KITCHEN_ROW_H = Number(process.env.KITCHEN_ROW_H ?? 240) // висота рядка для запису від руки
+const KITCHEN_ROW_H = Number(process.env.KITCHEN_ROW_H ?? 250) // висота рядка для запису від руки
 // Розмір шрифта прізвищ учнів (напівпункти: 19 = 9,5 pt; було 8 pt) і мінімальна висота рядка кімнати (twips).
 // Рядок ≈ 1,15 × кегль; підібрано так, щоб найбільший поверх (≈ 54 рядки в колонці) вміщався на одну сторінку A4 із запасом ≈ 245 twips (10 pt вже не вміщається без скорочення блоку кухні).
 const NAME_SZ = Number(process.env.NAME_SZ ?? 20)
@@ -95,7 +95,7 @@ const columnsTable =
   `<w:tr>${outerCell(COL_W, loop('roomsLeft'))}${outerCell(GAP, p(''))}${outerCell(COL_W, loop('roomsRight'))}</w:tr></w:tbl>`
 
 // ---- «Усього за добу»: сума обох колонок по кожному дню (записує вихователь)
-const TOT_LABEL_W = 2500
+const TOT_LABEL_W = NAME_W // ліва межа «Пн» збігається з вертикальною лінією колонки днів у таблицях кімнат вище
 const TOT_DAY_W = Math.floor((TEXT_W - TOT_LABEL_W) / 7)
 const TOT_DAYNAME_W = 380
 const totalGrid = `<w:tblGrid><w:gridCol w:w="${TOT_LABEL_W}"/>${DAYS.map(() => `<w:gridCol w:w="${TOT_DAYNAME_W}"/><w:gridCol w:w="${TOT_DAY_W - TOT_DAYNAME_W}"/>`).join('')}</w:tblGrid>`

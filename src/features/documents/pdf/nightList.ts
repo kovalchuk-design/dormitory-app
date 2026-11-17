@@ -29,7 +29,8 @@ const BETWEEN = 3
 const GRAND_H = 15
 const KITCHEN_LABEL_H = 3 // тонкий проміжок над блоком (підпис «Чергові на кухні» тепер у шапці таблиці)
 const KITCHEN_HEAD_H = 12
-const KITCHEN_ROW_H = tw(240)
+const KITCHEN_ROW_H = tw(250) // мінімум; фактична висота підлаштовується під вільне місце на сторінці (див. drawFloorPage)
+const KITCHEN_ROW_MAX = 30 // pt: не вище, щоб рядки не виглядали недоречно великими
 const KITCHEN_ROWS = 8
 const KITCHEN_H = KITCHEN_LABEL_H + KITCHEN_HEAD_H + KITCHEN_ROWS * KITCHEN_ROW_H
 
@@ -108,7 +109,7 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
   let y = Math.min(yLeft, yRight) - BETWEEN
 
   // «Усього за добу»
-  const LABEL_W = tw(2500)
+  const LABEL_W = NAME_W // ліва межа «Пн» — на лінії колонки днів у таблицях кімнат
   const DAYBLOCK = (TEXT_W - LABEL_W) / 7
   const DAYNAME_W = tw(380)
   rect(M.left, y, LABEL_W, GRAND_H, DARK_GRAY)
@@ -123,6 +124,9 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
 
   // «Чергові на кухні»
   y -= KITCHEN_LABEL_H
+  // рядки для рукопису розтягуються на все вільне місце сторінки (менш заселений поверх — вищі рядки), у межах [KITCHEN_ROW_H; KITCHEN_ROW_MAX]
+  const freeForRows = y - M.bottom - KITCHEN_HEAD_H - 1
+  const kitchenRowH = Math.min(KITCHEN_ROW_MAX, Math.max(KITCHEN_ROW_H, freeForRows / KITCHEN_ROWS))
   const KROOM = 30
   const KNAME = COL_W - KROOM
   for (const x0 of [M.left, M.left + COL_W + GAP]) {
@@ -131,9 +135,9 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
     rect(x0 + KROOM, y, KNAME, KITCHEN_HEAD_H, GRAY)
     text('Чергові на кухні', x0 + KROOM, y, KITCHEN_HEAD_H, 8, { bold: true, center: true, w: KNAME })
     for (let i = 0; i < KITCHEN_ROWS; i++) {
-      const ry = y - KITCHEN_HEAD_H - i * KITCHEN_ROW_H
-      rect(x0, ry, KROOM, KITCHEN_ROW_H)
-      rect(x0 + KROOM, ry, KNAME, KITCHEN_ROW_H)
+      const ry = y - KITCHEN_HEAD_H - i * kitchenRowH
+      rect(x0, ry, KROOM, kitchenRowH)
+      rect(x0 + KROOM, ry, KNAME, kitchenRowH)
     }
   }
 }
