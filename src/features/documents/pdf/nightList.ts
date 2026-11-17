@@ -29,8 +29,7 @@ const BETWEEN = 3
 const GRAND_H = 15
 const KITCHEN_LABEL_H = 3 // тонкий проміжок над блоком (підпис «Чергові на кухні» тепер у шапці таблиці)
 const KITCHEN_HEAD_H = 12
-const KITCHEN_ROW_H = tw(250) // мінімум; фактична висота підлаштовується під вільне місце на сторінці (див. drawFloorPage)
-const KITCHEN_ROW_MAX = 30 // pt: не вище, щоб рядки не виглядали недоречно великими
+const KITCHEN_ROW_H = tw(250) // ФІКСОВАНА висота рядка для рукопису (як у шаблоні .docx); не підлаштовується під вільне місце на сторінці
 const KITCHEN_ROWS = 8
 const KITCHEN_H = KITCHEN_LABEL_H + KITCHEN_HEAD_H + KITCHEN_ROWS * KITCHEN_ROW_H
 
@@ -124,9 +123,7 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, fonts: PdfFonts) {
 
   // «Чергові на кухні»
   y -= KITCHEN_LABEL_H
-  // рядки для рукопису розтягуються на все вільне місце сторінки (менш заселений поверх — вищі рядки), у межах [KITCHEN_ROW_H; KITCHEN_ROW_MAX]
-  const freeForRows = y - M.bottom - KITCHEN_HEAD_H - 1
-  const kitchenRowH = Math.min(KITCHEN_ROW_MAX, Math.max(KITCHEN_ROW_H, freeForRows / KITCHEN_ROWS))
+  const kitchenRowH = KITCHEN_ROW_H
   const KROOM = 30
   const KNAME = COL_W - KROOM
   for (const x0 of [M.left, M.left + COL_W + GAP]) {

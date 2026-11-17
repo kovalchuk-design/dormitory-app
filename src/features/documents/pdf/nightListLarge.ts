@@ -26,8 +26,7 @@ const BLACK = rgb(0, 0, 0)
 const LINE = 0.5
 const GRAND_H = 15
 const KITCHEN_HEAD_H = 12
-const KITCHEN_ROW_H = tw(250) // мінімум для рукопису (як у шаблоні .docx)
-const KITCHEN_ROW_MAX = 30
+const KITCHEN_ROW_H = tw(320) // ФІКСОВАНА висота рядка для рукопису (як у шаблоні .docx): визначена за найзаселенішим (5-м) поверхом і та сама на всіх поверхах
 const KITCHEN_ROWS = 8
 const BETWEEN = 3
 
@@ -116,8 +115,8 @@ function drawFloorPage(page: PDFPage, floor: PdfFloor, { regular, bold }: Pick<P
   })
   y -= GRAND_H + 3
 
-  // «Чергові на кухні»: рядки розтягуються на все вільне місце сторінки (у межах [мінімум; KITCHEN_ROW_MAX])
-  const kitchenRowH = Math.min(KITCHEN_ROW_MAX, Math.max(KITCHEN_ROW_H, (y - M.bottom - KITCHEN_HEAD_H - 1) / KITCHEN_ROWS))
+  // «Чергові на кухні»: фіксована висота рядків (не підлаштовується під вільне місце сторінки)
+  const kitchenRowH = KITCHEN_ROW_H
   const KROOM = 30
   const KNAME = COL_W - KROOM
   for (const x0 of [M.left, M.left + COL_W + GAP]) {

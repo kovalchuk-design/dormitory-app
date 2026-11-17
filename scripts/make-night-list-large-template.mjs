@@ -30,7 +30,7 @@ const NAME_W = COL_W - ROOM_W - DAY_W * 7 // 2454
 const NAME_SZ = Number(process.env.NAME_SZ ?? 22) // напівпункти: 22 = 11 pt (у «Списку на ніч» — 10 pt)
 const ROW_H = Number(process.env.ROW_H ?? 258) // висота рядка, twips (рядок Times 11 pt ≈ 253 twips + запас)
 const ROOM_GAP = Number(process.env.ROOM_GAP ?? 30)
-const KITCHEN_ROW_H = Number(process.env.KITCHEN_ROW_H ?? 250) // висота рядка для запису від руки
+const KITCHEN_ROW_H = Number(process.env.KITCHEN_ROW_H ?? 320) // ФІКСОВАНА висота рядка для запису від руки: максимум, що лишає найзаселеніший (5-й) поверх із запасом ≈ 255 twips; та сама на всіх поверхах
 const KITCHEN_ROWS = Number(process.env.KITCHEN_ROWS ?? 8)
 
 const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
