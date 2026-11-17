@@ -10,7 +10,7 @@ import './round.css'
 
 const word = (n: number) => (n % 10 === 1 && n % 100 !== 11 ? 'учень' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'учні' : 'учнів')
 
-/** «Звіт»: простий список поверхів → кімнат → учнів, які залишаються на ніч, чергові на кухні й суми. Оновлюється в реальному часі. */
+/** «Звіт»: повний список поверхів → кімнат → усіх учнів за поселенням (відсутніх на ніч показано блідим шрифтом), чергові на кухні й суми. Оновлюється в реальному часі. */
 export function RoundReport() {
   const round = useRound()
   const { data, loading, error } = useRoomsBoard()
@@ -27,12 +27,12 @@ export function RoundReport() {
     const roomById = new Map(data.rooms.map((r) => [r.id, r]))
     const floors = FLOORS.map((f) => {
       const rooms = data.rooms.filter((r) => r.floor === f).sort(compareRooms).map((room) => {
-        const pupils = data.placed.filter((p) => p.roomId === room.id && roster.has(p.pupil.id)).map((p) => p.pupil).sort(comparePupils)
-        return { room, pupils }
+        const pupils = data.placed.filter((p) => p.roomId === room.id).map((p) => p.pupil).sort(comparePupils)
+        return { room, pupils, present: pupils.filter((p) => roster.has(p.id)).length }
       }).filter((r) => r.pupils.length > 0)
       const duty = [...roster.values()].filter((r) => r.isDuty).map((r) => pupilById.get(r.studentId)).filter((x): x is { pupil: Pupil; roomId: string } => !!x && roomById.get(x.roomId)?.floor === f)
         .map((x) => ({ pupil: x.pupil, room: roomById.get(x.roomId)?.number ?? '' })).sort((a, b) => a.room.localeCompare(b.room, 'uk', { numeric: true }) || comparePupils(a.pupil, b.pupil))
-      return { floor: f, rooms, duty, count: rooms.reduce((n, r) => n + r.pupils.length, 0) }
+      return { floor: f, rooms, duty, count: rooms.reduce((n, r) => n + r.present, 0) }
     })
     return { floors, total: floors.reduce((n, f) => n + f.count, 0) }
   }, [data, round?.roster])
@@ -43,7 +43,7 @@ export function RoundReport() {
   const matches = (p: Pupil, room: string) => { const hay = `${p.lastName} ${p.firstName} ${room}`.toLowerCase(); return tokens.every((t) => hay.includes(t)) }
   const shownFloors = !model ? [] : model.floors.map((f) => ({
     ...f,
-    rooms: searching ? f.rooms.map((r) => ({ room: r.room, pupils: r.pupils.filter((p) => matches(p, r.room.number)) })).filter((r) => r.pupils.length > 0) : f.rooms,
+    rooms: searching ? f.rooms.map((r) => ({ room: r.room, present: r.present, pupils: r.pupils.filter((p) => matches(p, r.room.number)) })).filter((r) => r.pupils.length > 0) : f.rooms,
   })).filter((f) => !searching || f.rooms.length > 0)
 
   if (!round || loading || round.loading) return <p className="muted">Завантаження…</p>
@@ -62,7 +62,7 @@ export function RoundReport() {
           <h2>{f.floor} поверх <span className={`rm-badge rd-count${f.count > 0 ? ' free' : ''}`}>{f.count} {word(f.count)}</span></h2>
           {f.rooms.map(({ room, pupils }) => (
             <div key={room.id} className="rd-room">
-              <ul>{pupils.map((p) => <li key={p.id}><button type="button" className="rd-name" onClick={() => setContact({ pupil: p, room: room.number })}>{pupilName(p)}</button></li>)}</ul>
+              <ul>{pupils.map((p) => <li key={p.id} className={round.roster.has(p.id) ? undefined : 'away'}><button type="button" className="rd-name" onClick={() => setContact({ pupil: p, room: room.number })}>{pupilName(p)}</button></li>)}</ul>
               <span className="rd-room-tag" aria-label={`Кімната ${room.number}`}>{room.number}</span>
             </div>
           ))}
