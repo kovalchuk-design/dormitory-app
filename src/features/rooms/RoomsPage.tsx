@@ -89,6 +89,12 @@ export function RoomsPage() {
   const [busy, setBusy] = useState(false)
   const [dialogError, setDialogError] = useState<string | null>(null)
   const [notice, setNotice] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null)
+  // сповіщення саме зникає: підтвердження — за 4 с, помилка — за 10 с (щоб встигнути прочитати)
+  useEffect(() => {
+    if (!notice) return
+    const t = window.setTimeout(() => setNotice(null), notice.kind === 'ok' ? 4000 : 10000)
+    return () => window.clearTimeout(t)
+  }, [notice])
 
   const { drag, begin } = usePointerDrag({
     onStart: () => setNotice(null),
